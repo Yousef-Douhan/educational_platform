@@ -1,0 +1,17 @@
+/* خاص بوحدة user-profiles */
+#userProfilesApp .user-cell .avatar {
+    box-shadow: 0 0 0 2px var(--surface), 0 0 0 3px var(--border);
+}
+
+#userProfilesApp .badge--info i {
+    font-size: .7rem;
+}
+
+#userProfilesApp .upload-preview.has-image {
+    border-style: solid;
+    border-color: var(--primary);
+}
+
+#userProfilesApp [data-show="social_links"] {
+    overflow-wrap: anywhere;
+}

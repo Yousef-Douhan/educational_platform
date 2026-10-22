@@ -17,7 +17,7 @@
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
-        @stack('styles')
+    @stack('styles')
 
 </head>
 
@@ -46,6 +46,11 @@
                     class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-200 transition hover:bg-slate-800 hover:text-white {{ request()->routeIs('cms.admin.users.*') ? 'bg-slate-800 text-white' : '' }}">
                     <i class="fa-solid fa-users w-5 text-sky-400"></i>
                     {{ __('users.title') }}
+                </a>
+                <a href="{{ route('cms.admin.user-profiles.index') }}"
+                    class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-200 transition hover:bg-slate-800 hover:text-white {{ request()->routeIs('cms.admin.user-profiles.*') ? 'bg-slate-800 text-white' : '' }}">
+                    <i class="fa-solid fa-id-card w-5 text-sky-400"></i>
+                    {{ __('user-profiles.title') }}
                 </a>
 
             </nav>
