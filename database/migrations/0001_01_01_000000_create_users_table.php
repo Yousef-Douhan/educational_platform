@@ -12,15 +12,18 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('users', function (Blueprint $table) {
-            $table->id(); // المعرف الأساسي للمستخدم
-            $table->string('name'); // اسم المستخدم
-            $table->string('email')->unique(); // البريد الإلكتروني الفريد
-            $table->timestamp('email_verified_at')->nullable(); // تاريخ تفعيل البريد
-            $table->string('password'); // كلمة المرور
-            $table->enum('status', ['active', 'spended', 'pending'])->default('active'); // حالة المستخدم
-            $table->rememberToken(); // رمز تذكر الجلسة
-            $table->timestamps(); // تاريخ الإنشاء والتحديث
-            $table->softDeletes(); // الحذف الناعم
+            $table->id(); // BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY
+            $table->string('name'); // VARCHAR(255) NOT NULL
+            $table->string('email')->unique(); // VARCHAR(255) NOT NULL UNIQUE
+            $table->timestamp('email_verified_at')->nullable(); // TIMESTAMP NULL
+            $table->string('password'); // VARCHAR(255) NOT NULL
+
+            // الحالة مع الخيارات المطلوبة وقيمة افتراضية active
+            $table->enum('status', ['active', 'inactive', 'suspended'])->default('active');
+
+            $table->rememberToken(); // VARCHAR(100) NULL
+            $table->timestamps(); // created_at و updated_at بنوع TIMESTAMP NULL (افتراضياً في لارفيل)
+            $table->softDeletes(); // deleted_at بنوع TIMESTAMP NULL (للحذف الناعم)
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {

@@ -1,9 +1,38 @@
 @import 'tailwindcss';
+@import './cms/crud-common.css';
+@import './cms/user-profiles.css';
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';
 
+:root {
+    --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+}
+
 @theme {
-    --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
-        'Segoe UI Symbol', 'Noto Color Emoji';
+    --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+}
+
+body {
+    font-family: var(--font-sans);
+}
+
+.pagination {
+    @apply flex flex-wrap items-center gap-2;
+}
+
+.pagination .page-item {
+    @apply inline-flex;
+}
+
+.pagination .page-link {
+    @apply rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-600 transition hover:border-sky-300 hover:text-sky-700;
+}
+
+.pagination .page-item.active .page-link {
+    @apply border-sky-600 bg-sky-600 text-white;
+}
+
+.pagination .page-item.disabled .page-link {
+    @apply cursor-not-allowed border-slate-200 bg-slate-100 text-slate-400 hover:border-slate-200 hover:text-slate-400;
 }
