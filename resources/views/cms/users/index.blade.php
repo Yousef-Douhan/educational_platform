@@ -5,6 +5,15 @@
 @push('styles')
     {{-- <link rel="stylesheet" href="{{ asset('css/cms/users-ui.css') }}"> --}}
     <link rel="stylesheet" href="{{asset('css/cms/users-ui.css')}}">
+    <style>
+        [hidden] { display: none !important; }
+        .uu-chip { display: inline-block; margin: 0 .25rem .25rem 0; padding: .15rem .55rem; border-radius: 999px; background: #eef2ff; color: #3730a3; font-size: .75rem; font-weight: 600; }
+        .uu-muted { color: #98a2b3; }
+        .uu-roles { display: flex; flex-wrap: wrap; gap: .5rem; }
+        .uu-role-opt { display: inline-flex; align-items: center; gap: .4rem; padding: .35rem .7rem; border: 1px solid #d0d5dd; border-radius: 8px; font-size: .85rem; cursor: pointer; }
+        .uu-role-opt:has(input:checked) { border-color: #6366f1; background: #eef2ff; }
+        .uu-hint { margin: 0; font-size: .8rem; color: #667085; }
+    </style>
 @endpush
 
 @section('main-content')
@@ -17,12 +26,16 @@
             <p class="uu-sub">Manage who can access the system and what state their account is in.</p>
         </div>
         <div class="uu-head-actions">
-            <a href="{{ route('cms.admin.users.trashed') }}" class="uu-btn uu-btn--ghost">
-                <i class="fa-solid fa-trash-can-arrow-up" aria-hidden="true"></i> Trash
-            </a>
-            <button type="button" class="uu-btn uu-btn--primary" onclick="openCreateModal()">
-                <i class="fa-solid fa-plus" aria-hidden="true"></i> Add user
-            </button>
+            @can('users.restore')
+                <a href="{{ route('cms.admin.users.trashed') }}" class="uu-btn uu-btn--ghost">
+                    <i class="fa-solid fa-trash-can-arrow-up" aria-hidden="true"></i> Trash
+                </a>
+            @endcan
+            @can('users.create')
+                <button type="button" class="uu-btn uu-btn--primary" onclick="openCreateModal()">
+                    <i class="fa-solid fa-plus" aria-hidden="true"></i> Add user
+                </button>
+            @endcan
         </div>
     </header>
 
@@ -68,6 +81,7 @@
                 <thead>
                     <tr>
                         <th scope="col">User</th>
+                        <th scope="col">{{ __('users.roles') }}</th>
                         <th scope="col">{{ __('users.status') }}</th>
                         <th scope="col" class="uu-col-date">Created</th>
                         <th scope="col" class="uu-th-end"><span class="sr-only" style="position:absolute;left:-9999px">Actions</span></th>
@@ -88,12 +102,20 @@
 @endsection
 
 @push('scripts')
+@php
+    $can = [
+        'create' => auth()->user()->can('users.create'),
+        'edit'   => auth()->user()->can('users.edit'),
+        'delete' => auth()->user()->can('users.delete'),
+    ];
+@endphp
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="{{ asset('js/cms/users-ui.js') }}"></script>
 <script>
     const $ = (id) => document.getElementById(id);
-    const COLS = 4;
+    const COLS = 5;
+    const CAN = @json($can);
     let requestId = 0;
     let firstLoad = true;
 
@@ -122,7 +144,7 @@
                         filtered ? 'Try a different name, email or status.' : 'Add your first user to get started.',
                         filtered
                             ? '<button type="button" class="uu-btn uu-btn--ghost" onclick="clearFilters()">Clear filters</button>'
-                            : '<button type="button" class="uu-btn uu-btn--primary" onclick="openCreateModal()"><i class="fa-solid fa-plus"></i> Add user</button>'
+                            : (CAN.create ? '<button type="button" class="uu-btn uu-btn--primary" onclick="openCreateModal()"><i class="fa-solid fa-plus"></i> Add user</button>' : '')
                     );
                     $('pagination-wrapper').innerHTML = '';
                     return;
@@ -141,8 +163,15 @@
             .finally(() => { if (id === requestId) panel.classList.remove('is-loading'); });
     }
 
+    function rolesHtml(roles) {
+        return (roles || []).map((r) => `<span class="uu-chip">${UU.esc(r.name)}</span>`).join('')
+            || '<span class="uu-muted">—</span>';
+    }
+
     function rowHtml(u) {
         const name = UU.esc(u.name);
+        const canEdit = CAN.edit && !u.is_protected;
+        const canDelete = CAN.delete && !u.is_protected && !u.is_self;
         return `
         <tr>
             <td>
@@ -154,13 +183,14 @@
                     </div>
                 </div>
             </td>
+            <td>${rolesHtml(u.roles)}</td>
             <td>${UU.badge(u.status)}</td>
             <td class="uu-col-date">${UU.fmtDate(u.created_at)}</td>
             <td class="uu-td-end">
                 <div class="uu-actions">
                     <button type="button" class="uu-icon-btn" data-action="view" data-id="${u.id}" aria-label="View ${name}" title="View"><i class="fa-solid fa-eye"></i></button>
-                    <button type="button" class="uu-icon-btn" data-action="edit" data-id="${u.id}" aria-label="Edit ${name}" title="Edit"><i class="fa-solid fa-pen-to-square"></i></button>
-                    <button type="button" class="uu-icon-btn uu-icon-btn--danger" data-action="delete" data-id="${u.id}" data-name="${name}" aria-label="Move ${name} to trash" title="Move to trash"><i class="fa-solid fa-trash-can"></i></button>
+                    ${canEdit ? `<button type="button" class="uu-icon-btn" data-action="edit" data-id="${u.id}" aria-label="Edit ${name}" title="Edit"><i class="fa-solid fa-pen-to-square"></i></button>` : ''}
+                    ${canDelete ? `<button type="button" class="uu-icon-btn uu-icon-btn--danger" data-action="delete" data-id="${u.id}" data-name="${name}" aria-label="Move ${name} to trash" title="Move to trash"><i class="fa-solid fa-trash-can"></i></button>` : ''}
                 </div>
             </td>
         </tr>`;
@@ -190,9 +220,8 @@
     }
     function closeCreateModal() { UU.closeDrawer('createUserModal'); }
 
-  function openEditModal(id) {
-        // غيرنا الرابط هنا ليطابق مسار الـ show أو الـ resource الذي يعيد JSON
-        axios.get(`/cms/admin/users/${id}`).then(({ data: user }) => {
+    function openEditModal(id) {
+        axios.get(`/cms/admin/users/${id}/edit`).then(({ data: user }) => {
             const form = $('editUserForm');
             form.reset();
             UU.clearErrors(form);
@@ -201,8 +230,10 @@
             $('edit-email').value = user.email;
             const radio = form.querySelector(`input[name="status"][value="${user.status}"]`);
             if (radio) radio.checked = true;
+            const roleIds = (user.roles || []).map((r) => String(r.id));
+            form.querySelectorAll('input[name="roles[]"]').forEach((cb) => { cb.checked = roleIds.includes(cb.value); });
             UU.openDrawer('editUserModal');
-        }).catch(() => UU.showToast("Couldn't load this user.", 'error'));
+        }).catch((err) => UU.showToast(err.response?.data?.message || "Couldn't load this user.", 'error'));
     }
     function closeEditModal() { UU.closeDrawer('editUserModal'); }
 
@@ -214,9 +245,11 @@
             $('show-status').innerHTML = UU.badge(user.status);
             // $('show-status-row').innerHTML = UU.badge(user.status);
             $('show-created').textContent = UU.fmtDateTime(user.created_at);
+            $('show-roles').innerHTML = rolesHtml(user.roles);
             $('show-edit-btn').dataset.id = user.id;
+            $('show-edit-btn').hidden = !CAN.edit;
             UU.openDrawer('showUserModal');
-        }).catch(() => UU.showToast("Couldn't load this user.", 'error'));
+        }).catch((err) => UU.showToast(err.response?.data?.message || "Couldn't load this user.", 'error'));
     }
     function closeShowModal() { UU.closeDrawer('showUserModal'); }
 
@@ -240,8 +273,18 @@
                     loadUsers();
                     UU.showToast(data.message, 'success');
                 }
-            }).catch(() => UU.showToast("Couldn't move the user to trash.", 'error'));
+            }).catch((err) => UU.showToast(err.response?.data?.message || "Couldn't move the user to trash.", 'error'));
         });
+    }
+
+    /* ---------- Errors ---------- */
+    function fail(err, formId) {
+        const status = err.response?.status;
+        if (status === 401 || status === 419) return window.location.reload();
+        if (status === 403 || status === 409) {
+            return UU.showToast(err.response.data?.message || 'This action is not allowed.', 'error');
+        }
+        UU.handleFormErrors(err, formId);
     }
 
     /* ---------- Wiring ---------- */
@@ -281,7 +324,7 @@
                         UU.showToast(data.message, 'success');
                     }
                 })
-                .catch((err) => UU.handleFormErrors(err, 'createUserForm'))
+                .catch((err) => fail(err, 'createUserForm'))
                 .finally(() => UU.setBusy(this, false));
         });
 
@@ -301,7 +344,7 @@
                         UU.showToast(data.message, 'success');
                     }
                 })
-                .catch((err) => UU.handleFormErrors(err, 'editUserForm'))
+                .catch((err) => fail(err, 'editUserForm'))
                 .finally(() => UU.setBusy(this, false));
         });
     });

@@ -12,6 +12,10 @@ export default defineConfig({
                 'resources/css/cms/crud-common.css',
                 'resources/css/cms/user-profiles.css',
                 'resources/js/cms/user-profiles.js',
+                'resources/css/cms/roles.css',
+                'resources/js/cms/roles.js',
+                'resources/css/cms/permissions.css',
+                'resources/js/cms/permissions.js',
             ],
             refresh: true,
             fonts: [

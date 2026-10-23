@@ -1218,3 +1218,18 @@ a.page-link:hover {
         border-end-end-radius: 0;
     }
 }
+
+.badge--primary {
+    background: var(--primary-light);
+    color: var(--primary-dark);
+}
+
+.badge--success {
+    background: var(--success-light);
+    color: #047857;
+}
+
+.badge--muted {
+    background: #f1f5f9;
+    color: var(--text-secondary);
+}

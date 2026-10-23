@@ -55,6 +55,25 @@
                     </div>
                     <p class="uu-error" data-field="status"></p>
                 </div>
+
+                @can('users.assign-roles')
+                    <div class="uu-field">
+                        <span class="uu-label">{{ __('users.roles') }}</span>
+                        @if ($roles->isEmpty())
+                            <p class="uu-hint">{{ __('users.no_roles') }}</p>
+                        @else
+                            <div class="uu-roles">
+                                @foreach ($roles as $role)
+                                    <label class="uu-role-opt">
+                                        <input type="checkbox" name="roles[]" value="{{ $role->id }}">
+                                        <span>{{ $role->name }}</span>
+                                    </label>
+                                @endforeach
+                            </div>
+                        @endif
+                        <p class="uu-error" data-field="roles"></p>
+                    </div>
+                @endcan
             </div>
 
             <footer class="uu-drawer-foot">

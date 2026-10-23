@@ -51,7 +51,16 @@
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="{{ asset('js/cms/crud-common.js') }}"></script>
+    @php
+        $can = [
+            'restore'     => auth()->user()->can('users.restore'),
+            'forceDelete' => auth()->user()->can('users.force-delete'),
+        ];
+    @endphp
     <script>
+        const CAN = @json($can);
+        const esc = (v) => String(v ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
         document.addEventListener('DOMContentLoaded', function () {
             loadTrashedUsers();
         });
@@ -71,12 +80,12 @@
                     tbody.innerHTML += `
                         <tr class="crud-table-row">
                             <td class="py-4 px-6 font-medium text-slate-500">${(data.current_page - 1) * data.per_page + index + 1}</td>
-                            <td class="py-4 px-6 font-bold text-slate-900">${user.name}</td>
-                            <td class="py-4 px-6 text-slate-600 font-medium">${user.email}</td>
+                            <td class="py-4 px-6 font-bold text-slate-900">${esc(user.name)}</td>
+                            <td class="py-4 px-6 text-slate-600 font-medium">${esc(user.email)}</td>
                             <td class="py-4 px-6 text-slate-500 text-xs">${new Date(user.deleted_at).toLocaleDateString()}</td>
                             <td class="py-4 px-6 text-right space-x-1">
-                                <button onclick="restoreUser(${user.id})" class="inline-flex items-center justify-center h-8 w-8 rounded-lg text-emerald-600 hover:bg-emerald-50 transition" title="Restore"><i class="fa-solid fa-rotate-left"></i></button>
-                                <button onclick="forceDeleteUser(${user.id})" class="inline-flex items-center justify-center h-8 w-8 rounded-lg text-rose-500 hover:bg-rose-50 transition" title="Delete Permanently"><i class="fa-solid fa-trash-can"></i></button>
+                                ${CAN.restore ? `<button onclick="restoreUser(${user.id})" class="inline-flex items-center justify-center h-8 w-8 rounded-lg text-emerald-600 hover:bg-emerald-50 transition" title="Restore"><i class="fa-solid fa-rotate-left"></i></button>` : ''}
+                                ${CAN.forceDelete ? `<button onclick="forceDeleteUser(${user.id})" class="inline-flex items-center justify-center h-8 w-8 rounded-lg text-rose-500 hover:bg-rose-50 transition" title="Delete Permanently"><i class="fa-solid fa-trash-can"></i></button>` : ''}
                             </td>
                         </tr>
                     `;
@@ -91,7 +100,7 @@
                     loadTrashedUsers();
                     showToast(response.data.message, 'success');
                 }
-            });
+            }).catch(err => showToast(err.response?.data?.message || 'Action failed.', 'error'));
         }
 
         function forceDeleteUser(id) {
@@ -110,7 +119,7 @@
                             loadTrashedUsers();
                             showToast(response.data.message, 'success');
                         }
-                    });
+                    }).catch(err => showToast(err.response?.data?.message || 'Action failed.', 'error'));
                 }
             });
         }

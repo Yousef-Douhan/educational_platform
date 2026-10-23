@@ -67,6 +67,7 @@ export function handleError(error, form = null) {
 
     const { status, data } = error.response;
     switch (status) {
+        case 401: return toast('error', e.session_expired);
         case 403: return toast('error', e.forbidden);
         case 404: return toast('error', e.not_found);
         case 409: return toast('warning', data?.message || e.conflict);

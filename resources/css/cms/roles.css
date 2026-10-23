@@ -1,0 +1,92 @@
+#rolesApp .perm-groups {
+    display: flex;
+    flex-direction: column;
+    gap: .75rem;
+    max-height: 320px;
+    overflow-y: auto;
+    padding: .25rem;
+}
+
+#rolesApp .perm-group {
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: var(--background);
+    overflow: hidden;
+}
+
+#rolesApp .perm-group__head {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    padding: .6rem .9rem;
+    font-size: .8rem;
+    font-weight: 700;
+    text-transform: capitalize;
+    background: var(--surface);
+    border-block-end: 1px solid var(--border);
+    cursor: pointer;
+}
+
+#rolesApp .perm-group__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+    gap: .4rem;
+    padding: .7rem .9rem;
+}
+
+#rolesApp .perm-item {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    font-size: .84rem;
+    cursor: pointer;
+    padding: .3rem .4rem;
+    border-radius: var(--radius-sm);
+}
+
+#rolesApp .perm-item:hover {
+    background: var(--primary-light);
+}
+
+#rolesApp .perm-item span {
+    overflow-wrap: anywhere;
+}
+
+#rolesApp input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: var(--primary);
+}
+
+#rolesApp .perm-empty {
+    padding: 1rem;
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: .85rem;
+}
+
+#rolesApp .perm-chip-group {
+    margin-block-end: .8rem;
+}
+
+#rolesApp .perm-chip-group h5 {
+    margin: 0 0 .4rem;
+    font-size: .78rem;
+    color: var(--text-secondary);
+    text-transform: capitalize;
+}
+
+#rolesApp .perm-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .4rem;
+}
+
+#rolesApp .perm-chip {
+    padding: .25rem .6rem;
+    border-radius: 999px;
+    background: var(--primary-light);
+    color: var(--primary-dark);
+    font-size: .76rem;
+    font-weight: 600;
+}

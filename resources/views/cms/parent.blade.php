@@ -42,16 +42,37 @@
                     <i class="fa-solid fa-gauge-high w-5 text-sky-400"></i>
                     Dashboard
                 </a>
+                @can('users.view')
                 <a href="{{ route('cms.admin.users.index') }}"
                     class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-200 transition hover:bg-slate-800 hover:text-white {{ request()->routeIs('cms.admin.users.*') ? 'bg-slate-800 text-white' : '' }}">
                     <i class="fa-solid fa-users w-5 text-sky-400"></i>
                     {{ __('users.title') }}
                 </a>
+                @endcan
+                @can('user-profiles.view')
                 <a href="{{ route('cms.admin.user-profiles.index') }}"
                     class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-200 transition hover:bg-slate-800 hover:text-white {{ request()->routeIs('cms.admin.user-profiles.*') ? 'bg-slate-800 text-white' : '' }}">
                     <i class="fa-solid fa-id-card w-5 text-sky-400"></i>
                     {{ __('user-profiles.title') }}
                 </a>
+                @endcan
+
+                @can('roles.view')
+
+                <a href="{{ route('cms.admin.roles.index') }}"
+                    class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-200 transition hover:bg-slate-800 hover:text-white {{ request()->routeIs('cms.admin.roles.*') ? 'bg-slate-800 text-white' : '' }}">
+                    <i class="fa-solid fa-user-shield w-5 text-sky-400"></i>
+                    {{ __('roles.title') }}
+                </a>
+
+                @endcan
+                @can('permissions.view')
+                <a href="{{ route('cms.admin.permissions.index') }}"
+                    class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-200 transition hover:bg-slate-800 hover:text-white {{ request()->routeIs('cms.admin.permissions.*') ? 'bg-slate-800 text-white' : '' }}">
+                    <i class="fa-solid fa-key w-5 text-sky-400"></i>
+                    {{ __('permissions.title') }}
+                </a>
+                @endcan
 
             </nav>
 
@@ -59,13 +80,21 @@
                 <div class="flex items-center gap-3 rounded-xl bg-slate-900 p-3">
                     <div
                         class="flex h-10 w-10 items-center justify-center rounded-full bg-sky-500/20 font-semibold text-sky-300">
-                        AD
+                        {{ mb_strtoupper(mb_substr(auth()->user()->name ?? 'U', 0, 2)) }}
                     </div>
-                    <div>
-                        <p class="text-sm font-medium text-white">Admin</p>
-                        <p class="text-xs text-slate-400">System owner</p>
+                    <div class="min-w-0">
+                        <p class="truncate text-sm font-medium text-white">{{ auth()->user()->name }}</p>
+                        <p class="truncate text-xs text-slate-400">{{ auth()->user()->getRoleNames()->implode(', ') ?: '—' }}</p>
                     </div>
                 </div>
+
+                <form method="POST" action="{{ route('logout') }}" class="mt-3">
+                    @csrf
+                    <button type="submit"
+                        class="flex w-full items-center justify-center gap-2 rounded-xl border border-slate-700 px-3 py-2 text-sm font-medium text-slate-300 transition hover:bg-slate-800 hover:text-white">
+                        <i class="fa-solid fa-right-from-bracket"></i> Logout
+                    </button>
+                </form>
             </div>
         </aside>
 

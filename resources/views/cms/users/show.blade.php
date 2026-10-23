@@ -26,6 +26,10 @@
 
             <dl class="uu-dl">
                 <div class="uu-dl-row">
+                    <dt>{{ __('users.roles') }}</dt>
+                    <dd id="show-roles"></dd>
+                </div>
+                <div class="uu-dl-row">
                     <dt>Created</dt>
                     <dd id="show-created"></dd>
                 </div>
