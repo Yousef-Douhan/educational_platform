@@ -1,0 +1,62 @@
+#categoriesApp .slug-code {
+    display: inline-block;
+    padding: .2rem .5rem;
+    border-radius: var(--radius-sm);
+    background: var(--background);
+    border: 1px solid var(--border);
+    font-size: .8rem;
+    font-weight: 600;
+    direction: ltr;
+    unicode-bidi: isolate;
+}
+
+#categoriesApp .icon-field {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+}
+
+#categoriesApp .icon-field .input-icon {
+    flex: 1;
+    min-width: 0;
+}
+
+#categoriesApp .icon-preview {
+    width: 42px;
+    height: 42px;
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    border-radius: var(--radius-md);
+    background: var(--primary-light);
+    color: var(--primary);
+    font-size: 1.05rem;
+}
+
+#categoriesApp .cat-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .45rem;
+}
+
+#categoriesApp .cat-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: .4rem;
+    padding: .3rem .7rem;
+    border-radius: 999px;
+    background: var(--primary-light);
+    color: var(--primary-dark);
+    font-size: .78rem;
+    font-weight: 600;
+}
+
+#categoriesApp .cat-empty {
+    color: var(--text-secondary);
+    font-size: .85rem;
+}
+
+#categoriesApp .user-cell__name,
+#categoriesApp .user-cell__email {
+    unicode-bidi: plaintext;
+}

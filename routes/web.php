@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserProfileController;
@@ -74,4 +75,11 @@ Route::prefix('cms/admin')->name('cms.admin.')->middleware('auth')->group(functi
     Route::resource('permissions', PermissionController::class)->only(['create', 'store'])->middleware('can:permissions.create');
     Route::resource('permissions', PermissionController::class)->only(['edit', 'update'])->middleware('can:permissions.edit');
     Route::resource('permissions', PermissionController::class)->only(['destroy'])->middleware('can:permissions.delete');
+
+
+    Route::get('categories/trashed', [CategoryController::class, 'trashed'])->name('categories.trashed');
+    Route::patch('categories/{id}/restore', [CategoryController::class, 'restore'])->name('categories.restore');
+    Route::delete('categories/{id}/force-delete', [CategoryController::class, 'forceDelete'])->name('categories.force-delete');
+
+    Route::resource('categories', CategoryController::class);
 });

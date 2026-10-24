@@ -12,6 +12,11 @@
         </div>
     </div>
     <div class="page-header__actions">
+        @isset($trashLabel)
+            <button type="button" class="btn btn-light" data-action="open-trash">
+                <i class="fa-solid fa-trash-can-arrow-up"></i> {{ $trashLabel }}
+            </button>
+        @endisset
         <button type="button" class="btn btn-primary" data-action="open-create">
             <i class="fa-solid fa-plus"></i> {{ $addLabel }}
         </button>

@@ -16,6 +16,8 @@ export default defineConfig({
                 'resources/js/cms/roles.js',
                 'resources/css/cms/permissions.css',
                 'resources/js/cms/permissions.js',
+                'resources/css/cms/categories.css',
+                'resources/js/cms/categories.js',
             ],
             refresh: true,
             fonts: [

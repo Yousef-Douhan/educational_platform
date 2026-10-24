@@ -18,7 +18,8 @@ export function createCrudModule(app, hooks = {}) {
     const R = {
         index: app.dataset.indexUrl, create: app.dataset.createUrl, store: app.dataset.storeUrl,
         show: app.dataset.showUrl, edit: app.dataset.editUrl, update: app.dataset.updateUrl,
-        destroy: app.dataset.destroyUrl,
+        destroy: app.dataset.destroyUrl, trashed: app.dataset.trashedUrl,
+        restore: app.dataset.restoreUrl, forceDelete: app.dataset.forceDeleteUrl,
     };
 
     const $ = (sel) => app.querySelector(sel);
@@ -32,11 +33,17 @@ export function createCrudModule(app, hooks = {}) {
     const clearBtn = $('#clearSearch');
     const filters = [...app.querySelectorAll('[data-filter]')];
 
+    const trashModal = $('#trashModal');
+    const trashContainer = $('#trashContainer');
+    const trashCard = $('#trashCard');
+
     const state = { sort: 'id', dir: 'desc', page: 1 };
+    const trashState = { search: '', page: 1 };
     filters.forEach((f) => { state[f.dataset.filter] = ''; });
 
     const clean = (obj) => Object.fromEntries(Object.entries(obj).filter(([, v]) => v !== '' && v != null));
     const pageFromLink = (a) => Number(new URL(a.href).searchParams.get('page')) || 1;
+    const stepBack = (container, page) => (container.querySelectorAll('tr[data-id]').length === 1 && page > 1 ? page - 1 : page);
 
     function updateStats(stats) {
         if (!stats) return;
@@ -46,6 +53,7 @@ export function createCrudModule(app, hooks = {}) {
         });
     }
 
+    /* ---------- القائمة الرئيسية ---------- */
     let reqId = 0;
     async function loadRecords() {
         const id = ++reqId;
@@ -79,6 +87,7 @@ export function createCrudModule(app, hooks = {}) {
         else f.addEventListener('change', filterRecords);
     });
 
+    /* ---------- إنشاء / تعديل / عرض ---------- */
     async function openCreateModal() {
         try {
             const { data } = await http.get(R.create);
@@ -137,6 +146,7 @@ export function createCrudModule(app, hooks = {}) {
         } catch (err) { handleError(err); }
     }
 
+    /* ---------- حذف مؤقت ---------- */
     async function confirmDelete(id) {
         const ok = await confirmDialog({
             title: i18n.delete_title, text: i18n.delete_text,
@@ -146,20 +156,84 @@ export function createCrudModule(app, hooks = {}) {
         try {
             const { data } = await http.delete(routeFor(R.destroy, id));
             toast('success', data.message);
-            if (tableContainer.querySelectorAll('tr[data-id]').length === 1 && state.page > 1) state.page -= 1;
+            state.page = stepBack(tableContainer, state.page);
             await loadRecords();
         } catch (err) { handleError(err); }
     }
 
+    /* ---------- سلة المحذوفات (اختيارية) ---------- */
+    let trashReq = 0;
+    async function loadTrash() {
+        if (!trashModal) return;
+        const id = ++trashReq;
+        trashCard.classList.add('is-loading');
+        try {
+            const { data } = await http.get(R.trashed, { params: clean(trashState) });
+            if (id !== trashReq) return;
+            trashContainer.innerHTML = data.html;
+            updateStats(data.stats);
+        } catch (err) {
+            handleError(err);
+        } finally {
+            if (id === trashReq) trashCard.classList.remove('is-loading');
+        }
+    }
+
+    function openTrashModal() {
+        if (!trashModal) return;
+        trashState.page = 1;
+        Modal.open(trashModal);
+        loadTrash();
+    }
+
+    async function restoreRecord(id) {
+        const ok = await confirmDialog({
+            title: i18n.restore_title, text: i18n.restore_text,
+            confirmText: i18n.restore_confirm, cancelText: i18n.cancel,
+            icon: 'question', danger: false,
+        });
+        if (!ok) return;
+        try {
+            const { data } = await http.patch(routeFor(R.restore, id));
+            toast('success', data.message);
+            trashState.page = stepBack(trashContainer, trashState.page);
+            await Promise.all([loadTrash(), loadRecords()]);
+        } catch (err) { handleError(err); }
+    }
+
+    async function forceDeleteRecord(id) {
+        const ok = await confirmDialog({
+            title: i18n.force_title, text: i18n.force_text,
+            confirmText: i18n.force_confirm, cancelText: i18n.cancel, icon: 'error',
+        });
+        if (!ok) return;
+        try {
+            const { data } = await http.delete(routeFor(R.forceDelete, id));
+            toast('success', data.message);
+            trashState.page = stepBack(trashContainer, trashState.page);
+            await loadTrash();
+        } catch (err) { handleError(err); }
+    }
+
+    $('#trashSearch')?.addEventListener('input', debounce((e) => {
+        trashState.search = e.target.value.trim();
+        trashState.page = 1;
+        loadTrash();
+    }, 400));
+
+    /* ---------- تفويض الأحداث ---------- */
     app.addEventListener('click', (e) => {
         const actionEl = e.target.closest('[data-action]');
         if (actionEl) {
             const { action, id } = actionEl.dataset;
             switch (action) {
                 case 'open-create': return openCreateModal();
+                case 'open-trash': return openTrashModal();
                 case 'show': return openShowModal(id);
                 case 'edit': return openEditModal(id);
                 case 'delete': return confirmDelete(id);
+                case 'restore': return restoreRecord(id);
+                case 'force-delete': return forceDeleteRecord(id);
                 case 'reset-filters': return resetFilters();
                 case 'clear-search': {
                     const s = app.querySelector('[data-filter="search"]');
@@ -181,6 +255,10 @@ export function createCrudModule(app, hooks = {}) {
         const pageLink = e.target.closest('.crud-pagination a.page-link');
         if (pageLink) {
             e.preventDefault();
+            if (trashContainer?.contains(pageLink)) {
+                trashState.page = pageFromLink(pageLink);
+                return loadTrash();
+            }
             state.page = pageFromLink(pageLink);
             return loadRecords();
         }
