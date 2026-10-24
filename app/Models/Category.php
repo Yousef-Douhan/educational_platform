@@ -104,4 +104,9 @@ class Category extends Model
 
         return $slug;
     }
+
+    public function courses(): HasMany
+    {
+        return $this->hasMany(Course::class);
+    }
 }

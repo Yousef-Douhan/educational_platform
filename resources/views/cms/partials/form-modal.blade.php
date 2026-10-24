@@ -1,5 +1,5 @@
 <div class="crud-modal" id="{{ $modalId }}" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="{{ $modalId }}Title">
-    <form class="crud-modal__dialog" id="{{ $formId }}" novalidate>
+    <form class="crud-modal__dialog {{ ($size ?? '') === 'lg' ? 'crud-modal__dialog--lg' : '' }}" id="{{ $formId }}" novalidate>
         <header class="crud-modal__header">
             <div class="crud-modal__icon tone-{{ $tone }}"><i class="fa-solid {{ $icon }}"></i></div>
             <div class="crud-modal__heading">

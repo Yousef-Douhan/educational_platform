@@ -6,11 +6,18 @@ if (app) {
     const i18n = JSON.parse(app.dataset.i18n);
     let createGroups = [];
 
+    function updateCount(box) {
+        const items = [...box.querySelectorAll('input[name="permissions[]"]')];
+        const badge = box.querySelector('[data-group-count]');
+        if (badge) badge.textContent = `${items.filter((cb) => cb.checked).length}/${items.length}`;
+    }
+
     function renderGroups(container, groups, selected = [], guard = null) {
         container.replaceChildren();
+        const picked = new Set((selected ?? []).map(Number));
         let count = 0;
 
-        groups.forEach(({ group, items }) => {
+        (groups ?? []).forEach(({ group, items }) => {
             const list = guard ? items.filter((p) => p.guard_name === guard) : items;
             if (!list.length) return;
             count += list.length;
@@ -23,10 +30,13 @@ if (app) {
             const all = document.createElement('input');
             all.type = 'checkbox';
             all.dataset.groupAll = '';
-            all.checked = list.every((p) => selected.includes(p.id));
+            all.checked = list.every((p) => picked.has(Number(p.id)));
             const title = document.createElement('span');
             title.textContent = group;
-            head.append(all, title);
+            const badge = document.createElement('small');
+            badge.className = 'perm-group__count';
+            badge.dataset.groupCount = '';
+            head.append(all, title, badge);
 
             const grid = document.createElement('div');
             grid.className = 'perm-group__grid';
@@ -37,7 +47,7 @@ if (app) {
                 cb.type = 'checkbox';
                 cb.name = 'permissions[]';
                 cb.value = p.id;
-                cb.checked = selected.includes(p.id);
+                cb.checked = picked.has(Number(p.id));
                 const name = document.createElement('span');
                 name.textContent = p.name;
                 label.append(cb, name);
@@ -46,6 +56,7 @@ if (app) {
 
             box.append(head, grid);
             container.append(box);
+            updateCount(box);
         });
 
         if (!count) {
@@ -64,6 +75,7 @@ if (app) {
             const all = box.querySelector('[data-group-all]');
             if (e.target === all) items.forEach((cb) => { cb.checked = all.checked; });
             else all.checked = items.every((cb) => cb.checked);
+            updateCount(box);
         });
     }
 
@@ -84,9 +96,16 @@ if (app) {
         },
 
         onEdit(form, payload) {
-            form.querySelector('[name="name"]').value = payload.data.name;
-            form.querySelector('[data-guard-display]').value = payload.data.guard_name;
-            renderGroups(form.querySelector('[data-permission-groups]'), payload.groups, payload.permission_ids);
+            const r = payload.data ?? {};
+
+            const nameInput = form.querySelector('[name="name"]');
+            if (nameInput) nameInput.value = r.name ?? '';
+
+            const guardInput = form.querySelector('[data-guard-display]');
+            if (guardInput) guardInput.value = r.guard_name ?? '';
+
+            const box = form.querySelector('[data-permission-groups]');
+            if (box) renderGroups(box, payload.groups ?? [], payload.permission_ids ?? []);
         },
 
         onShow(modal, payload) {

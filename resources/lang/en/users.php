@@ -13,4 +13,6 @@ return [
     'deleted_successfully' => 'User moved to trash successfully.',
     'restored_successfully' => 'User restored successfully.',
     'force_deleted_successfully' => 'User deleted permanently.',
+    'has_courses' => 'This user is an instructor of courses. Reassign or delete the courses first.',
+    'force_has_courses' => 'This user still owns courses, including deleted ones.',
 ];

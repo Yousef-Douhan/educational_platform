@@ -21,6 +21,7 @@ class UserController extends Controller
      *  - تعيين الأدوار يحتاج users.assign-roles
      *  - غير super-admin لا يرى دور super-admin ولا يعدّل مستخدمًا يملكه
      *  - لا حذف للنفس، ولا حذف/إزالة آخر super-admin
+     *  - لا حذف (مؤقت أو نهائي) لمستخدم له دورات
      */
 
     public function index(Request $request)
@@ -167,6 +168,11 @@ class UserController extends Controller
             return $this->conflict('users.last_super_admin');
         }
 
+        // جديد: لا يُحذف مدرّس له دورات فعّالة
+        if ($user->courses()->exists()) {
+            return $this->conflict('users.has_courses');
+        }
+
         $user->delete();
 
         return response()->json([
@@ -207,6 +213,11 @@ class UserController extends Controller
 
         if ($blocked = $this->blockProtected($user)) {
             return $blocked;
+        }
+
+        // جديد: المفتاح الأجنبي courses.instructor_id يمنع الحذف النهائي، فنردّ برسالة واضحة بدل خطأ 500
+        if ($user->courses()->withTrashed()->exists()) {
+            return $this->conflict('users.force_has_courses');
         }
 
         $user->forceDelete();

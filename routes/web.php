@@ -8,6 +8,8 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserProfileController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\CourseController;
+
 
 Route::get('/', function () {
     return view('welcome');
@@ -82,4 +84,11 @@ Route::prefix('cms/admin')->name('cms.admin.')->middleware('auth')->group(functi
     Route::delete('categories/{id}/force-delete', [CategoryController::class, 'forceDelete'])->name('categories.force-delete');
 
     Route::resource('categories', CategoryController::class);
+
+
+    Route::get('courses/trashed', [CourseController::class, 'trashed'])->name('courses.trashed');
+    Route::patch('courses/{id}/restore', [CourseController::class, 'restore'])->name('courses.restore');
+    Route::delete('courses/{id}/force-delete', [CourseController::class, 'forceDelete'])->name('courses.force-delete');
+
+    Route::resource('courses', CourseController::class);
 });

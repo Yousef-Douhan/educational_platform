@@ -104,6 +104,8 @@ return [
         'has_children' => 'This category has sub categories. Move or delete them first.',
         'parent_trashed' => 'The parent category is in the trash. Restore it first.',
         'force_has_children' => 'This category still has sub categories, including deleted ones. Delete those forever first.',
+        'has_courses' => 'This category has courses. Move them to another category first.',
+        'force_has_courses' => 'This category still has courses, including deleted ones.',
         'error' => 'Something went wrong. Please try again.',
     ],
     'js' => [

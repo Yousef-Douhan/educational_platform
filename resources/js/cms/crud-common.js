@@ -54,14 +54,20 @@ export function clearFieldErrors(form) {
 
 export function showFieldErrors(form, errors) {
     Object.entries(errors).forEach(([field, msgs]) => {
-        const box = form.querySelector(`[data-error-for="${field}"]`);
-        if (box) box.textContent = Array.isArray(msgs) ? msgs[0] : msgs;
-        form.querySelector(`[name="${field}"]`)?.classList.add('is-invalid');
+        const message = Array.isArray(msgs) ? msgs[0] : msgs;
+        const root = field.split('.')[0];
+
+        const box = form.querySelector(`[data-error-for="${field}"]`) || form.querySelector(`[data-error-for="${root}"]`);
+        if (box && !box.textContent) box.textContent = message;
+
+        const bracket = field.replace(/\.([^.]+)/g, '[$1]');
+        (form.querySelector(`[name="${bracket}"]`) || form.querySelector(`[name="${field}"]`))?.classList.add('is-invalid');
     });
     form.querySelector('.is-invalid')?.focus();
 }
 
 export function handleError(error, form = null) {
+    console.error('CRUD ERROR:', error);
     const e = messages.errors || {};
     if (!error.response) return toast('error', e.network);
 

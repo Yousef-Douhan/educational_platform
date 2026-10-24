@@ -136,6 +136,11 @@ class CategoryController extends Controller implements HasMiddleware
             return response()->json(['message' => __('categories.messages.has_children')], 409);
         }
 
+        // جديد: لا تُحذف فئة لها دورات فعّالة
+        if ($category->courses()->exists()) {
+            return response()->json(['message' => __('categories.messages.has_courses')], 409);
+        }
+
         $category->delete();
 
         return response()->json([
@@ -181,6 +186,11 @@ class CategoryController extends Controller implements HasMiddleware
 
         if ($category->children()->withTrashed()->exists()) {
             return response()->json(['message' => __('categories.messages.force_has_children')], 409);
+        }
+
+        // جديد: المفتاح الأجنبي courses.category_id يمنع الحذف النهائي، فنردّ برسالة واضحة بدل خطأ 500
+        if ($category->courses()->withTrashed()->exists()) {
+            return response()->json(['message' => __('categories.messages.force_has_courses')], 409);
         }
 
         $category->forceDelete();

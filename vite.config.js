@@ -18,6 +18,8 @@ export default defineConfig({
                 'resources/js/cms/permissions.js',
                 'resources/css/cms/categories.css',
                 'resources/js/cms/categories.js',
+                'resources/css/cms/courses.css',
+                'resources/js/cms/courses.js',
             ],
             refresh: true,
             fonts: [

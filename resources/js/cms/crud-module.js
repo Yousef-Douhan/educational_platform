@@ -99,6 +99,7 @@ export function createCrudModule(app, hooks = {}) {
     }
 
     async function storeRecord() {
+        hooks.beforeSubmit?.(createForm);
         const btn = createForm.querySelector('[type=submit]');
         clearFieldErrors(createForm);
         setLoading(btn, true);
@@ -124,6 +125,7 @@ export function createCrudModule(app, hooks = {}) {
     }
 
     async function updateRecord() {
+        hooks.beforeSubmit?.(editForm);
         const btn = editForm.querySelector('[type=submit]');
         const fd = new FormData(editForm);
         fd.append('_method', 'PUT');
