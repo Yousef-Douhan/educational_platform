@@ -1,5 +1,6 @@
 import { createCrudModule, setText, fmtDate } from './crud-module';
 import { showFieldErrors } from './crud-common';
+import { initCurriculum } from './curriculum';
 
 const app = document.getElementById('coursesApp');
 
@@ -153,7 +154,15 @@ if (app) {
         });
     }
 
+    /* ---------- منشئ المنهج ---------- */
+    const curriculum = initCurriculum(app);
+
     createCrudModule(app, {
+        // إجراءات إضافية في قائمة الدورة (مثل "المنهج")
+        onAction(action, id) {
+            if (action === 'curriculum') curriculum?.open(id);
+        },
+
         init() {
             ['#createForm', '#editForm'].forEach((sel) => {
                 const form = app.querySelector(sel);

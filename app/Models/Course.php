@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -144,5 +145,16 @@ class Course extends Model
         }
 
         return $slug;
+    }
+
+
+    public function sections(): HasMany
+    {
+        return $this->hasMany(CourseSection::class)->orderBy('sort_order')->orderBy('id');
+    }
+
+    public function lessons(): HasManyThrough
+    {
+        return $this->hasManyThrough(Lesson::class, CourseSection::class, 'course_id', 'section_id');
     }
 }

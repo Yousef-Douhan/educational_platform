@@ -21,6 +21,7 @@ return [
         'force_delete' => 'Delete forever',
         'choose_image' => 'Choose image',
         'add_row' => 'Add row',
+        'curriculum' => 'Curriculum',
     ],
     'stats' => [
         'total' => 'Total courses',

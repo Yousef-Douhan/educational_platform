@@ -21,6 +21,9 @@ return [
         'force_delete' => 'حذف نهائي',
         'choose_image' => 'اختيار صورة',
         'add_row' => 'إضافة سطر',
+        'curriculum' => 'المنهج',
+
+
     ],
     'stats' => [
         'total' => 'إجمالي الدورات',

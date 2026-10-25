@@ -9,7 +9,9 @@ use App\Http\Controllers\UserProfileController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CourseController;
-
+use App\Http\Controllers\LessonAttachmentController;
+use App\Http\Controllers\LessonController;
+use App\Http\Controllers\SectionController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -91,4 +93,27 @@ Route::prefix('cms/admin')->name('cms.admin.')->middleware('auth')->group(functi
     Route::delete('courses/{id}/force-delete', [CourseController::class, 'forceDelete'])->name('courses.force-delete');
 
     Route::resource('courses', CourseController::class);
+
+
+    // المنهج والأقسام
+    Route::get('courses/{course}/curriculum', [SectionController::class, 'index'])->name('courses.curriculum');
+    Route::post('courses/{course}/sections', [SectionController::class, 'store'])->name('courses.sections.store');
+    Route::post('courses/{course}/sections/reorder', [SectionController::class, 'reorder'])->name('courses.sections.reorder');
+    Route::put('sections/{section}', [SectionController::class, 'update'])->name('sections.update');
+    Route::delete('sections/{section}', [SectionController::class, 'destroy'])->name('sections.destroy');
+
+    // الدروس
+    Route::get('courses/{course}/lessons/trashed', [LessonController::class, 'trashed'])->name('courses.lessons.trashed');
+    Route::post('sections/{section}/lessons', [LessonController::class, 'store'])->name('sections.lessons.store');
+    Route::post('sections/{section}/lessons/reorder', [LessonController::class, 'reorder'])->name('sections.lessons.reorder');
+    Route::patch('lessons/{id}/restore', [LessonController::class, 'restore'])->name('lessons.restore');
+    Route::delete('lessons/{id}/force-delete', [LessonController::class, 'forceDelete'])->name('lessons.force-delete');
+    Route::get('lessons/{lesson}', [LessonController::class, 'show'])->name('lessons.show');
+    Route::put('lessons/{lesson}', [LessonController::class, 'update'])->name('lessons.update');
+    Route::delete('lessons/{lesson}', [LessonController::class, 'destroy'])->name('lessons.destroy');
+
+    // المرفقات
+    Route::post('lessons/{lesson}/attachments', [LessonAttachmentController::class, 'store'])->name('lessons.attachments.store');
+    Route::get('attachments/{attachment}/download', [LessonAttachmentController::class, 'download'])->name('attachments.download');
+    Route::delete('attachments/{attachment}', [LessonAttachmentController::class, 'destroy'])->name('attachments.destroy');
 });

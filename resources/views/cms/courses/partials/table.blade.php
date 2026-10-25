@@ -79,6 +79,10 @@
                                     <button type="button" role="menuitem" data-action="show" data-id="{{ $course->id }}">
                                         <i class="fa-regular fa-eye"></i> {{ __('courses.actions.view') }}</button>
                                     @endcan
+                                    @can('view', $course)
+                                    <button type="button" role="menuitem" data-action="curriculum" data-id="{{ $course->id }}">
+                                        <i class="fa-solid fa-layer-group"></i> {{ __('courses.actions.curriculum') }}</button>
+                                    @endcan
                                     @can('update', $course)
                                     <button type="button" role="menuitem" data-action="edit" data-id="{{ $course->id }}">
                                         <i class="fa-regular fa-pen-to-square"></i> {{ __('courses.actions.edit') }}</button>

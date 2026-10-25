@@ -242,6 +242,13 @@ export function createCrudModule(app, hooks = {}) {
                     if (s) s.value = '';
                     return filterRecords();
                 }
+                case 'clear-search': {
+                    const s = app.querySelector('[data-filter="search"]');
+                    if (s) s.value = '';
+                    return filterRecords();
+                }
+                default:
+                    return hooks.onAction?.(action, id, actionEl);
             }
         }
 

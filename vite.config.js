@@ -20,6 +20,7 @@ export default defineConfig({
                 'resources/js/cms/categories.js',
                 'resources/css/cms/courses.css',
                 'resources/js/cms/courses.js',
+                'resources/css/cms/curriculum.css',
             ],
             refresh: true,
             fonts: [

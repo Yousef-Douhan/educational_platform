@@ -3,7 +3,7 @@
 @section('title', __('courses.title'))
 
 @push('styles')
-    @vite(['resources/css/cms/crud-common.css', 'resources/css/cms/courses.css'])
+    @vite(['resources/css/cms/crud-common.css', 'resources/css/cms/courses.css', 'resources/css/cms/curriculum.css'])
 @endpush
 
 @push('scripts')
@@ -103,5 +103,6 @@
     @include('cms.courses.edit')
     @include('cms.courses.show')
     @include('cms.courses.softdelete')
+    @include('cms.courses.curriculum.modal')
 </div>
 @endsection

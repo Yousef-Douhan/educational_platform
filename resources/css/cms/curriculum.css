@@ -1,0 +1,291 @@
+#coursesApp .crud-modal--top {
+    z-index: 1050;
+}
+
+#coursesApp .crud-modal__dialog--xl {
+    max-width: 1040px;
+}
+
+/* الإحصائيات وشريط الأدوات */
+#coursesApp .cur-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: .6rem;
+    margin-block-end: 1rem;
+}
+
+#coursesApp .cur-stat {
+    padding: .7rem .9rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: var(--background);
+}
+
+#coursesApp .cur-stat strong {
+    display: block;
+    font-size: 1.25rem;
+    line-height: 1.2;
+}
+
+#coursesApp .cur-stat small {
+    color: var(--text-secondary);
+    font-size: .76rem;
+}
+
+#coursesApp .cur-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: .5rem;
+    margin-block-end: 1rem;
+}
+
+/* القسم */
+#coursesApp .cur-section {
+    margin-block-end: .9rem;
+    overflow: hidden;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+}
+
+#coursesApp .cur-section__head {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    padding: .8rem 1rem;
+    background: var(--background);
+}
+
+#coursesApp .cur-section__no {
+    width: 30px;
+    height: 30px;
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--primary-light);
+    color: var(--primary);
+    font-size: .82rem;
+    font-weight: 700;
+}
+
+#coursesApp .cur-titles {
+    flex: 1;
+    min-width: 0;
+}
+
+#coursesApp .cur-titles strong,
+#coursesApp .cur-titles small {
+    display: block;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    unicode-bidi: plaintext;
+}
+
+#coursesApp .cur-titles small {
+    color: var(--text-secondary);
+    font-size: .78rem;
+}
+
+#coursesApp .cur-actions {
+    display: flex;
+    flex-shrink: 0;
+    gap: .15rem;
+}
+
+#coursesApp .cur-btn {
+    width: 32px;
+    height: 32px;
+    border: 0;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+#coursesApp .cur-btn:hover:not(:disabled) {
+    background: var(--primary-light);
+    color: var(--primary);
+}
+
+#coursesApp .cur-btn--danger:hover:not(:disabled) {
+    background: var(--danger-light);
+    color: var(--danger);
+}
+
+#coursesApp .cur-btn:disabled {
+    opacity: .3;
+    cursor: not-allowed;
+}
+
+#coursesApp .cur-btn:focus-visible {
+    outline: 3px solid rgba(99, 102, 241, .35);
+    outline-offset: 1px;
+}
+
+/* الدروس */
+#coursesApp .cur-lessons {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+
+#coursesApp .cur-lesson {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    padding: .7rem 1rem;
+    border-block-start: 1px solid var(--border);
+    transition: background var(--transition);
+}
+
+#coursesApp .cur-lesson:hover {
+    background: #f8fafc;
+}
+
+#coursesApp .cur-lesson__icon {
+    width: 34px;
+    height: 34px;
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    border-radius: var(--radius-sm);
+    background: var(--primary-light);
+    color: var(--primary);
+}
+
+#coursesApp .cur-lesson__meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .3rem;
+    margin-block-start: .3rem;
+}
+
+#coursesApp .cur-lesson__meta .badge {
+    font-size: .7rem;
+    padding: .15rem .5rem;
+}
+
+#coursesApp .cur-empty {
+    padding: 1.1rem;
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: .85rem;
+}
+
+/* سلة المحذوفات */
+#coursesApp .cur-trash-row {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    padding: .7rem .9rem;
+    margin-block-end: .5rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: var(--surface);
+}
+
+#coursesApp .cur-trash-row .cur-titles small {
+    white-space: normal;
+}
+
+#coursesApp .cur-trash-actions {
+    display: flex;
+    flex-shrink: 0;
+    gap: .4rem;
+}
+
+/* نموذج الدرس */
+#coursesApp .alert-box--info {
+    background: var(--info-light);
+    color: #155e75;
+    margin: 0;
+}
+
+#coursesApp .switch--ok input:checked+.switch__slider {
+    background: var(--success);
+}
+
+#coursesApp .att-locked {
+    padding: .75rem .9rem;
+    border: 1px dashed var(--border);
+    border-radius: var(--radius-md);
+    color: var(--text-secondary);
+    font-size: .85rem;
+    background: var(--background);
+}
+
+#coursesApp .att-list {
+    display: flex;
+    flex-direction: column;
+    gap: .4rem;
+}
+
+#coursesApp .att-item {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    padding: .5rem .7rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: var(--background);
+}
+
+#coursesApp .att-item__name {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--text-primary);
+    font-size: .88rem;
+    font-weight: 600;
+    text-decoration: none;
+    unicode-bidi: plaintext;
+}
+
+#coursesApp a.att-item__name:hover {
+    color: var(--primary);
+}
+
+#coursesApp .att-item__size {
+    color: var(--text-secondary);
+    font-size: .76rem;
+}
+
+#coursesApp .att-upload {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .6rem;
+    margin-block-start: .6rem;
+}
+
+#coursesApp .att-upload .is-loading {
+    opacity: .6;
+    pointer-events: none;
+}
+
+#coursesApp [data-group][hidden],
+#coursesApp .form-group[hidden] {
+    display: none;
+}
+
+@media (max-width: 720px) {
+
+    #coursesApp .cur-lesson,
+    #coursesApp .cur-section__head,
+    #coursesApp .cur-trash-row {
+        flex-wrap: wrap;
+    }
+
+    #coursesApp .cur-actions,
+    #coursesApp .cur-trash-actions {
+        width: 100%;
+        justify-content: flex-end;
+    }
+}
