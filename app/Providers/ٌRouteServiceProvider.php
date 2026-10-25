@@ -28,5 +28,6 @@ class AppServiceProvider extends ServiceProvider
         Route::pattern('lesson', '[0-9]+');
         Route::pattern('attachment', '[0-9]+');
         Route::pattern('id', '[0-9]+');
+        Route::pattern('enrollment', '[0-9]+');
     }
 }

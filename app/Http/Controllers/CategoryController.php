@@ -34,7 +34,7 @@ class CategoryController extends Controller implements HasMiddleware
         $per  = min(max((int) $request->get('per_page', 10), 5), 100);
 
         $categories = Category::query()
-            ->with('parent:id,name_ar,name_en')
+            ->with('parent:id,name_ar,name_en,deleted_at')
             ->withCount('children')
             ->search($request->get('search'))
             ->when($request->get('type') === 'root', fn($q) => $q->whereNull('parent_id'))
@@ -152,7 +152,7 @@ class CategoryController extends Controller implements HasMiddleware
     public function trashed(Request $request): JsonResponse
     {
         $categories = Category::onlyTrashed()
-            ->with('parent:id,name_ar,name_en')
+            ->with('parent:id,name_ar,name_en,deleted_at')       
             ->search($request->get('search'))
             ->latest('deleted_at')
             ->paginate(min(max((int) $request->get('per_page', 10), 5), 100))

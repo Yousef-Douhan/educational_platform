@@ -157,4 +157,9 @@ class Course extends Model
     {
         return $this->hasManyThrough(Lesson::class, CourseSection::class, 'course_id', 'section_id');
     }
+
+    public function enrollments(): HasMany
+    {
+        return $this->hasMany(Enrollment::class);
+    }
 }

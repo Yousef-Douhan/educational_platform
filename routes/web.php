@@ -9,6 +9,7 @@ use App\Http\Controllers\UserProfileController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CourseController;
+use App\Http\Controllers\EnrollmentController;
 use App\Http\Controllers\LessonAttachmentController;
 use App\Http\Controllers\LessonController;
 use App\Http\Controllers\SectionController;
@@ -69,16 +70,12 @@ Route::prefix('cms/admin')->name('cms.admin.')->middleware('auth')->group(functi
         ->parameters($profileParams)->middleware('can:user-profiles.delete');
 
     /* ------------------------------ Roles --------------------------- */
-    Route::resource('roles', RoleController::class)->only(['index', 'show'])->middleware('can:roles.view');
-    Route::resource('roles', RoleController::class)->only(['create', 'store'])->middleware('can:roles.create');
-    Route::resource('roles', RoleController::class)->only(['edit', 'update'])->middleware('can:roles.edit');
-    Route::resource('roles', RoleController::class)->only(['destroy'])->middleware('can:roles.delete');
+    Route::resource('roles', RoleController::class);
+
 
     /* --------------------------- Permissions ------------------------ */
-    Route::resource('permissions', PermissionController::class)->only(['index', 'show'])->middleware('can:permissions.view');
-    Route::resource('permissions', PermissionController::class)->only(['create', 'store'])->middleware('can:permissions.create');
-    Route::resource('permissions', PermissionController::class)->only(['edit', 'update'])->middleware('can:permissions.edit');
-    Route::resource('permissions', PermissionController::class)->only(['destroy'])->middleware('can:permissions.delete');
+    Route::resource('permissions', PermissionController::class);
+
 
 
     Route::get('categories/trashed', [CategoryController::class, 'trashed'])->name('categories.trashed');
@@ -116,4 +113,8 @@ Route::prefix('cms/admin')->name('cms.admin.')->middleware('auth')->group(functi
     Route::post('lessons/{lesson}/attachments', [LessonAttachmentController::class, 'store'])->name('lessons.attachments.store');
     Route::get('attachments/{attachment}/download', [LessonAttachmentController::class, 'download'])->name('attachments.download');
     Route::delete('attachments/{attachment}', [LessonAttachmentController::class, 'destroy'])->name('attachments.destroy');
+
+
+    Route::get('enrollments/lookup/users', [EnrollmentController::class, 'lookupUsers'])->name('enrollments.lookup-users');
+    Route::resource('enrollments', EnrollmentController::class)->except(['destroy']);
 });

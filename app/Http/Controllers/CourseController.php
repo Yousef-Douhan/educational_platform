@@ -44,8 +44,7 @@ class CourseController extends Controller implements HasMiddleware
 
         $courses = Course::query()
             ->visibleTo($user)
-            ->with(['instructor:id,name,email', 'category:id,name_ar,name_en'])
-            ->withCount('coInstructors')
+            ->with(['instructor:id,name,email,deleted_at', 'category:id,name_ar,name_en,deleted_at'])            ->withCount('coInstructors')
             ->search($request->get('search'))
             ->when($request->filled('status'), fn($q) => $q->where('status', $request->get('status')))
             ->when($request->filled('level'), fn($q) => $q->where('level', $request->get('level')))
@@ -194,8 +193,7 @@ class CourseController extends Controller implements HasMiddleware
 
         $courses = Course::onlyTrashed()
             ->visibleTo($request->user())
-            ->with(['instructor:id,name,email', 'category:id,name_ar,name_en'])
-            ->search($request->get('search'))
+            ->with(['instructor:id,name,email,deleted_at', 'category:id,name_ar,name_en,deleted_at'])            ->search($request->get('search'))
             ->latest('deleted_at')
             ->paginate(min(max((int) $request->get('per_page', 10), 5), 100))
             ->withQueryString();

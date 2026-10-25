@@ -1,0 +1,140 @@
+#enrollmentsApp .hero-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .4rem;
+    margin-block-start: .5rem;
+}
+
+#enrollmentsApp .user-cell__name,
+#enrollmentsApp .user-cell__email {
+    unicode-bidi: plaintext;
+}
+
+/* اختيار الطالب */
+#enrollmentsApp .user-picker {
+    position: relative;
+}
+
+#enrollmentsApp .user-results {
+    position: absolute;
+    inset-inline: 0;
+    top: calc(100% + 4px);
+    z-index: 5;
+    max-height: 240px;
+    overflow-y: auto;
+    padding: .35rem;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+}
+
+#enrollmentsApp .user-result {
+    display: flex;
+    align-items: center;
+    gap: .7rem;
+    width: 100%;
+    padding: .5rem .6rem;
+    border: 0;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    font: inherit;
+    text-align: start;
+    cursor: pointer;
+}
+
+#enrollmentsApp .user-result:hover,
+#enrollmentsApp .user-result:focus-visible {
+    background: var(--primary-light);
+    outline: none;
+}
+
+#enrollmentsApp .user-result strong,
+#enrollmentsApp .picked-user__info strong {
+    display: block;
+    font-size: .88rem;
+}
+
+#enrollmentsApp .user-result small,
+#enrollmentsApp .picked-user__info small {
+    display: block;
+    color: var(--text-secondary);
+    font-size: .76rem;
+}
+
+#enrollmentsApp .user-results__empty {
+    padding: .8rem;
+    color: var(--text-secondary);
+    font-size: .85rem;
+    text-align: center;
+}
+
+#enrollmentsApp .picked-user {
+    display: flex;
+    align-items: center;
+    gap: .7rem;
+    padding: .55rem .7rem;
+    border: 1px solid var(--primary);
+    border-radius: var(--radius-md);
+    background: var(--primary-light);
+}
+
+#enrollmentsApp .picked-user__info {
+    flex: 1;
+    min-width: 0;
+}
+
+#enrollmentsApp .cur-btn-lite {
+    width: 30px;
+    height: 30px;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--text-secondary);
+    cursor: pointer;
+}
+
+#enrollmentsApp .cur-btn-lite:hover {
+    background: #fff;
+    color: var(--danger);
+}
+
+#enrollmentsApp [hidden] {
+    display: none !important;
+}
+
+/* عرض الهوية عند التعديل */
+#enrollmentsApp .readonly-box {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: .75rem;
+    padding: .8rem 1rem;
+    border: 1px dashed var(--border);
+    border-radius: var(--radius-md);
+    background: var(--background);
+}
+
+#enrollmentsApp .readonly-box small {
+    display: block;
+    color: var(--text-secondary);
+    font-size: .74rem;
+}
+
+#enrollmentsApp .readonly-box strong {
+    display: block;
+    font-size: .9rem;
+    unicode-bidi: plaintext;
+}
+
+#enrollmentsApp .readonly-box em {
+    display: block;
+    color: var(--text-secondary);
+    font-size: .78rem;
+    font-style: normal;
+}
+
+@media (max-width: 720px) {
+    #enrollmentsApp .readonly-box {
+        grid-template-columns: 1fr;
+    }
+}

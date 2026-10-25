@@ -17,8 +17,10 @@
                 <i class="fa-solid fa-trash-can-arrow-up"></i> {{ $trashLabel }}
             </button>
         @endisset
-        <button type="button" class="btn btn-primary" data-action="open-create">
-            <i class="fa-solid fa-plus"></i> {{ $addLabel }}
-        </button>
+        @if ($canAdd ?? true)
+            <button type="button" class="btn btn-primary" data-action="open-create">
+                <i class="fa-solid fa-plus"></i> {{ $addLabel }}
+            </button>
+        @endif
     </div>
 </header>

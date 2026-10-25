@@ -15,4 +15,6 @@ return [
     'force_deleted_successfully' => 'User deleted permanently.',
     'has_courses' => 'This user is an instructor of courses. Reassign or delete the courses first.',
     'force_has_courses' => 'This user still owns courses, including deleted ones.',
+    'force_has_enrollments' => 'This user has course enrollments, which are kept as history.',
+
 ];

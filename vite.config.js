@@ -21,6 +21,8 @@ export default defineConfig({
                 'resources/css/cms/courses.css',
                 'resources/js/cms/courses.js',
                 'resources/css/cms/curriculum.css',
+                'resources/css/cms/enrollments.css',
+                'resources/js/cms/enrollments.js',
             ],
             refresh: true,
             fonts: [

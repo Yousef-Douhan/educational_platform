@@ -512,4 +512,6 @@ class CourseCrudTest extends TestCase
             ->getJson(route('cms.admin.courses.index'))
             ->assertForbidden();
     }
+
+    
 }

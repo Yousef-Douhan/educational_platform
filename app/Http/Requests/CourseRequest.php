@@ -20,7 +20,7 @@ abstract class CourseRequest extends FormRequest
         return [
             // المدير يختار المدرّس، وغيره يُعيَّن تلقائيًا في الـ Controller
             'instructor_id' => $canPick
-                ? ['required', 'integer', Rule::exists('users', 'id')->whereNull('deleted_at'), $this->mustBeInstructor()]
+                ? ['required', 'integer', Rule::exists('users', 'id')->whereNull('deleted_at'), $this->mustBeInstructor(true)]
                 : ['exclude'],
 
             'category_id' => ['required', 'integer', Rule::exists('categories', 'id')->whereNull('deleted_at')],
@@ -101,9 +101,15 @@ abstract class CourseRequest extends FormRequest
     }
 
     /** المستخدم المختار يجب أن يحمل دور instructor */
-    private function mustBeInstructor(): Closure
+    /** المستخدم المختار يجب أن يحمل دور instructor */
+    private function mustBeInstructor(bool $allowCurrent = false): Closure
     {
-        return function ($attribute, $value, $fail) {
+        return function ($attribute, $value, $fail) use ($allowCurrent) {
+            // تعديل دورة دون تغيير مدرّسها: لا نعيق الحفظ لأن المدرّس فقد الدور لاحقًا
+            if ($allowCurrent && (int) $value === $this->route('course')?->instructor_id) {
+                return;
+            }
+
             $ok = User::query()
                 ->whereKey($value)
                 ->whereHas('roles', fn($q) => $q->where('name', 'instructor'))
