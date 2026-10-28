@@ -17,8 +17,7 @@ class RoleCrudTest extends TestCase
     {
         parent::setUp();
         app(PermissionRegistrar::class)->forgetCachedPermissions();
-        $this->actingAs(User::factory()->create());
-    }
+        $this->actingAsSuperAdmin();    }
 
     public function test_index_page_renders(): void
     {

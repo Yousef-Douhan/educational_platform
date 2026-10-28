@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Lesson extends Model
@@ -53,5 +54,10 @@ class Lesson extends Model
     public function owningCourse(): Course
     {
         return $this->section->course;
+    }
+
+    public function quiz(): HasOne
+    {
+        return $this->hasOne(Quiz::class);
     }
 }

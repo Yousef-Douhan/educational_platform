@@ -23,6 +23,8 @@ export default defineConfig({
                 'resources/css/cms/curriculum.css',
                 'resources/css/cms/enrollments.css',
                 'resources/js/cms/enrollments.js',
+                'resources/css/cms/quizzes.css',
+                'resources/js/cms/quizzes.js',
             ],
             refresh: true,
             fonts: [

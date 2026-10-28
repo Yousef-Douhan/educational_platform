@@ -88,7 +88,7 @@ class AccessControlTest extends TestCase
 
     public function test_assign_roles_is_ignored_without_the_permission(): void
     {
-        $role = Role::create(['name' => 'editor']);
+        $role = Role::findByName('editor', 'web');
         $actor = $this->userWith('users.create'); // بدون users.assign-roles
 
         $this->actingAs($actor)->postJson(route('cms.admin.users.store'), [

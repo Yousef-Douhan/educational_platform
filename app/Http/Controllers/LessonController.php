@@ -6,6 +6,7 @@ use App\Http\Requests\LessonRequest;
 use App\Models\Course;
 use App\Models\CourseSection;
 use App\Models\Lesson;
+use App\Models\Quiz;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Routing\Controllers\HasMiddleware;
@@ -149,13 +150,16 @@ class LessonController extends Controller implements HasMiddleware
         abort_if($course->trashed(), 404);
         Gate::authorize('forceDelete', $course);
 
-        // لا يُحذف نهائيًا درس له تقدّم طلاب (يتجاهل الجدول إن لم يُنشأ بعد)
-        if (Schema::hasTable('lesson_progress') && DB::table('lesson_progress')->where('lesson_id', $lesson->id)->exists()) {
+        // لا يُحذف نهائيًا درس له تقدّم طلاب أو محاولات على اختباره
+        $hasProgress = Schema::hasTable('lesson_progress')
+            && DB::table('lesson_progress')->where('lesson_id', $lesson->id)->exists();
+
+        if ($hasProgress || Quiz::attemptsExistForLesson($lesson->id)) {
             return response()->json(['message' => __('curriculum.messages.lesson_has_progress')], 409);
         }
 
         $lessonId = $lesson->id;
-        DB::transaction(fn() => $lesson->forceDelete()); // المرفقات تُحذف بالتتالي
+        DB::transaction(fn() => $lesson->forceDelete()); // المرفقات والاختبار يُحذفان بالتتالي
         Storage::disk('local')->deleteDirectory("lesson-attachments/{$lessonId}");
 
         return response()->json(['message' => __('curriculum.messages.lesson_force_deleted')]);

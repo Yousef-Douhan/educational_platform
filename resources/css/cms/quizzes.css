@@ -1,0 +1,361 @@
+#quizzesApp .user-cell__name,
+#quizzesApp .user-cell__email {
+    unicode-bidi: plaintext;
+}
+
+#quizzesApp .crud-modal--top {
+    z-index: 1050;
+}
+
+#quizzesApp .crud-modal__dialog--xl {
+    max-width: 1040px;
+}
+
+#quizzesApp .hero-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .4rem;
+    margin-block-start: .5rem;
+}
+
+#quizzesApp .alert-box--info {
+    background: var(--info-light);
+    color: #155e75;
+    margin: 0;
+}
+
+#quizzesApp .alert-box--warning {
+    background: var(--warning-light);
+    color: #92400e;
+}
+
+#quizzesApp .readonly-box {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: .75rem;
+    padding: .8rem 1rem;
+    border: 1px dashed var(--border);
+    border-radius: var(--radius-md);
+    background: var(--background);
+}
+
+#quizzesApp .readonly-box small {
+    display: block;
+    color: var(--text-secondary);
+    font-size: .74rem;
+}
+
+#quizzesApp .readonly-box strong {
+    display: block;
+    font-size: .9rem;
+    unicode-bidi: plaintext;
+}
+
+#quizzesApp .rep-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .5rem;
+    margin-block-end: .5rem;
+}
+
+#quizzesApp .rep-head .form-label {
+    margin: 0;
+}
+
+/* منشئ الأسئلة */
+#quizzesApp .qb-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: .6rem;
+    margin-block-end: 1rem;
+}
+
+#quizzesApp .qb-stat {
+    padding: .7rem .9rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: var(--background);
+}
+
+#quizzesApp .qb-stat strong {
+    display: block;
+    font-size: 1.25rem;
+    line-height: 1.2;
+}
+
+#quizzesApp .qb-stat small {
+    color: var(--text-secondary);
+    font-size: .76rem;
+}
+
+#quizzesApp .qb-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: .5rem;
+    margin-block-end: 1rem;
+}
+
+#quizzesApp .qb-empty {
+    padding: 1.4rem;
+    text-align: center;
+    color: var(--text-secondary);
+    font-size: .88rem;
+}
+
+#quizzesApp .qb-card {
+    margin-block-end: .8rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    background: var(--surface);
+    overflow: hidden;
+}
+
+#quizzesApp .qb-card__head {
+    display: flex;
+    align-items: flex-start;
+    gap: .75rem;
+    padding: .85rem 1rem;
+    background: var(--background);
+}
+
+#quizzesApp .qb-card__no {
+    width: 30px;
+    height: 30px;
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--primary-light);
+    color: var(--primary);
+    font-size: .82rem;
+    font-weight: 700;
+}
+
+#quizzesApp .qb-card__title {
+    flex: 1;
+    min-width: 0;
+}
+
+#quizzesApp .qb-card__title p {
+    margin: 0 0 .4rem;
+    font-weight: 600;
+    line-height: 1.6;
+    overflow-wrap: anywhere;
+    unicode-bidi: plaintext;
+    white-space: pre-line;
+}
+
+#quizzesApp .qb-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .35rem;
+}
+
+#quizzesApp .qb-actions {
+    display: flex;
+    flex-shrink: 0;
+    gap: .15rem;
+}
+
+#quizzesApp .qb-btn {
+    width: 32px;
+    height: 32px;
+    border: 0;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+#quizzesApp .qb-btn:hover:not(:disabled) {
+    background: var(--primary-light);
+    color: var(--primary);
+}
+
+#quizzesApp .qb-btn--danger:hover:not(:disabled) {
+    background: var(--danger-light);
+    color: var(--danger);
+}
+
+#quizzesApp .qb-btn:disabled {
+    opacity: .3;
+    cursor: not-allowed;
+}
+
+#quizzesApp .qb-btn:focus-visible {
+    outline: 3px solid rgba(99, 102, 241, .35);
+    outline-offset: 1px;
+}
+
+#quizzesApp .qb-opts {
+    margin: 0;
+    padding: .6rem 1rem .8rem;
+    list-style: none;
+    display: grid;
+    gap: .35rem;
+}
+
+#quizzesApp .qb-opt {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    padding: .4rem .7rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: .88rem;
+}
+
+#quizzesApp .qb-opt.is-correct {
+    border-color: var(--success);
+    background: var(--success-light);
+}
+
+#quizzesApp .qb-opt__letter {
+    width: 22px;
+    height: 22px;
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--background);
+    color: var(--text-secondary);
+    font-size: .72rem;
+    font-weight: 700;
+}
+
+#quizzesApp .qb-opt__text {
+    flex: 1;
+    min-width: 0;
+    overflow-wrap: anywhere;
+    unicode-bidi: plaintext;
+}
+
+#quizzesApp .qb-opt .fa-check {
+    color: var(--success);
+}
+
+#quizzesApp .qb-answers {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .4rem;
+    padding: .6rem 1rem .8rem;
+}
+
+#quizzesApp .qb-answer {
+    padding: .25rem .7rem;
+    border-radius: 999px;
+    background: var(--success-light);
+    color: #047857;
+    font-size: .8rem;
+    font-weight: 600;
+    unicode-bidi: plaintext;
+}
+
+#quizzesApp .qb-trash-row {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    padding: .7rem .9rem;
+    margin-block-end: .5rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: var(--surface);
+}
+
+#quizzesApp .qb-trash-row .qb-card__title p {
+    margin: 0 0 .3rem;
+}
+
+#quizzesApp .qb-trash-actions {
+    display: flex;
+    flex-shrink: 0;
+    gap: .4rem;
+}
+
+/* نموذج السؤال */
+#quizzesApp .opt-list {
+    display: flex;
+    flex-direction: column;
+    gap: .5rem;
+}
+
+#quizzesApp .opt-row {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    gap: .6rem;
+    align-items: center;
+}
+
+#quizzesApp .opt-row input[type="radio"] {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--success);
+}
+
+#quizzesApp .opt-remove {
+    width: 36px;
+    height: 36px;
+    border: 0;
+    border-radius: var(--radius-sm);
+    background: var(--danger-light);
+    color: #b91c1c;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+#quizzesApp .opt-remove:hover:not(:disabled) {
+    background: #fee2e2;
+}
+
+#quizzesApp .opt-remove:disabled {
+    opacity: .35;
+    cursor: not-allowed;
+}
+
+#quizzesApp .tf-choices {
+    display: flex;
+    gap: .75rem;
+    margin-block-start: .35rem;
+}
+
+#quizzesApp .tf-choice {
+    display: inline-flex;
+    align-items: center;
+    gap: .55rem;
+    padding: .6rem 1.2rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: var(--surface);
+    font-weight: 600;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+#quizzesApp .tf-choice:has(input:checked) {
+    border-color: var(--success);
+    background: var(--success-light);
+}
+
+#quizzesApp .tf-choice input {
+    accent-color: var(--success);
+}
+
+@media (max-width: 720px) {
+    #quizzesApp .readonly-box {
+        grid-template-columns: 1fr;
+    }
+
+    #quizzesApp .qb-card__head,
+    #quizzesApp .qb-trash-row {
+        flex-wrap: wrap;
+    }
+
+    #quizzesApp .qb-actions,
+    #quizzesApp .qb-trash-actions {
+        width: 100%;
+        justify-content: flex-end;
+    }
+}

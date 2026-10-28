@@ -12,6 +12,8 @@ use App\Http\Controllers\CourseController;
 use App\Http\Controllers\EnrollmentController;
 use App\Http\Controllers\LessonAttachmentController;
 use App\Http\Controllers\LessonController;
+use App\Http\Controllers\QuestionController;
+use App\Http\Controllers\QuizController;
 use App\Http\Controllers\SectionController;
 
 Route::get('/', function () {
@@ -117,4 +119,19 @@ Route::prefix('cms/admin')->name('cms.admin.')->middleware('auth')->group(functi
 
     Route::get('enrollments/lookup/users', [EnrollmentController::class, 'lookupUsers'])->name('enrollments.lookup-users');
     Route::resource('enrollments', EnrollmentController::class)->except(['destroy']);
+
+
+    Route::get('quizzes/trashed', [QuizController::class, 'trashed'])->name('quizzes.trashed');
+    Route::patch('quizzes/{id}/restore', [QuizController::class, 'restore'])->name('quizzes.restore');
+    Route::delete('quizzes/{id}/force-delete', [QuizController::class, 'forceDelete'])->name('quizzes.force-delete');
+    Route::resource('quizzes', QuizController::class);
+
+    Route::get('quizzes/{quiz}/questions', [QuestionController::class, 'index'])->name('quizzes.questions.index');
+    Route::post('quizzes/{quiz}/questions', [QuestionController::class, 'store'])->name('quizzes.questions.store');
+    Route::post('quizzes/{quiz}/questions/reorder', [QuestionController::class, 'reorder'])->name('quizzes.questions.reorder');
+    Route::get('quizzes/{quiz}/questions/trashed', [QuestionController::class, 'trashed'])->name('quizzes.questions.trashed');
+    Route::put('questions/{question}', [QuestionController::class, 'update'])->name('questions.update');
+    Route::delete('questions/{question}', [QuestionController::class, 'destroy'])->name('questions.destroy');
+    Route::patch('questions/{id}/restore', [QuestionController::class, 'restore'])->name('questions.restore');
+    Route::delete('questions/{id}/force-delete', [QuestionController::class, 'forceDelete'])->name('questions.force-delete');
 });

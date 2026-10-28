@@ -30,6 +30,10 @@ class RolesAndPermissionsSeeder extends Seeder
             Permission::findOrCreate("enrollments.{$action}", 'web');
         }
 
+        foreach (['courses.manage-all', 'courses.publish', 'users.assign-roles'] as $name) {
+            Permission::findOrCreate($name, 'web');
+        }
+
         // المدير الأعلى: كل الصلاحيات (يجب أن يُنفَّذ بعد إنشائها كلها)
         Role::findOrCreate('super-admin', 'web')->syncPermissions(Permission::all());
 

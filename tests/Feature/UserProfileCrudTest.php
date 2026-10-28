@@ -19,8 +19,7 @@ class UserProfileCrudTest extends TestCase
     {
         parent::setUp();
         Storage::fake('public');
-        $this->actingAs(User::factory()->create());
-    }
+        $this->actingAsSuperAdmin();    }
 
     /* ---------- Index ---------- */
 
@@ -341,10 +340,10 @@ class UserProfileCrudTest extends TestCase
         $this->assertTrue($profile->user->profile->is($profile));
     }
 
-    public function test_deleting_user_cascades_to_profile(): void
+    public function test_force_deleting_user_is_blocked_while_profile_exists_or_cascades(): void
     {
         $profile = UserProfile::factory()->create();
-        $profile->user->delete();
+        $profile->user->forceDelete(); // المستخدمون يُحذفون مؤقتًا افتراضيًا، فالتتالي يحدث عند الحذف النهائي
 
         $this->assertDatabaseMissing('user_profiles', ['id' => $profile->id]);
     }

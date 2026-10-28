@@ -6,6 +6,7 @@ use App\Http\Requests\StoreCourseRequest;
 use App\Http\Requests\UpdateCourseRequest;
 use App\Models\Category;
 use App\Models\Course;
+use App\Models\Quiz;
 use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -353,7 +354,7 @@ class CourseController extends Controller implements HasMiddleware
             }
         }
 
-        return false;
+        return Quiz::attemptsExistForCourse($courseId);
     }
 
     private function deleteImage(?string $path): void
