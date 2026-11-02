@@ -10,6 +10,8 @@
         "laravel/framework": "^13.17",
         "laravel/passport": "^13.10",
         "laravel/tinker": "^3.0",
+        "mpdf/mpdf": "^8.3",
+        "mpdf/qrcode": "^1.2",
         "spatie/laravel-permission": "^8.3"
     },
     "require-dev": {
@@ -77,13 +79,23 @@
     },
     "config": {
         "optimize-autoloader": true,
-        "preferred-install": "dist",
         "sort-packages": true,
         "allow-plugins": {
             "pestphp/pest-plugin": true,
             "php-http/discovery": true
+        },
+        "preferred-install": {
         }
     },
+
+
+    "repositories": [
+    {
+        "type": "path",
+        "url": "C:/dev/packages/mpdf",
+        "options": { "symlink": false, "versions": { "mpdf/mpdf": "8.3.1" } }
+    }
+ ],
     "minimum-stability": "stable",
     "prefer-stable": true
 }

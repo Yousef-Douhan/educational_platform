@@ -1,0 +1,124 @@
+body {
+    font-family: __FONT__, sans-serif;
+    color: #1f2937;
+    margin: 0;
+    padding: 0;
+}
+
+/* ===== التصميم العصري ===== */
+.m-brand {
+    color: #ffffff;
+    font-size: 12pt;
+    font-weight: bold;
+}
+
+.m-seal {
+    color: #c9a24b;
+    font-size: 9pt;
+    font-weight: bold;
+}
+
+.m-code {
+    color: #ffffff;
+    font-size: 8.5pt;
+    direction: ltr;
+    letter-spacing: 1pt;
+}
+
+.m-scan {
+    color: #a5b4fc;
+    font-size: 8pt;
+}
+
+.m-title {
+    font-size: 34pt;
+    font-weight: bold;
+    color: #1e1b4b;
+}
+
+.m-lead {
+    font-size: 12pt;
+    color: #6b7280;
+}
+
+.m-name {
+    font-weight: bold;
+    color: #111827;
+}
+
+.m-course {
+    font-weight: bold;
+    color: #4338ca;
+}
+
+.m-foot-value {
+    font-size: 12pt;
+    font-weight: bold;
+    color: #111827;
+    height: 8mm;
+}
+
+.m-foot-line {
+    height: 0.3mm;
+    background-color: #6b7280;
+}
+
+.m-foot-label {
+    font-size: 8.5pt;
+    color: #6b7280;
+    margin-top: 1.5mm;
+}
+
+/* ===== النص فوق صورة القالب ===== */
+.o-title {
+    font-size: 32pt;
+    font-weight: bold;
+}
+
+.o-lead {
+    font-size: 13pt;
+    color: #4b5563;
+}
+
+.o-name {
+    font-size: 28pt;
+    font-weight: bold;
+}
+
+.o-course {
+    font-size: 20pt;
+    font-weight: bold;
+}
+
+.o-foot-value {
+    font-size: 12pt;
+    font-weight: bold;
+    color: #111827;
+    height: 8mm;
+}
+
+.o-foot-line {
+    height: 0.3mm;
+    background-color: #6b7280;
+}
+
+.o-foot-label {
+    font-size: 8pt;
+    color: #6b7280;
+    margin-top: 1.5mm;
+}
+
+.o-code {
+    font-size: 9pt;
+    letter-spacing: 1pt;
+    color: #374151;
+    direction: ltr;
+    margin-top: 1mm;
+}
+
+.barcode {
+    padding: 0;
+    margin: 0;
+    vertical-align: top;
+    color: #000000;
+}

@@ -104,6 +104,21 @@
                     </a>
                 @endcan
 
+                @can('certificate-templates.view')
+                    <a href="{{ route('cms.admin.certificate-templates.index') }}"
+                        class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-200 transition hover:bg-slate-800 hover:text-white {{ request()->routeIs('cms.admin.certificate-templates.*') ? 'bg-slate-800 text-white' : '' }}">
+                        <i class="fa-solid fa-certificate w-5 text-sky-400"></i>
+                        {{ __('certificate-templates.title') }}
+                    </a>
+                @endcan
+                @can('certificates.view')
+                    <a href="{{ route('cms.admin.certificates.index') }}"
+                        class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-200 transition hover:bg-slate-800 hover:text-white {{ request()->routeIs('cms.admin.certificates.*') ? 'bg-slate-800 text-white' : '' }}">
+                        <i class="fa-solid fa-award w-5 text-sky-400"></i>
+                        {{ __('certificates.title') }}
+                    </a>
+                @endcan
+
             </nav>
 
             <div class="border-t border-slate-800 p-4">

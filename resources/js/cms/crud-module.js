@@ -273,8 +273,9 @@ export function createCrudModule(app, hooks = {}) {
         }
     });
 
-    createForm.addEventListener('submit', (e) => { e.preventDefault(); storeRecord(); });
-    editForm.addEventListener('submit', (e) => { e.preventDefault(); updateRecord(); });
+    createForm?.addEventListener('submit', (e) => { e.preventDefault(); storeRecord(); });
+    editForm?.addEventListener('submit', (e) => { e.preventDefault(); updateRecord(); });
+
 
     hooks.init?.(app);
 

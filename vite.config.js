@@ -25,6 +25,11 @@ export default defineConfig({
                 'resources/js/cms/enrollments.js',
                 'resources/css/cms/quizzes.css',
                 'resources/js/cms/quizzes.js',
+                'resources/css/cms/certificate-templates.css',
+                'resources/js/cms/certificate-templates.js',
+                'resources/css/cms/certificates.css',
+                'resources/js/cms/certificates.js',
+                'resources/css/verify.css',     
             ],
             refresh: true,
             fonts: [

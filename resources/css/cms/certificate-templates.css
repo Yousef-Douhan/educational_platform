@@ -1,0 +1,135 @@
+#templatesApp .user-cell__name {
+    unicode-bidi: plaintext;
+}
+
+#templatesApp .tpl-thumb {
+    width: 96px;
+    height: 68px;
+    object-fit: cover;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--background);
+}
+
+#templatesApp .design-box {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    border: 1.5px dashed var(--border);
+    border-radius: var(--radius-md);
+    background: var(--background);
+}
+
+#templatesApp .design-preview {
+    width: 168px;
+    aspect-ratio: 1.414;
+    flex-shrink: 0;
+    display: grid;
+    place-items: center;
+    overflow: hidden;
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-secondary);
+    font-size: 1.6rem;
+}
+
+#templatesApp .design-preview img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+#templatesApp .design-preview--lg {
+    width: 100%;
+    max-width: 420px;
+    margin: 0 auto 1.25rem;
+}
+
+#templatesApp .upload-actions {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: .4rem;
+}
+
+#templatesApp .switch--ok input:checked+.switch__slider {
+    background: var(--success);
+}
+
+#templatesApp .badge--success i {
+    font-size: .7rem;
+}
+
+@media (max-width: 720px) {
+    #templatesApp .design-box {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    #templatesApp .design-preview {
+        width: 100%;
+    }
+}
+#templatesApp .action-link {
+    display: flex;
+    align-items: center;
+    gap: .65rem;
+    width: 100%;
+    padding: .55rem .75rem;
+    border-radius: var(--radius-sm);
+    font-size: .86rem;
+    color: var(--text-primary);
+    text-decoration: none;
+}
+
+#templatesApp .action-link i {
+    width: 16px;
+    text-align: center;
+    color: var(--text-secondary);
+}
+
+#templatesApp .action-link:hover {
+    background: var(--background);
+}
+
+#templatesApp .layout-box {
+    padding: .8rem 1rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    background: var(--background);
+}
+
+#templatesApp .layout-box summary {
+    cursor: pointer;
+    font-weight: 600;
+    font-size: .9rem;
+}
+
+#templatesApp .layout-box[open] summary {
+    margin-block-end: .6rem;
+}
+
+#templatesApp .color-input {
+    width: 100%;
+    height: 40px;
+    padding: 2px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--surface);
+    cursor: pointer;
+}
+
+#templatesApp .layout-flags {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: .5rem;
+}
+
+#templatesApp .check-row {
+    display: flex;
+    align-items: center;
+    gap: .55rem;
+    font-size: .86rem;
+}

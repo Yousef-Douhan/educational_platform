@@ -220,6 +220,10 @@ class UserController extends Controller
             return $this->conflict('users.force_has_courses');
         }
 
+        if ($user->certificates()->exists()) {
+            return $this->conflict('users.force_has_certificates');
+        }
+
         $user->forceDelete();
 
         return response()->json([

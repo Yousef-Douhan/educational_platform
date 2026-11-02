@@ -3,6 +3,8 @@
 use App\Http\Controllers\Admin\UserController as AdminUserController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\CertificateController;
+use App\Http\Controllers\CertificateTemplateController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserProfileController;
@@ -134,4 +136,31 @@ Route::prefix('cms/admin')->name('cms.admin.')->middleware('auth')->group(functi
     Route::delete('questions/{question}', [QuestionController::class, 'destroy'])->name('questions.destroy');
     Route::patch('questions/{id}/restore', [QuestionController::class, 'restore'])->name('questions.restore');
     Route::delete('questions/{id}/force-delete', [QuestionController::class, 'forceDelete'])->name('questions.force-delete');
+
+
+
+
+    Route::get('certificate-templates/trashed', [CertificateTemplateController::class, 'trashed'])->name('certificate-templates.trashed');
+    Route::patch('certificate-templates/{id}/restore', [CertificateTemplateController::class, 'restore'])->name('certificate-templates.restore');
+    Route::delete('certificate-templates/{id}/force-delete', [CertificateTemplateController::class, 'forceDelete'])->name('certificate-templates.force-delete');
+    Route::resource('certificate-templates', CertificateTemplateController::class);
+
+    Route::get('certificates/eligible', [CertificateController::class, 'eligible'])->name('certificates.eligible');
+    Route::post('certificates/{certificate}/revoke', [CertificateController::class, 'revoke'])->name('certificates.revoke');
+    Route::post('certificates/{certificate}/reinstate', [CertificateController::class, 'reinstate'])->name('certificates.reinstate');
+    Route::get('certificates/{certificate}/download', [CertificateController::class, 'download'])->name('certificates.download');
+    Route::resource('certificates', CertificateController::class)->only(['index', 'create', 'store', 'show']);
+    Route::get('certificate-templates/{certificate_template}/preview', [CertificateTemplateController::class, 'preview'])->name('certificate-templates.preview');
+    
+});
+
+
+
+
+use App\Http\Controllers\CertificateVerificationController;
+
+Route::middleware('throttle:certificate-verify')->group(function () {
+    Route::get('certificates/verify', [CertificateVerificationController::class, 'form'])->name('certificates.verify.form');
+    Route::get('certificates/verify/{code}', [CertificateVerificationController::class, 'show'])
+        ->where('code', '[A-Za-z0-9\-]{1,100}')->name('certificates.verify');
 });

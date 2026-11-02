@@ -7,6 +7,9 @@ use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\ServiceProvider;
 use Laravel\Passport\Passport;
+use Illuminate\Cache\RateLimiting\Limit;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\RateLimiter;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -40,5 +43,9 @@ class AppServiceProvider extends ServiceProvider
         Route::pattern('id', '[0-9]+');
         Route::pattern('quiz', '[0-9]+');
         Route::pattern('question', '[0-9]+');
+        Route::pattern('certificate', '[0-9]+');
+        Route::pattern('certificate_template', '[0-9]+');
+
+        RateLimiter::for('certificate-verify', fn(Request $request) => Limit::perMinute(30)->by($request->ip()));
     }
 }

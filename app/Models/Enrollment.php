@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\DB;
 
 class Enrollment extends Model
 {
@@ -85,5 +86,14 @@ class Enrollment extends Model
     public function scopeVisibleTo(Builder $query, User $user): Builder
     {
         return $query->whereHas('course', fn($c) => $c->withTrashed()->visibleTo($user));
+    }
+
+    public function scopeEligibleForCertificate(Builder $query): Builder
+    {
+        return $query->where('status', 'completed')->whereNotExists(function ($q) {
+            $q->select(DB::raw(1))->from('certificates')
+                ->whereColumn('certificates.user_id', 'enrollments.user_id')
+                ->whereColumn('certificates.course_id', 'enrollments.course_id');
+        });
     }
 }
