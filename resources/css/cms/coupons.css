@@ -1,0 +1,65 @@
+#couponsApp .coupon-code {
+    display: inline-block;
+    padding: .25rem .65rem;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+    font-size: .85rem;
+    font-weight: 700;
+    letter-spacing: .06em;
+    color: var(--primary);
+    background: var(--primary-light);
+    border: 1px dashed currentColor;
+    border-radius: var(--radius-sm);
+    unicode-bidi: plaintext;
+}
+
+#couponsApp .coupon-code--lg { font-size: 1.15rem; padding: .45rem 1rem; }
+
+#couponsApp .coupon-hero {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-block-end: 1rem;
+}
+
+#couponsApp .discount-cell { font-weight: 700; font-size: 1.05rem; }
+#couponsApp .usage-cell { font-size: .85rem; font-weight: 600; }
+#couponsApp .validity-cell { font-size: .8rem; line-height: 1.5; }
+
+#couponsApp .usage-bar {
+    width: 96px;
+    height: 6px;
+    margin-block-start: .35rem;
+    overflow: hidden;
+    border-radius: 999px;
+    background: var(--border);
+}
+
+#couponsApp .usage-bar span {
+    display: block;
+    height: 100%;
+    background: var(--primary);
+    border-radius: inherit;
+}
+
+#couponsApp .code-row { display: flex; gap: .5rem; align-items: stretch; }
+#couponsApp .code-row .input-icon { flex: 1; }
+#couponsApp .code-input { text-transform: uppercase; letter-spacing: .06em; font-weight: 600; }
+
+#couponsApp .unit-badge {
+    margin-inline-start: .35rem;
+    padding: 0 .4rem;
+    font-size: .72rem;
+    font-weight: 700;
+    color: var(--primary);
+    background: var(--primary-light);
+    border-radius: var(--radius-sm);
+}
+
+#couponsApp .alert-box--info {
+    background: var(--primary-light);
+    color: var(--primary);
+    border-color: transparent;
+}
+
+#couponsApp [hidden] { display: none !important; }

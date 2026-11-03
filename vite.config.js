@@ -29,7 +29,11 @@ export default defineConfig({
                 'resources/js/cms/certificate-templates.js',
                 'resources/css/cms/certificates.css',
                 'resources/js/cms/certificates.js',
-                'resources/css/verify.css',     
+                'resources/css/verify.css',
+                'resources/css/cms/coupons.css',
+                'resources/js/cms/coupons.js',
+                'resources/css/cms/carts.css',
+                'resources/js/cms/carts.js',
             ],
             refresh: true,
             fonts: [

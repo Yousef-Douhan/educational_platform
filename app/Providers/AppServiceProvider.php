@@ -45,6 +45,8 @@ class AppServiceProvider extends ServiceProvider
         Route::pattern('question', '[0-9]+');
         Route::pattern('certificate', '[0-9]+');
         Route::pattern('certificate_template', '[0-9]+');
+        Route::pattern('coupon', '[0-9]+');
+        Route::pattern('cart', '[0-9]+');
 
         RateLimiter::for('certificate-verify', fn(Request $request) => Limit::perMinute(30)->by($request->ip()));
     }

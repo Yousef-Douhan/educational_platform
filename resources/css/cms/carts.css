@@ -1,0 +1,30 @@
+#cartsApp .user-cell__name { unicode-bidi: plaintext; font-weight: 600; }
+#cartsApp .discount-cell { font-weight: 700; }
+
+#cartsApp .cart-items { display: grid; gap: .5rem; }
+
+#cartsApp .cart-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: .65rem .85rem;
+    background: var(--background);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+}
+
+#cartsApp .cart-item--invalid { border-style: dashed; opacity: .8; }
+#cartsApp .cart-item__info { display: grid; gap: .15rem; min-width: 0; }
+#cartsApp .cart-item__title { font-weight: 600; unicode-bidi: plaintext; }
+#cartsApp .cart-item__sub { font-size: .8rem; unicode-bidi: plaintext; }
+#cartsApp .cart-item__price { font-weight: 700; white-space: nowrap; }
+
+#cartsApp .cart-total {
+    display: flex;
+    justify-content: space-between;
+    margin-block-start: .75rem;
+    padding-block-start: .75rem;
+    border-top: 1px solid var(--border);
+    font-size: 1.05rem;
+}

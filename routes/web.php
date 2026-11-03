@@ -5,6 +5,8 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CertificateController;
 use App\Http\Controllers\CertificateTemplateController;
+use App\Http\Controllers\CouponController;
+use App\Http\Controllers\CartController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserProfileController;
@@ -151,6 +153,17 @@ Route::prefix('cms/admin')->name('cms.admin.')->middleware('auth')->group(functi
     Route::get('certificates/{certificate}/download', [CertificateController::class, 'download'])->name('certificates.download');
     Route::resource('certificates', CertificateController::class)->only(['index', 'create', 'store', 'show']);
     Route::get('certificate-templates/{certificate_template}/preview', [CertificateTemplateController::class, 'preview'])->name('certificate-templates.preview');
+
+    /* ---------------------------- Coupons --------------------------- */
+    Route::get('coupons/trashed', [CouponController::class, 'trashed'])->name('coupons.trashed');
+    Route::patch('coupons/{id}/restore', [CouponController::class, 'restore'])->name('coupons.restore');
+    Route::delete('coupons/{id}/force-delete', [CouponController::class, 'forceDelete'])->name('coupons.force-delete');
+    Route::patch('coupons/{coupon}/toggle', [CouponController::class, 'toggle'])->name('coupons.toggle');
+    Route::resource('coupons', CouponController::class);
+
+    /* ----------------------------- Carts ---------------------------- */
+    Route::post('carts/{cart}/clear', [CartController::class, 'clear'])->name('carts.clear');
+    Route::resource('carts', CartController::class)->only(['index', 'show']);
     
 });
 

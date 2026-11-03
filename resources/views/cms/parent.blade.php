@@ -119,6 +119,22 @@
                     </a>
                 @endcan
 
+                @can('coupons.view')
+                    <a href="{{ route('cms.admin.coupons.index') }}"
+                        class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-200 transition hover:bg-slate-800 hover:text-white {{ request()->routeIs('cms.admin.coupons.*') ? 'bg-slate-800 text-white' : '' }}">
+                        <i class="fa-solid fa-ticket w-5 text-sky-400"></i>
+                        {{ __('coupons.title') }}
+                    </a>
+                @endcan
+
+                @can('carts.view')
+                    <a href="{{ route('cms.admin.carts.index') }}"
+                        class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-200 transition hover:bg-slate-800 hover:text-white {{ request()->routeIs('cms.admin.carts.*') ? 'bg-slate-800 text-white' : '' }}">
+                        <i class="fa-solid fa-cart-shopping w-5 text-sky-400"></i>
+                        {{ __('carts.title') }}
+                    </a>
+                @endcan
+
             </nav>
 
             <div class="border-t border-slate-800 p-4">
