@@ -40,6 +40,8 @@ export default defineConfig({
                 'resources/js/cms/payments.js',
                 'resources/css/cms/quiz-attempts.css',
                 'resources/js/cms/quiz-attempts.js',
+                'resources/css/cms/progress.css',
+                'resources/js/cms/progress.js',
             ],
             refresh: true,
             fonts: [

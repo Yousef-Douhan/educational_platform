@@ -1,0 +1,45 @@
+#progressApp .user-cell__name { unicode-bidi: plaintext; font-weight: 600; }
+
+/* badge--info معرّف في crud-common؛ لا نعيد تعريفه */
+
+#progressApp .progress-cell { display: grid; gap: .3rem; min-width: 9rem; }
+
+#progressApp .progress-bar {
+    height: .5rem;
+    overflow: hidden;
+    background: var(--border);
+    border-radius: 999px;
+}
+
+#progressApp .progress-bar > span {
+    display: block;
+    height: 100%;
+    background: #16a34a;
+    border-radius: inherit;
+}
+
+#progressApp .progress-lessons { display: grid; gap: .4rem; }
+
+#progressApp .progress-section {
+    margin-block-start: .5rem;
+    font-weight: 700;
+    unicode-bidi: plaintext;
+}
+
+#progressApp .progress-lesson {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+    padding: .55rem .85rem;
+    background: var(--background);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+}
+
+#progressApp .progress-lesson__icon { color: var(--border); }
+#progressApp .progress-lesson.is-done .progress-lesson__icon { color: #16a34a; }
+#progressApp .progress-lesson__info { flex: 1; min-width: 0; }
+#progressApp .progress-lesson__title { font-weight: 600; unicode-bidi: plaintext; word-break: break-word; }
+#progressApp .progress-lesson__when { font-size: .8rem; color: var(--muted-foreground, #64748b); white-space: nowrap; }
+
+#progressApp [hidden] { display: none !important; }

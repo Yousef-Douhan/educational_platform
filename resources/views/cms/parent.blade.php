@@ -112,6 +112,14 @@
                     </a>
                 @endcan
 
+                @can('progress.view')
+                    <a href="{{ route('cms.admin.progress.index') }}"
+                        class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-200 transition hover:bg-slate-800 hover:text-white {{ request()->routeIs('cms.admin.progress.*') ? 'bg-slate-800 text-white' : '' }}">
+                        <i class="fa-solid fa-chart-line w-5 text-sky-400"></i>
+                        {{ __('progress.title') }}
+                    </a>
+                @endcan
+
                 @can('certificate-templates.view')
                     <a href="{{ route('cms.admin.certificate-templates.index') }}"
                         class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-200 transition hover:bg-slate-800 hover:text-white {{ request()->routeIs('cms.admin.certificate-templates.*') ? 'bg-slate-800 text-white' : '' }}">

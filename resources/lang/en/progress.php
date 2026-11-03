@@ -1,0 +1,56 @@
+<?php
+
+return [
+    'title' => 'Student progress',
+    'subtitle' => 'Follow how far each student is in their courses. Progress is recorded automatically as students complete lessons and pass quizzes; it is calculated on the server, never entered by hand.',
+    'breadcrumb' => ['home' => 'Home', 'group' => 'Learning'],
+    'actions' => ['view' => 'View progress', 'recalculate' => 'Recalculate', 'clear' => 'Clear', 'reset' => 'Reset filters'],
+    'stats' => ['total' => 'Student courses', 'in_progress' => 'In progress', 'finished' => 'Finished', 'average' => 'Average progress (%)'],
+    'filters' => ['search_placeholder' => 'Search by student or course...', 'all_states' => 'All states', 'all_courses' => 'All courses'],
+    'states' => ['in_progress' => 'In progress', 'finished' => 'Finished'],
+    'enrollment_statuses' => ['active' => 'Active', 'completed' => 'Completed', 'expired' => 'Expired', 'cancelled' => 'Cancelled'],
+    'types' => ['video' => 'Video', 'article' => 'Article', 'document' => 'Document', 'quiz' => 'Quiz', 'live' => 'Live session'],
+    'fields' => ['student' => 'Student', 'email' => 'Email', 'enrollment' => 'Enrollment', 'finished_at' => 'Finished at'],
+    'table' => [
+        'id' => 'Record', 'student' => 'Student', 'course' => 'Course', 'progress' => 'Progress', 'state' => 'State',
+        'updated_at' => 'Last activity', 'actions' => 'Actions', 'deleted' => 'Deleted',
+    ],
+    'modal' => [
+        'show_title' => 'Progress details', 'show_desc' => 'Counts only published lessons that still exist.',
+        'summary_section' => 'Summary', 'lessons_section' => 'Lessons',
+    ],
+    'ui' => ['close' => 'Close'],
+    'empty' => [
+        'title' => 'No progress yet', 'text' => 'Progress will appear here when students complete lessons.',
+        'no_results_title' => 'No matching results', 'no_results_text' => 'Try changing the search or filters.',
+    ],
+    'messages' => ['recalculated' => 'Progress recalculated.'],
+    'errors' => [
+        'student_inactive' => 'This account is not active.',
+        'lesson_unavailable' => 'This lesson is not available.',
+        'not_enrolled' => 'You need an active enrollment in this course.',
+        'quiz_not_passed' => 'This lesson is completed by passing its quiz.',
+        'quiz_lesson_locked' => 'A quiz lesson stays completed because you passed its quiz.',
+    ],
+    'js' => [
+        'errors' => [
+            'network' => 'Network error. Check your connection.',
+            'forbidden' => 'You do not have permission for this action.',
+            'not_found' => 'Record not found.',
+            'conflict' => 'There is a conflict with the current data.',
+            'validation' => 'Please fix the highlighted fields.',
+            'session_expired' => 'Your session expired. Reload the page.',
+            'server' => 'Server error. Try again later.',
+            'unknown' => 'An unexpected error occurred.',
+        ],
+        'title_key' => 'title_en',
+        'section_key' => 'section_en',
+        'no_lessons' => 'This course has no published lessons.',
+        'finished' => 'Finished',
+        'in_progress' => 'In progress',
+        'recalc_title' => 'Recalculate progress?',
+        'recalc_text' => 'The numbers are rebuilt from the student\'s completed lessons.',
+        'recalc_confirm' => 'Recalculate',
+        'cancel' => 'Cancel',
+    ],
+];

@@ -23,6 +23,8 @@ use Illuminate\Support\Facades\DB;
  */
 class QuizAttemptService
 {
+    public function __construct(private readonly ProgressService $progress) {}
+
     /**
      * يبدأ محاولة جديدة، أو يعيد المحاولة الجارية إن كانت ما زالت ضمن وقتها (استئناف).
      * أي طالب لا يملك محاولتين جاريتين لاختبار واحد.
@@ -86,6 +88,7 @@ class QuizAttemptService
         $expired = false;
 
         $answer = DB::transaction(function () use ($user, $attempt, $questionId, $optionId, $text, &$expired) {
+            $this->lockStudent($attempt->user_id);
             $locked = $this->lock($attempt);
             $this->assertOwner($user, $locked);
 
@@ -133,6 +136,7 @@ class QuizAttemptService
     public function submit(User $user, QuizAttempt $attempt): QuizAttempt
     {
         return DB::transaction(function () use ($user, $attempt) {
+            $this->lockStudent($attempt->user_id);
             $locked = $this->lock($attempt);
             $this->assertOwner($user, $locked);
 
@@ -161,6 +165,7 @@ class QuizAttemptService
             ->chunkById(100, function ($attempts) use (&$closed) {
                 foreach ($attempts as $attempt) {
                     DB::transaction(function () use ($attempt, &$closed) {
+                        $this->lockStudent($attempt->user_id);
                         $locked = $this->lock($attempt);
 
                         if ($locked->status === 'in_progress' && $locked->isPastGrace()) {
@@ -178,6 +183,7 @@ class QuizAttemptService
     public function void(QuizAttempt $attempt, User $by, string $reason): QuizAttempt
     {
         return DB::transaction(function () use ($attempt, $by, $reason) {
+            $this->lockStudent($attempt->user_id);
             $locked = $this->lock($attempt);
 
             if ($locked->status === 'voided') {
@@ -192,6 +198,9 @@ class QuizAttemptService
                 'voided_by'   => $by->id,
                 'void_reason' => mb_substr(trim($reason), 0, 500),
             ])->save();
+
+            // إن كانت هي النجاح الوحيد يُسحب إكمال درس الاختبار من التقدم
+            $this->progress->revokeQuizLesson($locked->user_id, $locked->quiz_id);
 
             return $locked;
         });
@@ -332,7 +341,18 @@ class QuizAttemptService
             'submitted_at'  => now(),
         ])->save();
 
+        // النجاح يُكمل درس الاختبار ويحدّث تقدم الدورة (صامت إن لم يعد الدرس متاحًا)
+        if ($attempt->is_passed) {
+            $this->progress->recordQuizPass($attempt->user_id, $attempt->quiz_id);
+        }
+
         return $attempt;
+    }
+
+    /** الترتيب ثابت في كل العمليات: الطالب أولًا ثم المحاولة، فلا أقفال متبادلة */
+    private function lockStudent(int $userId): void
+    {
+        User::withTrashed()->whereKey($userId)->lockForUpdate()->first();
     }
 
     private function lock(QuizAttempt $attempt): QuizAttempt

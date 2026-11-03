@@ -6,6 +6,7 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CertificateController;
 use App\Http\Controllers\CertificateTemplateController;
 use App\Http\Controllers\CouponController;
+use App\Http\Controllers\CourseProgressController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PaymentController;
@@ -137,6 +138,11 @@ Route::prefix('cms/admin')->name('cms.admin.')->middleware('auth')->group(functi
     Route::get('quiz-attempts', [QuizAttemptController::class, 'index'])->name('quiz-attempts.index');
     Route::get('quiz-attempts/{attempt}', [QuizAttemptController::class, 'show'])->name('quiz-attempts.show');
     Route::post('quiz-attempts/{attempt}/void', [QuizAttemptController::class, 'void'])->name('quiz-attempts.void');
+
+    /* ------------------------ Student progress ---------------------- */
+    Route::get('progress', [CourseProgressController::class, 'index'])->name('progress.index');
+    Route::get('progress/{progress}', [CourseProgressController::class, 'show'])->name('progress.show');
+    Route::post('progress/{progress}/recalculate', [CourseProgressController::class, 'recalculate'])->name('progress.recalculate');
 
     Route::get('quizzes/{quiz}/questions', [QuestionController::class, 'index'])->name('quizzes.questions.index');
     Route::post('quizzes/{quiz}/questions', [QuestionController::class, 'store'])->name('quizzes.questions.store');

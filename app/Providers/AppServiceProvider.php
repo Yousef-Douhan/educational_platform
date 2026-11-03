@@ -50,6 +50,7 @@ class AppServiceProvider extends ServiceProvider
         Route::pattern('order', '[0-9]+');
         Route::pattern('payment', '[0-9]+');
         Route::pattern('attempt', '[0-9]+');
+        Route::pattern('progress', '[0-9]+');
 
         RateLimiter::for('certificate-verify', fn(Request $request) => Limit::perMinute(30)->by($request->ip()));
     }

@@ -17,5 +17,5 @@ return [
     'force_has_courses' => 'This user still owns courses, including deleted ones.',
     'force_has_enrollments' => 'This user has course enrollments, which are kept as history.',
     'force_has_certificates' => 'This user has issued certificates, which are kept as verifiable records.',
-    'force_has_certificates' => 'لهذا المستخدم شهادات صادرة، وهي محفوظة كسجلات يمكن التحقق منها.',
+    'force_has_records' => 'This user has orders, quiz attempts or learning progress, which are kept as history.',
 ];

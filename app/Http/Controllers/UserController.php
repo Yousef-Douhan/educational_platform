@@ -10,6 +10,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Validation\Rule;
 use Spatie\Permission\Models\Role;
 
@@ -222,6 +223,13 @@ class UserController extends Controller
 
         if ($user->certificates()->exists()) {
             return $this->conflict('users.force_has_certificates');
+        }
+
+        // طلبات ومحاولات اختبارات وتقدم دراسي: سجلات تاريخية مفاتيحها RESTRICT، فنردّ برسالة بدل خطأ 500
+        foreach (['orders', 'coupon_redemptions', 'quiz_attempts', 'lesson_progress', 'course_progress'] as $table) {
+            if (Schema::hasTable($table) && DB::table($table)->where('user_id', $user->id)->exists()) {
+                return $this->conflict('users.force_has_records');
+            }
         }
 
         $user->forceDelete();
