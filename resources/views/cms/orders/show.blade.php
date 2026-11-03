@@ -37,6 +37,11 @@
                 </div>
                 <small class="form-hint">{{ __('orders.hints.frozen') }}</small>
             </div>
+
+            <div class="detail-section">
+                <h4><i class="fa-solid fa-credit-card"></i> {{ __('orders.modal.payments_section') }}</h4>
+                <div class="order-items" data-order-payments></div>
+            </div>
         </div>
 
         <footer class="crud-modal__footer">

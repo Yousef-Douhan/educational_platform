@@ -41,6 +41,30 @@ if (app) {
         });
     }
 
+    const PAY_TONE = { pending: 'warning', success: 'success', failed: 'danger', refunded: 'info' };
+
+    function renderPayments(container, payments) {
+        container.replaceChildren();
+
+        if (!payments.length) {
+            container.append(el('p', 'text-muted', i18n.no_payments));
+            return;
+        }
+
+        payments.forEach((p) => {
+            const row = el('div', 'order-item');
+            const info = el('div', 'order-item__info');
+            info.append(el('div', 'order-item__title', i18n.gateways[p.gateway] || p.gateway));
+            info.append(el('div', 'order-item__sub text-muted', [p.reference, p.created_at].filter(Boolean).join(' · ')));
+            info.append(el('span', `badge badge--${PAY_TONE[p.status]}`, i18n.payment_statuses[p.status] || p.status));
+
+            const amount = el('div', 'order-item__price', money(p.amount, p.currency));
+            amount.dir = 'ltr';
+            row.append(info, amount);
+            container.append(row);
+        });
+    }
+
     /* ---------- نافذة الإجراءات ---------- */
     const actionModal = app.querySelector('#actionModal');
     const actionForm = app.querySelector('#actionForm');
@@ -113,6 +137,7 @@ if (app) {
             badge.className = `badge badge--${TONE[o.status]}`;
 
             renderItems(modal.querySelector('[data-order-items]'), o.items, o.currency);
+            renderPayments(modal.querySelector('[data-order-payments]'), o.payments);
         },
 
         onAction(action, id) {

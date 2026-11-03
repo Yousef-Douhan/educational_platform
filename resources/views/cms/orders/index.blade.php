@@ -11,13 +11,20 @@
 @endpush
 
 @section('main-content')
+@php
+    $i18n = array_merge(__('orders.js'), [
+        'statuses'         => __('orders.statuses'),
+        'gateways'         => __('orders.gateways'),
+        'payment_statuses' => __('payments.statuses'),
+    ]);
+@endphp
 <div id="ordersApp" class="crud-page"
      data-index-url="{{ route('cms.admin.orders.index') }}"
      data-show-url="{{ route('cms.admin.orders.show', ':id') }}"
      data-mark-paid-url="{{ route('cms.admin.orders.mark-paid', ':id') }}"
      data-cancel-url="{{ route('cms.admin.orders.cancel', ':id') }}"
      data-refund-url="{{ route('cms.admin.orders.refund', ':id') }}"
-     data-i18n='@json(array_merge(__("orders.js"), ["statuses" => __("orders.statuses"), "gateways" => __("orders.gateways")]))'>
+     data-i18n='@json($i18n)'>
 
     @include('cms.partials.crud-header', [
         'icon' => 'fa-receipt', 'title' => __('orders.title'), 'subtitle' => __('orders.subtitle'),

@@ -55,6 +55,11 @@ class Order extends Model
         return $this->hasMany(OrderItem::class)->orderBy('id');
     }
 
+    public function payments(): HasMany
+    {
+        return $this->hasMany(Payment::class)->orderBy('id');
+    }
+
     public function redemption(): HasOne
     {
         return $this->hasOne(CouponRedemption::class);

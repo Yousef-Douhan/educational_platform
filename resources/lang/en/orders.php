@@ -34,7 +34,7 @@ return [
     ],
     'modal' => [
         'show_title' => 'Order details', 'show_desc' => 'Prices below were fixed when the order was created.',
-        'order_section' => 'Order', 'items_section' => 'Courses',
+        'order_section' => 'Order', 'items_section' => 'Courses', 'payments_section' => 'Payment attempts',
     ],
     'hints' => [
         'frozen' => 'Prices and titles are a snapshot from checkout time and do not change if the course is edited later.',
@@ -62,6 +62,12 @@ return [
         'coupon_per_user_limit' => 'You have already used this coupon the maximum number of times.',
         'invalid_transition' => 'This action is not allowed for the order in its current status.',
         'duplicate_reference' => 'This payment reference is already used by another order.',
+        'order_not_payable' => 'This order can no longer be paid.',
+        'nothing_to_pay' => 'This order has nothing to pay.',
+        'payment_not_pending' => 'This payment attempt is already closed.',
+        'order_already_paid' => 'This order has already been paid.',
+        'amount_mismatch' => 'The paid amount does not match the order total.',
+        'reference_required' => 'A payment reference is required to confirm the payment.',
     ],
     'js' => [
         'errors' => [
@@ -75,6 +81,7 @@ return [
             'unknown' => 'An unexpected error occurred.',
         ],
         'course_deleted' => 'Course deleted',
+        'no_payments' => 'No payment attempts yet.',
         'actions' => [
             'mark-paid' => [
                 'title' => 'Confirm payment', 'desc' => 'Record that this order was paid. The student gets access to the courses immediately.',

@@ -50,6 +50,11 @@ class RolesAndPermissionsSeeder extends Seeder
         foreach (['view', 'edit', 'mark-paid', 'refund'] as $action) {
             Permission::findOrCreate("orders.{$action}", 'web');
         }
+        Permission::findOrCreate('payments.view', 'web'); // سجل مالي للقراءة فقط
+        // محاولات الاختبارات: مراجعة للقراءة، والإلغاء إجراء حساس فمنفصل
+        foreach (['view', 'void'] as $action) {
+            Permission::findOrCreate("quiz-attempts.{$action}", 'web');
+        }
 
         // المدير الأعلى: كل الصلاحيات (يجب أن يُنفَّذ بعد إنشائها كلها)
         Role::findOrCreate('super-admin', 'web')->syncPermissions(Permission::all());

@@ -11,6 +11,7 @@ use App\Models\CouponRedemption;
 use App\Models\Enrollment;
 use App\Models\Order;
 use App\Models\OrderItem;
+use App\Models\Payment;
 use App\Models\User;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Carbon;
@@ -125,9 +126,9 @@ class OrderService
      * ==================================================================== */
 
     /** تأكيد الدفع: يفعّل التسجيلات. تكراره على طلب مدفوع لا يفعل شيئًا (idempotent) */
-    public function markPaid(Order $order, string $gateway, ?string $reference = null, ?string $note = null): Order
+    public function markPaid(Order $order, string $gateway, ?string $reference = null, ?string $note = null, ?Payment $payment = null): Order
     {
-        return DB::transaction(function () use ($order, $gateway, $reference, $note) {
+        return DB::transaction(function () use ($order, $gateway, $reference, $note, $payment) {
             $locked = $this->lock($order);
 
             if ($locked->status === 'paid') {
@@ -135,7 +136,7 @@ class OrderService
             }
 
             $this->assertCan($locked, 'paid');
-            $this->settle($locked, $gateway, filled($reference) ? trim($reference) : null, $note);
+            $this->settle($locked, $gateway, filled($reference) ? trim($reference) : null, $note, $payment);
 
             return $locked->refresh();
         });
@@ -167,6 +168,10 @@ class OrderService
                 'refunded_at' => now(),
                 'note'        => $this->note($reason),
             ])->save();
+
+            // الدفعة الناجحة تصير مستردة في السجل (الاسترداد الفعلي للمال عند مزوّد الدفع)
+            Payment::where('order_id', $locked->id)->where('status', 'success')
+                ->update(['status' => 'refunded', 'refunded_at' => now()]);
 
             $courseIds = $locked->items()->pluck('course_id');
 
@@ -232,6 +237,9 @@ class OrderService
         $order->forceFill(['status' => $status, 'note' => $note ? $this->note($note) : $order->note])->save();
         $this->releaseCoupon($order);
 
+        // محاولات الدفع المفتوحة لطلب أُغلق لم تعد صالحة
+        Payment::where('order_id', $order->id)->where('status', 'pending')->update(['status' => 'failed']);
+
         return $order;
     }
 
@@ -250,7 +258,7 @@ class OrderService
     }
 
     /** يثبّت الدفع ويفعّل الوصول وينظّف السلة. يجب استدعاؤه داخل معاملة */
-    private function settle(Order $order, string $gateway, ?string $reference, ?string $note): void
+    private function settle(Order $order, string $gateway, ?string $reference, ?string $note, ?Payment $payment = null): void
     {
         try {
             $order->forceFill([
@@ -260,6 +268,26 @@ class OrderService
                 'paid_at'               => now(),
                 'note'                  => $note ? $this->note($note) : $order->note,
             ])->save();
+
+            // سجل المدفوعات: الدفع اليدوي والمجاني يُسجَّلان كدفعة ناجحة مثل الإلكتروني
+            $payment ??= (new Payment)->forceFill([
+                'order_id'       => $order->id,
+                'gateway'        => $gateway,
+                'payment_method' => $gateway,
+                'amount'         => $order->total_amount,
+                'currency'       => $order->currency,
+            ]);
+
+            $payment->forceFill([
+                'status'                => 'success',
+                'succeeded'             => true,
+                'transaction_reference' => $reference,
+                'paid_at'               => now(),
+            ])->save();
+
+            // أي محاولة دفع أخرى ما زالت مفتوحة لهذا الطلب تُغلق
+            Payment::where('order_id', $order->id)->where('status', 'pending')
+                ->where('id', '!=', $payment->id)->update(['status' => 'failed']);
         } catch (UniqueConstraintViolationException) {
             // نفس مرجع العملية مسجّل على طلب آخر لنفس البوابة
             throw OrderException::because('duplicate_reference');

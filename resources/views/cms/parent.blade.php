@@ -104,6 +104,14 @@
                     </a>
                 @endcan
 
+                @can('quiz-attempts.view')
+                    <a href="{{ route('cms.admin.quiz-attempts.index') }}"
+                        class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-200 transition hover:bg-slate-800 hover:text-white {{ request()->routeIs('cms.admin.quiz-attempts.*') ? 'bg-slate-800 text-white' : '' }}">
+                        <i class="fa-solid fa-clipboard-question w-5 text-sky-400"></i>
+                        {{ __('quiz_attempts.title') }}
+                    </a>
+                @endcan
+
                 @can('certificate-templates.view')
                     <a href="{{ route('cms.admin.certificate-templates.index') }}"
                         class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-200 transition hover:bg-slate-800 hover:text-white {{ request()->routeIs('cms.admin.certificate-templates.*') ? 'bg-slate-800 text-white' : '' }}">
@@ -140,6 +148,14 @@
                         class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-200 transition hover:bg-slate-800 hover:text-white {{ request()->routeIs('cms.admin.orders.*') ? 'bg-slate-800 text-white' : '' }}">
                         <i class="fa-solid fa-receipt w-5 text-sky-400"></i>
                         {{ __('orders.title') }}
+                    </a>
+                @endcan
+
+                @can('payments.view')
+                    <a href="{{ route('cms.admin.payments.index') }}"
+                        class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-200 transition hover:bg-slate-800 hover:text-white {{ request()->routeIs('cms.admin.payments.*') ? 'bg-slate-800 text-white' : '' }}">
+                        <i class="fa-solid fa-credit-card w-5 text-sky-400"></i>
+                        {{ __('payments.title') }}
                     </a>
                 @endcan
 

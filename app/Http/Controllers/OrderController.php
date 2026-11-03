@@ -119,7 +119,7 @@ class OrderController extends Controller implements HasMiddleware
 
     private function payload(Order $order, Request $request): array
     {
-        $order->load(['user', 'items.course', 'coupon']);
+        $order->load(['user', 'items.course', 'coupon', 'payments']);
         $tz  = config('app.timezone');
         $fmt = fn ($d) => $d?->copy()->timezone($tz)->format('Y-m-d H:i');
         $me  = $request->user();
@@ -140,6 +140,16 @@ class OrderController extends Controller implements HasMiddleware
                 'title_en'       => $i->title_en,
                 'price'          => $i->price,
                 'course_deleted' => $i->course?->trashed() ?? true,
+            ])->all(),
+            'payments'              => $order->payments->map(fn ($p) => [
+                'id'        => $p->id,
+                'gateway'   => $p->gateway,
+                'method'    => $p->payment_method,
+                'amount'    => $p->amount,
+                'currency'  => $p->currency,
+                'status'    => $p->status,
+                'reference' => $p->transaction_reference,
+                'created_at' => $fmt($p->created_at),
             ])->all(),
             'subtotal'              => $order->subtotal,
             'discount_amount'       => $order->discount_amount,

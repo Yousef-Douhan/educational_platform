@@ -8,6 +8,7 @@ use App\Http\Controllers\CertificateTemplateController;
 use App\Http\Controllers\CouponController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserProfileController;
@@ -18,6 +19,7 @@ use App\Http\Controllers\EnrollmentController;
 use App\Http\Controllers\LessonAttachmentController;
 use App\Http\Controllers\LessonController;
 use App\Http\Controllers\QuestionController;
+use App\Http\Controllers\QuizAttemptController;
 use App\Http\Controllers\QuizController;
 use App\Http\Controllers\SectionController;
 
@@ -131,6 +133,11 @@ Route::prefix('cms/admin')->name('cms.admin.')->middleware('auth')->group(functi
     Route::delete('quizzes/{id}/force-delete', [QuizController::class, 'forceDelete'])->name('quizzes.force-delete');
     Route::resource('quizzes', QuizController::class);
 
+    /* ------------------------ Quiz attempts ------------------------- */
+    Route::get('quiz-attempts', [QuizAttemptController::class, 'index'])->name('quiz-attempts.index');
+    Route::get('quiz-attempts/{attempt}', [QuizAttemptController::class, 'show'])->name('quiz-attempts.show');
+    Route::post('quiz-attempts/{attempt}/void', [QuizAttemptController::class, 'void'])->name('quiz-attempts.void');
+
     Route::get('quizzes/{quiz}/questions', [QuestionController::class, 'index'])->name('quizzes.questions.index');
     Route::post('quizzes/{quiz}/questions', [QuestionController::class, 'store'])->name('quizzes.questions.store');
     Route::post('quizzes/{quiz}/questions/reorder', [QuestionController::class, 'reorder'])->name('quizzes.questions.reorder');
@@ -171,6 +178,9 @@ Route::prefix('cms/admin')->name('cms.admin.')->middleware('auth')->group(functi
     Route::post('orders/{order}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
     Route::post('orders/{order}/refund', [OrderController::class, 'refund'])->name('orders.refund');
     Route::resource('orders', OrderController::class)->only(['index', 'show']);
+
+    /* ---------------------------- Payments -------------------------- */
+    Route::resource('payments', PaymentController::class)->only(['index', 'show']);
     
 });
 

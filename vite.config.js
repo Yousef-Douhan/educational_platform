@@ -36,6 +36,10 @@ export default defineConfig({
                 'resources/js/cms/carts.js',
                 'resources/css/cms/orders.css',
                 'resources/js/cms/orders.js',
+                'resources/css/cms/payments.css',
+                'resources/js/cms/payments.js',
+                'resources/css/cms/quiz-attempts.css',
+                'resources/js/cms/quiz-attempts.js',
             ],
             refresh: true,
             fonts: [

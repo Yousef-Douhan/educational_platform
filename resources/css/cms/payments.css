@@ -1,0 +1,23 @@
+#paymentsApp .user-cell__name { unicode-bidi: plaintext; font-weight: 600; }
+#paymentsApp .order-number { font-weight: 700; letter-spacing: .02em; }
+#paymentsApp .money-cell { font-weight: 700; }
+
+/* badge--warning غير معرّف في crud-common */
+#paymentsApp .badge--warning { background: #fef3c7; color: #92400e; }
+
+#paymentsApp .gateway-response {
+    margin: 0;
+    max-height: 18rem;
+    overflow: auto;
+    padding: .85rem 1rem;
+    font-size: .8rem;
+    line-height: 1.5;
+    white-space: pre-wrap;
+    word-break: break-word;
+    text-align: left;
+    background: var(--background);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+}
+
+#paymentsApp [hidden] { display: none !important; }

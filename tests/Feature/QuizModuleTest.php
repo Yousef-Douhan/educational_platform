@@ -107,18 +107,10 @@ class QuizModuleTest extends TestCase
         return $q;
     }
 
-    /** يحاكي وجود محاولات (الجدول الحقيقي يُبنى في وحدة لاحقة) */
+    /** محاولة حقيقية لطالب على هذا الاختبار (جدول quiz_attempts صار موجودًا) */
     private function attempt(Quiz $quiz): void
     {
-        if (! Schema::hasTable('quiz_attempts')) {
-            Schema::create('quiz_attempts', function ($t) {
-                $t->id();
-                $t->unsignedBigInteger('quiz_id');
-            });
-            $this->createdAttemptsTable = true;
-        }
-
-        DB::table('quiz_attempts')->insert(['quiz_id' => $quiz->id]);
+        \App\Models\QuizAttempt::factory()->create(['quiz_id' => $quiz->id]);
     }
 
     private function quizPayload(Lesson $lesson, array $o = []): array

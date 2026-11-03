@@ -11,3 +11,4 @@ Artisan::command('inspire', function () {
 
 Schedule::command('enrollments:expire')->hourly();
 Schedule::command('orders:expire-pending')->hourly();
+Schedule::command('quizzes:expire-attempts')->everyFiveMinutes();
