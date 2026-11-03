@@ -1,0 +1,37 @@
+#ordersApp .user-cell__name { unicode-bidi: plaintext; font-weight: 600; }
+#ordersApp .order-number { font-weight: 700; letter-spacing: .02em; }
+#ordersApp .money-cell { font-weight: 700; }
+
+/* badge--warning غير معرّف في crud-common */
+#ordersApp .badge--warning { background: #fef3c7; color: #92400e; }
+
+#ordersApp .order-items { display: grid; gap: .5rem; }
+
+#ordersApp .order-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: .65rem .85rem;
+    background: var(--background);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+}
+
+#ordersApp .order-item__info { display: grid; gap: .15rem; min-width: 0; }
+#ordersApp .order-item__title { font-weight: 600; unicode-bidi: plaintext; }
+#ordersApp .order-item__sub { font-size: .8rem; unicode-bidi: plaintext; }
+#ordersApp .order-item__price { font-weight: 700; white-space: nowrap; }
+
+#ordersApp .order-totals {
+    display: grid;
+    gap: .4rem;
+    margin-block-start: .75rem;
+    padding-block-start: .75rem;
+    border-top: 1px solid var(--border);
+}
+
+#ordersApp .order-totals > div { display: flex; justify-content: space-between; gap: 1rem; }
+#ordersApp .order-totals__final { font-size: 1.05rem; padding-block-start: .4rem; border-top: 1px dashed var(--border); }
+
+#ordersApp [hidden] { display: none !important; }

@@ -10,3 +10,4 @@ Artisan::command('inspire', function () {
 
 
 Schedule::command('enrollments:expire')->hourly();
+Schedule::command('orders:expire-pending')->hourly();

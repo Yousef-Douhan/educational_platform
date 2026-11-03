@@ -64,7 +64,8 @@ class CouponService
     /** يعيد الاستخدام عند فشل الطلب أو استرداده، ولا ينزل تحت الصفر */
     public function release(Coupon $coupon): void
     {
-        Coupon::query()->whereKey($coupon->getKey())->where('times_used', '>', 0)
+        // withTrashed: كوبون حُذف ناعمًا بعد الشراء يجب أن يستعيد استخدامه أيضًا
+        Coupon::withTrashed()->whereKey($coupon->getKey())->where('times_used', '>', 0)
             ->update(['times_used' => DB::raw('times_used - 1')]);
 
         $coupon->refresh();

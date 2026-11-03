@@ -7,6 +7,7 @@ use App\Http\Controllers\CertificateController;
 use App\Http\Controllers\CertificateTemplateController;
 use App\Http\Controllers\CouponController;
 use App\Http\Controllers\CartController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserProfileController;
@@ -164,6 +165,12 @@ Route::prefix('cms/admin')->name('cms.admin.')->middleware('auth')->group(functi
     /* ----------------------------- Carts ---------------------------- */
     Route::post('carts/{cart}/clear', [CartController::class, 'clear'])->name('carts.clear');
     Route::resource('carts', CartController::class)->only(['index', 'show']);
+
+    /* ----------------------------- Orders --------------------------- */
+    Route::post('orders/{order}/mark-paid', [OrderController::class, 'markPaid'])->name('orders.mark-paid');
+    Route::post('orders/{order}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
+    Route::post('orders/{order}/refund', [OrderController::class, 'refund'])->name('orders.refund');
+    Route::resource('orders', OrderController::class)->only(['index', 'show']);
     
 });
 

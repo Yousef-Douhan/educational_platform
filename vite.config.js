@@ -34,6 +34,8 @@ export default defineConfig({
                 'resources/js/cms/coupons.js',
                 'resources/css/cms/carts.css',
                 'resources/js/cms/carts.js',
+                'resources/css/cms/orders.css',
+                'resources/js/cms/orders.js',
             ],
             refresh: true,
             fonts: [
