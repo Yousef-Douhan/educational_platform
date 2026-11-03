@@ -1,0 +1,77 @@
+/* الوضع الداكن لواجهة الطالب: يُفعَّل بإضافة الصنف dark إلى <html>.
+   نعيد تعريف أصناف Tailwind الفاتحة المستعملة بدل تكرار dark: في كل ملف. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+html.dark { color-scheme: dark; }
+html.dark body { background-color: #0b1120; color: #dbe3f3; }
+
+/* الأسطح */
+html.dark .bg-white { background-color: #111a2e; }
+html.dark .bg-white\/95 { background-color: rgb(17 26 46 / .95); }
+html.dark .bg-slate-50 { background-color: #0b1120; }
+html.dark .bg-slate-50\/60 { background-color: rgb(15 23 42 / .6); }
+html.dark .bg-slate-100 { background-color: #1a2540; }
+html.dark .bg-slate-200 { background-color: #263350; }
+html.dark .bg-slate-900 { background-color: #060a14; }
+html.dark .bg-indigo-50 { background-color: rgb(99 102 241 / .14); }
+html.dark .bg-indigo-100 { background-color: rgb(99 102 241 / .22); }
+html.dark .bg-sky-50 { background-color: rgb(14 165 233 / .12); }
+html.dark .bg-emerald-50 { background-color: rgb(16 185 129 / .12); }
+html.dark .bg-emerald-100 { background-color: rgb(16 185 129 / .2); }
+html.dark .bg-amber-50 { background-color: rgb(245 158 11 / .12); }
+html.dark .bg-amber-100 { background-color: rgb(245 158 11 / .2); }
+html.dark .bg-rose-50 { background-color: rgb(244 63 94 / .12); }
+
+/* التدرجات (صور الدورات) */
+html.dark .from-indigo-100 { --tw-gradient-from: #1e1b4b; }
+html.dark .from-sky-100 { --tw-gradient-from: #0c2a43; }
+html.dark .to-sky-100 { --tw-gradient-to: #0c2a43; }
+html.dark .to-indigo-100 { --tw-gradient-to: #1e1b4b; }
+
+/* الحدود والفواصل */
+html.dark .border-slate-100, html.dark .divide-slate-100 > :not(:last-child) { border-color: #1f2a44; }
+html.dark .border-slate-200, html.dark .ring-slate-200 { border-color: #28365a; --tw-ring-color: #28365a; }
+html.dark .border-slate-300 { border-color: #34456b; }
+html.dark .border-indigo-200 { border-color: #3b4a8f; }
+html.dark .border-emerald-200, html.dark .border-emerald-300 { border-color: #1f6f56; }
+html.dark .border-amber-200, html.dark .ring-amber-200 { border-color: #7a5a14; --tw-ring-color: #7a5a14; }
+html.dark .border-rose-200 { border-color: #8a2c43; }
+
+/* النصوص */
+html.dark .text-slate-900, html.dark .text-slate-800 { color: #e8edf8; }
+html.dark .text-slate-700 { color: #cdd6ea; }
+html.dark .text-slate-600 { color: #aebad2; }
+html.dark .text-slate-500 { color: #8f9cb8; }
+html.dark .text-indigo-950, html.dark .text-indigo-800, html.dark .text-indigo-700 { color: #a5b4fc; }
+html.dark .text-indigo-600 { color: #a5b4fc; }
+html.dark .text-sky-900, html.dark .text-sky-800, html.dark .text-sky-700 { color: #7dd3fc; }
+html.dark .text-emerald-800, html.dark .text-emerald-700, html.dark .text-emerald-600 { color: #6ee7b7; }
+html.dark .text-amber-900, html.dark .text-amber-800, html.dark .text-amber-700, html.dark .text-amber-600 { color: #fcd34d; }
+html.dark .text-rose-800, html.dark .text-rose-700, html.dark .text-rose-600 { color: #fda4af; }
+
+/* حالات التمرير */
+html.dark .hover\:bg-slate-50:hover, html.dark .hover\:bg-slate-100:hover { background-color: #1a2540; }
+html.dark .hover\:bg-indigo-50:hover, html.dark .hover\:bg-indigo-100:hover { background-color: rgb(99 102 241 / .22); }
+html.dark .hover\:bg-emerald-50:hover, html.dark .hover\:bg-emerald-100:hover { background-color: rgb(16 185 129 / .2); }
+html.dark .hover\:text-indigo-700:hover { color: #c7d2fe; }
+html.dark .hover\:border-indigo-300:hover { border-color: #4f5fc0; }
+html.dark .group:hover .group-hover\:text-indigo-700 { color: #c7d2fe; }
+
+/* الحقول */
+html.dark input:not([type=checkbox]):not([type=radio]):not([type=file]),
+html.dark select, html.dark textarea {
+    background-color: #0d1527; color: #e8edf8; border-color: #34456b;
+}
+html.dark input::placeholder, html.dark textarea::placeholder { color: #6f7d99; }
+html.dark input:focus, html.dark select:focus, html.dark textarea:focus { --tw-ring-color: rgb(99 102 241 / .4); border-color: #6366f1; }
+html.dark input[type=file] { color: #aebad2; }
+
+/* ترقيم الصفحات */
+html.dark .pagination .page-link { background-color: #111a2e; border-color: #28365a; color: #aebad2; }
+html.dark .pagination .page-item.disabled .page-link { background-color: #0d1527; color: #55627d; }
+
+/* الأزرار الصلبة تبقى كما هي. نخفف الظلال */
+html.dark .shadow-sm, html.dark .shadow-lg, html.dark .shadow-xl { --tw-shadow-color: rgb(0 0 0 / .45); }
+
+/* أيقونة الثيم: FontAwesome غير مطبقة بطبقات فتغلب أصناف Tailwind، فنخفي بقاعدة غير مطبقة بطبقات أيضًا */
+html:not(.dark) [data-theme-icon="sun"], html.dark [data-theme-icon="moon"] { display: none; }

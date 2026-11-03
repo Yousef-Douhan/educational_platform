@@ -183,6 +183,14 @@
                     </a>
                 @endcan
 
+                @can('receipts.view')
+                    <a href="{{ route('cms.admin.receipts.index') }}"
+                        class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-200 transition hover:bg-slate-800 hover:text-white {{ request()->routeIs('cms.admin.receipts.*') ? 'bg-slate-800 text-white' : '' }}">
+                        <i class="fa-solid fa-file-invoice-dollar w-5 text-sky-400"></i>
+                        {{ __('receipts.title') }}
+                    </a>
+                @endcan
+
                 @can('payments.view')
                     <a href="{{ route('cms.admin.payments.index') }}"
                         class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-200 transition hover:bg-slate-800 hover:text-white {{ request()->routeIs('cms.admin.payments.*') ? 'bg-slate-800 text-white' : '' }}">
@@ -232,6 +240,14 @@
                     </div>
 
                     <div class="flex items-center gap-3">
+                        @php $toLocale = app()->isLocale('ar') ? 'en' : 'ar'; @endphp
+                        <form method="POST" action="{{ route('locale.update', $toLocale) }}">
+                            @csrf
+                            <button type="submit" lang="{{ $toLocale }}"
+                                class="inline-flex h-10 items-center rounded-xl border border-slate-200 bg-white px-3 text-sm font-semibold text-slate-700 shadow-sm hover:bg-slate-50">
+                                <i class="fa-solid fa-globe me-2"></i>{{ $toLocale === 'ar' ? 'العربية' : 'English' }}
+                            </button>
+                        </form>
                         <button
                             class="hidden rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-medium text-slate-700 shadow-sm sm:inline-flex">
                             <i class="fa-solid fa-magnifying-glass mr-2"></i>

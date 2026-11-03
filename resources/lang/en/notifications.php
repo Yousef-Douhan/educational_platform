@@ -34,6 +34,13 @@ return [
             'issued' => ['name' => 'Certificate issued', 'title' => 'Your certificate was issued', 'body' => 'The completion certificate for ":course_title" was issued with verification code :code.'],
             'revoked' => ['name' => 'Certificate revoked', 'title' => 'A certificate was revoked', 'body' => 'The certificate for ":course_title" was revoked and no longer verifies.'],
         ],
+        'receipt' => [
+            'rejected' => [
+                'name' => 'Transfer receipt rejected', 'title' => 'Your transfer receipt was rejected',
+                'body' => 'The transfer receipt for order :order_number was rejected. You can upload a new one.',
+                'body_with_reason' => 'The transfer receipt for order :order_number was rejected. Reason: :reason',
+            ],
+        ],
         'live_session' => [
             'cancelled' => [
                 'name' => 'Session cancelled', 'title' => 'A live session was cancelled',

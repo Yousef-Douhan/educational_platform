@@ -50,6 +50,7 @@ class AppServiceProvider extends ServiceProvider
         Route::pattern('cart', '[0-9]+');
         Route::pattern('order', '[0-9]+');
         Route::pattern('payment', '[0-9]+');
+        Route::pattern('receipt', '[0-9]+');
         Route::pattern('attempt', '[0-9]+');
         Route::pattern('progress', '[0-9]+');
         Route::pattern('live_session', '[0-9]+');
@@ -60,6 +61,8 @@ class AppServiceProvider extends ServiceProvider
         // سجل التدقيق: مراقبة النماذج الحساسة وأحداث الدخول
         $this->app->make(AuditLogger::class)->register();
 
+        // البوابات تتشارك عناوين قليلة، فالحد سخي لكنه موجود
+        RateLimiter::for('payment-webhooks', fn(Request $request) => Limit::perMinute(300)->by($request->ip()));
         RateLimiter::for('certificate-verify', fn(Request $request) => Limit::perMinute(30)->by($request->ip()));
     }
 }

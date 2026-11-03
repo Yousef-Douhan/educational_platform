@@ -21,6 +21,7 @@ final class NotificationPresenter
         'certificate.revoked'      => ['fa-ban', 'danger'],
         'live_session.cancelled'   => ['fa-video-slash', 'danger'],
         'live_session.rescheduled' => ['fa-calendar-check', 'info'],
+        'receipt.rejected'         => ['fa-circle-xmark', 'danger'],
     ];
 
     /** @return array{kind:string,known:bool,title:string,body:string,icon:string,tone:string} */

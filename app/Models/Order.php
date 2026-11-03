@@ -22,7 +22,7 @@ class Order extends Model
     ];
 
     /** بوابات الدفع اليدوي التي يسجّلها المدير */
-    public const MANUAL_GATEWAYS = ['manual', 'bank_transfer', 'cash'];
+    public const MANUAL_GATEWAYS = ['manual', 'bank_transfer', 'cash', 'palpay', 'jawwal_pay', 'bank_of_palestine'];
 
     /** الطلب المعلّق يُغلق تلقائيًا بعد هذه المدة وتُعاد حصة الكوبون */
     public const PENDING_EXPIRES_AFTER_HOURS = 24;

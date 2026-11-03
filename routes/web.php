@@ -11,6 +11,7 @@ use App\Http\Controllers\CourseProgressController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\PaymentReceiptController;
 use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\UserProfileController;
@@ -28,9 +29,6 @@ use App\Http\Controllers\QuizAttemptController;
 use App\Http\Controllers\QuizController;
 use App\Http\Controllers\SectionController;
 
-Route::get('/', function () {
-    return view('welcome');
-});
 
 /* ---------------------------- Auth ---------------------------- */
 Route::middleware('guest')->group(function () {
@@ -50,7 +48,8 @@ Route::post('logout', [LoginController::class, 'destroy'])->middleware('auth')->
 | حتى لا يلتقطها المسار users/{user}.
 */
 Route::prefix('cms/admin')->name('cms.admin.')->middleware('auth')->group(function () {
-    Route::view('/', 'cms.dashboard')->name('dashboard');
+    // لوحة التحكم للموظفين فقط؛ الطالب يُحوَّل لواجهته
+    Route::view('/', 'cms.dashboard')->middleware('staff')->name('dashboard');
 
     /* ---------------------------- Users ---------------------------- */
     Route::get('users/trashed', [UserController::class, 'trashed'])
@@ -212,6 +211,13 @@ Route::prefix('cms/admin')->name('cms.admin.')->middleware('auth')->group(functi
 
     /* ---------------------------- Payments -------------------------- */
     Route::resource('payments', PaymentController::class)->only(['index', 'show']);
+
+    /* ------------------- إشعارات التحويل (مراجعة) ------------------- */
+    Route::get('receipts', [PaymentReceiptController::class, 'index'])->name('receipts.index');
+    Route::get('receipts/{receipt}', [PaymentReceiptController::class, 'show'])->name('receipts.show');
+    Route::get('receipts/{receipt}/image', [PaymentReceiptController::class, 'image'])->name('receipts.image');
+    Route::post('receipts/{receipt}/approve', [PaymentReceiptController::class, 'approve'])->name('receipts.approve');
+    Route::post('receipts/{receipt}/reject', [PaymentReceiptController::class, 'reject'])->name('receipts.reject');
     
 });
 

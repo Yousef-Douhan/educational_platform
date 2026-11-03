@@ -1,6 +1,7 @@
 @import 'tailwindcss';
 @import './cms/crud-common.css';
 @import './cms/user-profiles.css';
+@import './student-theme.css';
 
 @source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
 @source '../../storage/framework/views/*.php';

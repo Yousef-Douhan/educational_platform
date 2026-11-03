@@ -22,6 +22,7 @@ return [
     'gateways' => [
         'manual' => 'Manual', 'bank_transfer' => 'Bank transfer', 'cash' => 'Cash',
         'free' => 'Free (100% coupon)', 'stripe' => 'Stripe', 'paypal' => 'PayPal',
+        'palpay' => 'PalPay', 'jawwal_pay' => 'Jawwal Pay', 'bank_of_palestine' => 'Bank of Palestine',
     ],
     'fields' => [
         'student' => 'Student', 'email' => 'Email', 'paid_at' => 'Paid at', 'refunded_at' => 'Refunded at',

@@ -24,6 +24,7 @@ class PlatformNotification extends Notification
         'certificate.revoked',
         'live_session.cancelled',
         'live_session.rescheduled',
+        'receipt.rejected',
     ];
 
     private const MAX = 255;
@@ -64,6 +65,14 @@ class PlatformNotification extends Notification
             'order_number' => $order->order_number,
             'amount'       => $order->total_amount,
             'currency'     => $order->currency,
+        ]);
+    }
+
+    public static function receiptRejected(Order $order, string $reason): self
+    {
+        return self::make('receipt.rejected', [
+            'order_number' => $order->order_number,
+            'reason'       => $reason,
         ]);
     }
 

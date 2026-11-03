@@ -22,6 +22,7 @@ return [
     'gateways' => [
         'manual' => 'يدوي', 'bank_transfer' => 'تحويل بنكي', 'cash' => 'نقدًا',
         'free' => 'مجاني (كوبون 100%)', 'stripe' => 'Stripe', 'paypal' => 'PayPal',
+        'palpay' => 'PalPay', 'jawwal_pay' => 'جوال باي', 'bank_of_palestine' => 'بنك فلسطين',
     ],
     'fields' => [
         'student' => 'الطالب', 'email' => 'البريد الإلكتروني', 'paid_at' => 'تاريخ الدفع', 'refunded_at' => 'تاريخ الاسترداد',

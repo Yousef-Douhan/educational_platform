@@ -36,6 +36,15 @@ class User extends Authenticatable
         ];
     }
 
+    /**
+     * موظف لوحة التحكم = يملك أي صلاحية (مباشرة أو من دور). الطالب العادي لا يملك شيئًا،
+     * فيذهب لواجهة الطالب ولا يرى لوحة التحكم.
+     */
+    public function isStaff(): bool
+    {
+        return $this->hasRole('super-admin') || $this->getAllPermissions()->isNotEmpty();
+    }
+
     public function profile(): HasOne
     {
         return $this->hasOne(UserProfile::class);

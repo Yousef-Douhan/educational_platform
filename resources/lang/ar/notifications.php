@@ -34,6 +34,13 @@ return [
             'issued' => ['name' => 'إصدار شهادة', 'title' => 'تم إصدار شهادتك', 'body' => 'صدرت شهادة إتمام دورة «:course_title» برمز التحقق :code.'],
             'revoked' => ['name' => 'سحب شهادة', 'title' => 'تم سحب شهادة', 'body' => 'سُحبت شهادة دورة «:course_title» ولم تعد صالحة للتحقق.'],
         ],
+        'receipt' => [
+            'rejected' => [
+                'name' => 'رفض إشعار تحويل', 'title' => 'تم رفض إشعار التحويل',
+                'body' => 'تم رفض إشعار التحويل للطلب :order_number. يمكنك رفع إشعار جديد.',
+                'body_with_reason' => 'تم رفض إشعار التحويل للطلب :order_number. السبب: :reason',
+            ],
+        ],
         'live_session' => [
             'cancelled' => [
                 'name' => 'إلغاء جلسة', 'title' => 'أُلغيت جلسة مباشرة',

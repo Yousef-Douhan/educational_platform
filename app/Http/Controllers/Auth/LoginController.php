@@ -31,13 +31,16 @@ class LoginController extends Controller
 
         if (! $attempt) {
             throw ValidationException::withMessages([
-                'email' => 'These credentials do not match our records, or the account is not active.',
+                'email' => __('student.auth.failed'),
             ]);
         }
 
         $request->session()->regenerate();
 
-        return redirect()->intended(route('cms.admin.dashboard'));
+        // الموظف إلى لوحة التحكم، والطالب إلى دوراته
+        $home = $request->user()->isStaff() ? route('cms.admin.dashboard') : route('student.courses.mine');
+
+        return redirect()->intended($home);
     }
 
     public function destroy(Request $request): RedirectResponse

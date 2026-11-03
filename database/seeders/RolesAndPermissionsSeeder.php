@@ -50,6 +50,8 @@ class RolesAndPermissionsSeeder extends Seeder
         foreach (['view', 'edit', 'mark-paid', 'refund'] as $action) {
             Permission::findOrCreate("orders.{$action}", 'web');
         }
+        Permission::findOrCreate('receipts.view', 'web');   // عرض إشعارات التحويل
+        Permission::findOrCreate('receipts.review', 'web'); // اعتماد/رفض (يؤكد الدفع ويفعّل الاشتراك)
         Permission::findOrCreate('payments.view', 'web'); // سجل مالي للقراءة فقط
         // محاولات الاختبارات: مراجعة للقراءة، والإلغاء إجراء حساس فمنفصل
         foreach (['view', 'void'] as $action) {
@@ -82,6 +84,9 @@ class RolesAndPermissionsSeeder extends Seeder
             'live-sessions.edit',
             'live-sessions.delete',
         ]);
+
+        // الطالب: دور بلا صلاحيات (يُعطى عند التسجيل). لا يدخل لوحة التحكم
+        Role::findOrCreate('student', 'web');
 
         Role::findOrCreate('editor', 'web')->givePermissionTo([
             'users.view',
