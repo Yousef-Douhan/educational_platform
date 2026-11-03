@@ -59,6 +59,14 @@ class RolesAndPermissionsSeeder extends Seeder
         foreach (['view', 'recalculate'] as $action) {
             Permission::findOrCreate("progress.{$action}", 'web');
         }
+        // سجل التدقيق: قراءة فقط، ولا يُعطى للمدرّس
+        Permission::findOrCreate('audit-logs.view', 'web');
+        // كل إشعارات المنصة: قراءة فقط للإدارة (إشعارات المستخدم نفسه لا تحتاج صلاحية)
+        Permission::findOrCreate('notifications.view', 'web');
+        // الجلسات المباشرة: المدرّس يديرها لدوراته فقط (النطاق بـ visibleTo)
+        foreach (['view', 'create', 'edit', 'delete'] as $action) {
+            Permission::findOrCreate("live-sessions.{$action}", 'web');
+        }
 
         // المدير الأعلى: كل الصلاحيات (يجب أن يُنفَّذ بعد إنشائها كلها)
         Role::findOrCreate('super-admin', 'web')->syncPermissions(Permission::all());
@@ -69,6 +77,10 @@ class RolesAndPermissionsSeeder extends Seeder
             'courses.create',
             'courses.edit',
             'courses.delete',
+            'live-sessions.view',
+            'live-sessions.create',
+            'live-sessions.edit',
+            'live-sessions.delete',
         ]);
 
         Role::findOrCreate('editor', 'web')->givePermissionTo([

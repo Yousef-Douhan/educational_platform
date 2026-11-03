@@ -120,6 +120,30 @@
                     </a>
                 @endcan
 
+                @can('live-sessions.view')
+                    <a href="{{ route('cms.admin.live-sessions.index') }}"
+                        class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-200 transition hover:bg-slate-800 hover:text-white {{ request()->routeIs('cms.admin.live-sessions.*') ? 'bg-slate-800 text-white' : '' }}">
+                        <i class="fa-solid fa-video w-5 text-sky-400"></i>
+                        {{ __('live_sessions.title') }}
+                    </a>
+                @endcan
+
+                @can('notifications.view')
+                    <a href="{{ route('cms.admin.notifications.index') }}"
+                        class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-200 transition hover:bg-slate-800 hover:text-white {{ request()->routeIs('cms.admin.notifications.*') ? 'bg-slate-800 text-white' : '' }}">
+                        <i class="fa-solid fa-bell w-5 text-sky-400"></i>
+                        {{ __('notifications.title') }}
+                    </a>
+                @endcan
+
+                @can('audit-logs.view')
+                    <a href="{{ route('cms.admin.audit-logs.index') }}"
+                        class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-200 transition hover:bg-slate-800 hover:text-white {{ request()->routeIs('cms.admin.audit-logs.*') ? 'bg-slate-800 text-white' : '' }}">
+                        <i class="fa-solid fa-shield-halved w-5 text-sky-400"></i>
+                        {{ __('audit_logs.title') }}
+                    </a>
+                @endcan
+
                 @can('certificate-templates.view')
                     <a href="{{ route('cms.admin.certificate-templates.index') }}"
                         class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-200 transition hover:bg-slate-800 hover:text-white {{ request()->routeIs('cms.admin.certificate-templates.*') ? 'bg-slate-800 text-white' : '' }}">
@@ -213,10 +237,14 @@
                             <i class="fa-solid fa-magnifying-glass mr-2"></i>
                             Search
                         </button>
-                        <button
-                            class="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-700 shadow-sm">
+                        @php $unreadCount = auth()->check() ? auth()->user()->unreadNotifications()->reorder()->count() : 0; @endphp
+                        <a href="{{ route('cms.admin.my-notifications.index') }}"
+                            class="relative inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-700 shadow-sm"
+                            aria-label="{{ __('notifications.mine.title') }}">
                             <i class="fa-solid fa-bell"></i>
-                        </button>
+                            <span data-notif-badge @if ($unreadCount < 1) hidden @endif
+                                class="absolute -end-1 -top-1 min-w-[1.25rem] rounded-full bg-rose-500 px-1 text-center text-[11px] font-semibold leading-5 text-white">{{ $unreadCount > 99 ? '99+' : $unreadCount }}</span>
+                        </a>
                     </div>
                 </div>
             </header>

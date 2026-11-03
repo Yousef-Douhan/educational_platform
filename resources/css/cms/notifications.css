@@ -1,0 +1,42 @@
+#notificationsApp .note-text,
+#myNotificationsApp .note-text,
+#notificationsApp .note-title,
+#myNotificationsApp .note-title { unicode-bidi: plaintext; word-break: break-word; }
+
+#notificationsApp .note-title,
+#myNotificationsApp .note-title { font-weight: 600; display: flex; align-items: center; gap: .4rem; flex-wrap: wrap; }
+
+#notificationsApp .detail-grid__full { grid-column: 1 / -1; }
+
+/* .badge--warning لا يوجد في الأساس فيُعرَّف هنا */
+#notificationsApp .badge--warning,
+#myNotificationsApp .badge--warning { background: #fef3c7; color: #92400e; }
+
+#notificationsApp .tone-text--success { color: #16a34a; }
+#notificationsApp .tone-text--warning { color: #d97706; }
+#notificationsApp .tone-text--danger  { color: #dc2626; }
+#notificationsApp .tone-text--info    { color: #0284c7; }
+#notificationsApp .tone-text--primary { color: #6366f1; }
+#notificationsApp .tone-text--muted   { color: #64748b; }
+
+#myNotificationsApp .note-list td { vertical-align: middle; }
+#myNotificationsApp .note-list tr.is-unread { background: #f8faff; }
+#myNotificationsApp .note-icon { width: 3rem; }
+#myNotificationsApp .note-dot {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 2.25rem; height: 2.25rem; border-radius: 9999px; color: #fff; font-size: .9rem;
+}
+#myNotificationsApp .tone-bg--success { background: #16a34a; }
+#myNotificationsApp .tone-bg--warning { background: #d97706; }
+#myNotificationsApp .tone-bg--danger  { background: #dc2626; }
+#myNotificationsApp .tone-bg--info    { background: #0284c7; }
+#myNotificationsApp .tone-bg--primary { background: #6366f1; }
+#myNotificationsApp .tone-bg--muted   { background: #64748b; }
+#myNotificationsApp .col-actions { white-space: nowrap; }
+
+#notificationsApp [hidden],
+#myNotificationsApp [hidden] { display: none !important; }
+
+/* stat-card--warning غير معرّف في الأساس */
+#notificationsApp .stat-card--warning .stat-card__icon,
+#myNotificationsApp .stat-card--warning .stat-card__icon { background: #fef3c7; color: #d97706; }

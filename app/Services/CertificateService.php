@@ -8,6 +8,7 @@ use App\Models\CertificateTemplate;
 use App\Models\Course;
 use App\Models\Enrollment;
 use App\Models\User;
+use App\Notifications\PlatformNotification;
 use Illuminate\Database\UniqueConstraintViolationException;
 use RuntimeException;
 
@@ -32,7 +33,7 @@ class CertificateService
 
         for ($attempt = 0; $attempt < 5; $attempt++) {
             try {
-                return Certificate::create([
+                $certificate = Certificate::create([
                     'user_id'          => $student->id,
                     'course_id'        => $course->id,
                     'template_id'      => $template?->id,
@@ -43,6 +44,10 @@ class CertificateService
                     'issued_at'        => now(),
                     'issued_by'        => $by?->id,
                 ]);
+
+                app(Notifier::class)->toUser($student, PlatformNotification::certificateIssued($certificate));
+
+                return $certificate;
             } catch (UniqueConstraintViolationException) {
                 // سباق على (الطالب، الدورة) أم تصادم رمز؟
                 if ($this->existing($student, $course)) {
@@ -62,6 +67,8 @@ class CertificateService
 
         $certificate->update(['revoked_at' => now(), 'revoked_reason' => $reason]);
         $this->pdf->forget($certificate);
+
+        app(Notifier::class)->toUser($certificate->user_id, PlatformNotification::certificateRevoked($certificate));
 
         return $certificate;
     }

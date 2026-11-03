@@ -1,0 +1,16 @@
+#liveSessionsApp .session-title { unicode-bidi: plaintext; word-break: break-word; }
+
+#liveSessionsApp .session-hero {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-block-end: 1rem;
+}
+
+#liveSessionsApp .session-hero__title { font-size: 1.1rem; unicode-bidi: plaintext; word-break: break-word; }
+
+#liveSessionsApp .detail-grid__full { grid-column: 1 / -1; }
+#liveSessionsApp .meeting-link { word-break: break-all; color: var(--primary); text-decoration: underline; }
+
+#liveSessionsApp [hidden] { display: none !important; }

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Admin\UserController as AdminUserController;
+use App\Http\Controllers\AuditLogController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CertificateController;
@@ -19,6 +20,9 @@ use App\Http\Controllers\CourseController;
 use App\Http\Controllers\EnrollmentController;
 use App\Http\Controllers\LessonAttachmentController;
 use App\Http\Controllers\LessonController;
+use App\Http\Controllers\LiveSessionController;
+use App\Http\Controllers\MyNotificationController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\QuestionController;
 use App\Http\Controllers\QuizAttemptController;
 use App\Http\Controllers\QuizController;
@@ -143,6 +147,27 @@ Route::prefix('cms/admin')->name('cms.admin.')->middleware('auth')->group(functi
     Route::get('progress', [CourseProgressController::class, 'index'])->name('progress.index');
     Route::get('progress/{progress}', [CourseProgressController::class, 'show'])->name('progress.show');
     Route::post('progress/{progress}/recalculate', [CourseProgressController::class, 'recalculate'])->name('progress.recalculate');
+
+    /* ------------------------ Live sessions ------------------------- */
+    Route::get('live-sessions/trashed', [LiveSessionController::class, 'trashed'])->name('live-sessions.trashed');
+    Route::patch('live-sessions/{id}/restore', [LiveSessionController::class, 'restore'])->name('live-sessions.restore');
+    Route::delete('live-sessions/{id}/force-delete', [LiveSessionController::class, 'forceDelete'])->name('live-sessions.force-delete');
+    Route::post('live-sessions/{live_session}/cancel', [LiveSessionController::class, 'cancel'])->name('live-sessions.cancel');
+    Route::resource('live-sessions', LiveSessionController::class);
+
+    /* ------------------------ Audit log (read only) ----------------- */
+    Route::get('audit-logs', [AuditLogController::class, 'index'])->name('audit-logs.index');
+    Route::get('audit-logs/{audit_log}', [AuditLogController::class, 'show'])->name('audit-logs.show');
+
+    /* ------------------------ Notifications ------------------------- */
+    // إشعاراتي: لكل مستخدم مسجّل، ولا تحتاج صلاحية لأنها مقيّدة بصاحبها
+    Route::get('my-notifications', [MyNotificationController::class, 'index'])->name('my-notifications.index');
+    Route::post('my-notifications/read-all', [MyNotificationController::class, 'readAll'])->name('my-notifications.read-all');
+    Route::post('my-notifications/{notification}/read', [MyNotificationController::class, 'read'])->name('my-notifications.read');
+    Route::delete('my-notifications/{notification}', [MyNotificationController::class, 'destroy'])->name('my-notifications.destroy');
+    // كل إشعارات المنصة: قراءة فقط للإدارة
+    Route::get('notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::get('notifications/{notification}', [NotificationController::class, 'show'])->name('notifications.show');
 
     Route::get('quizzes/{quiz}/questions', [QuestionController::class, 'index'])->name('quizzes.questions.index');
     Route::post('quizzes/{quiz}/questions', [QuestionController::class, 'store'])->name('quizzes.questions.store');

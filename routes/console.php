@@ -13,3 +13,5 @@ Schedule::command('enrollments:expire')->hourly();
 Schedule::command('orders:expire-pending')->hourly();
 Schedule::command('quizzes:expire-attempts')->everyFiveMinutes();
 Schedule::command('progress:recalculate')->dailyAt('03:30');
+Schedule::command('live-sessions:close-ended')->everyFiveMinutes();
+Schedule::command('notifications:prune')->dailyAt('04:00');

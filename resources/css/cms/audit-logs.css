@@ -1,0 +1,21 @@
+#auditLogsApp .log-text { unicode-bidi: plaintext; word-break: break-word; }
+
+#auditLogsApp .detail-grid__full { grid-column: 1 / -1; }
+#auditLogsApp [data-show="user_agent"] { word-break: break-all; font-size: .8rem; }
+
+#auditLogsApp .changes-table { width: 100%; border-collapse: collapse; font-size: .85rem; }
+#auditLogsApp .changes-table th,
+#auditLogsApp .changes-table td {
+    padding: .45rem .6rem;
+    text-align: start;
+    vertical-align: top;
+    border-bottom: 1px solid var(--border);
+    word-break: break-word;
+    unicode-bidi: plaintext;
+}
+#auditLogsApp .changes-table th { color: var(--muted-foreground, #64748b); font-weight: 600; white-space: nowrap; }
+#auditLogsApp .changes-table .is-old { background: #fef2f2; }
+#auditLogsApp .changes-table .is-new { background: #f0fdf4; }
+#auditLogsApp .changes-table .is-redacted { font-style: italic; color: var(--muted-foreground, #64748b); }
+
+#auditLogsApp [hidden] { display: none !important; }

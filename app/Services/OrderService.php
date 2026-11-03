@@ -8,11 +8,13 @@ use App\Models\CartItem;
 use App\Models\Certificate;
 use App\Models\Coupon;
 use App\Models\CouponRedemption;
+use App\Models\Course;
 use App\Models\Enrollment;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Payment;
 use App\Models\User;
+use App\Notifications\PlatformNotification;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
@@ -194,6 +196,8 @@ class OrderService
                 ->whereIn('course_id', $revoke)->whereNull('revoked_at')->get()
                 ->each(fn (Certificate $c) => $certificates->revoke($c, __('orders.system_notes.refund_revoked')));
 
+            app(Notifier::class)->toUser($locked->user_id, PlatformNotification::orderRefunded($locked));
+
             return $locked;
         });
     }
@@ -297,6 +301,8 @@ class OrderService
 
         $this->grantAccess($order, $items);
         $this->removeFromCart($order, $items);
+
+        app(Notifier::class)->toUser($order->user_id, PlatformNotification::orderPaid($order));
     }
 
     /** يفعّل التسجيل، أو يعيد تفعيل المنتهي/الملغى (unique(user_id, course_id)) ولا يمس الفعّال */
@@ -309,6 +315,7 @@ class OrderService
             if ($enrollment === null) {
                 try {
                     Enrollment::create($keys + ['status' => 'active', 'enrolled_at' => now(), 'expires_at' => null]);
+                    $this->notifyEnrolled($order, $item->course_id);
 
                     continue;
                 } catch (UniqueConstraintViolationException) {
@@ -319,7 +326,15 @@ class OrderService
 
             if ($enrollment && ! $enrollment->grantsAccess()) {
                 $enrollment->update(['status' => 'active', 'enrolled_at' => now(), 'expires_at' => null]);
+                $this->notifyEnrolled($order, $item->course_id);
             }
+        }
+    }
+
+    private function notifyEnrolled(Order $order, int $courseId): void
+    {
+        if ($course = Course::withTrashed()->find($courseId)) {
+            app(Notifier::class)->toUser($order->user_id, PlatformNotification::enrollmentActivated($course));
         }
     }
 

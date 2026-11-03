@@ -42,6 +42,12 @@ export default defineConfig({
                 'resources/js/cms/quiz-attempts.js',
                 'resources/css/cms/progress.css',
                 'resources/js/cms/progress.js',
+                'resources/css/cms/live-sessions.css',
+                'resources/js/cms/live-sessions.js',
+                'resources/css/cms/audit-logs.css',
+                'resources/js/cms/audit-logs.js',
+                'resources/css/cms/notifications.css',
+                'resources/js/cms/notifications.js',
             ],
             refresh: true,
             fonts: [

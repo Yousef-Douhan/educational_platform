@@ -7,6 +7,8 @@ use App\Http\Requests\UpdateEnrollmentRequest;
 use App\Models\Course;
 use App\Models\Enrollment;
 use App\Models\User;
+use App\Notifications\PlatformNotification;
+use App\Services\Notifier;
 use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -114,6 +116,10 @@ class EnrollmentController extends Controller implements HasMiddleware
             report($e);
 
             return response()->json(['message' => __('enrollments.messages.error')], 500);
+        }
+
+        if ($course = Course::withTrashed()->find($enrollment->course_id)) {
+            app(Notifier::class)->toUser($enrollment->user_id, PlatformNotification::enrollmentActivated($course));
         }
 
         return response()->json([

@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Services\AuditLogger;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Schema;
@@ -51,6 +52,13 @@ class AppServiceProvider extends ServiceProvider
         Route::pattern('payment', '[0-9]+');
         Route::pattern('attempt', '[0-9]+');
         Route::pattern('progress', '[0-9]+');
+        Route::pattern('live_session', '[0-9]+');
+        Route::pattern('audit_log', '[0-9]+');
+        // معرّف الإشعار UUID
+        Route::pattern('notification', '[0-9a-fA-F\-]{36}');
+
+        // سجل التدقيق: مراقبة النماذج الحساسة وأحداث الدخول
+        $this->app->make(AuditLogger::class)->register();
 
         RateLimiter::for('certificate-verify', fn(Request $request) => Limit::perMinute(30)->by($request->ip()));
     }
