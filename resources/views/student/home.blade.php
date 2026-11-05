@@ -4,6 +4,9 @@
 @section('fullwidth', '1')
 
 @section('content')
+    @push('styles')
+        @include('student.partials.asset', ['file' => 'home'])
+    @endpush
     {{-- البطل --}}
     <section class="relative overflow-hidden bg-gradient-to-br from-indigo-900 via-indigo-800 to-slate-900 text-white">
         <div class="pointer-events-none absolute -end-24 -top-24 h-96 w-96 rounded-full bg-amber-400/20 blur-3xl"></div>
@@ -39,14 +42,33 @@
     <div class="mx-auto max-w-7xl space-y-16 px-4 py-12">
         {{-- التصنيفات --}}
         @if ($categories->isNotEmpty())
-            <section>
-                <h2 class="mb-6 text-2xl font-extrabold text-slate-900">{{ __('student.home.categories') }}</h2>
-                <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
+            @php
+                $cgHues = config('ui.card_hues');
+                $cgIcons = config('ui.category_icons');
+            @endphp
+            <section class="cg" aria-labelledby="cg-title">
+                <div class="cg-head">
+                    <div>
+                        <span class="cg-eyebrow"><i class="fa-solid fa-compass"></i> {{ __('student.home.cat_eyebrow') }}</span>
+                        <h2 id="cg-title">{{ __('student.home.categories') }}</h2>
+                        <p>{{ __('student.home.cat_sub') }}</p>
+                    </div>
+                    <a href="{{ route('student.courses.index') }}" class="cg-all">{{ __('student.home.all') }}<i class="fa-solid fa-arrow-left"></i></a>
+                </div>
+                <div class="cg-grid">
                     @foreach ($categories as $category)
-                        <a href="{{ route('student.courses.index', ['category' => $category->slug]) }}"
-                           class="group flex flex-col items-center gap-3 rounded-2xl border border-slate-200 bg-white p-5 text-center shadow-sm transition hover:-translate-y-1 hover:border-indigo-300 hover:shadow-lg">
-                            <span class="flex h-12 w-12 items-center justify-center rounded-xl bg-indigo-50 text-xl text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white"><i class="fa-solid fa-layer-group"></i></span>
-                            <span class="text-sm font-bold text-slate-800">{{ \App\Support\Loc::pick($category->name_ar, $category->name_en) }}</span>
+                        @php
+                            $hue = $cgHues[$loop->index % count($cgHues)];
+                            $raw = trim((string) $category->icon);
+                            $icon = preg_match('/^fa-(solid|regular|brands) fa-[a-z0-9-]+$/', $raw) ? $raw
+                                : (preg_match('/^fa-[a-z0-9-]+$/', $raw) ? 'fa-solid '.$raw : 'fa-solid '.$cgIcons[$loop->index % count($cgIcons)]);
+                            $n = (int) $category->courses_total;
+                        @endphp
+                        <a href="{{ route('student.courses.index', ['category' => $category->slug]) }}" class="cg-card" style="--cg-a: {{ $hue[0] }}; --cg-b: {{ $hue[1] }}; --cg-i: {{ $loop->index }}">
+                            <i class="fa-solid {{ explode(' ', $icon)[1] ?? 'fa-layer-group' }} cg-water" aria-hidden="true"></i>
+                            <span class="cg-ic"><i class="{{ $icon }}"></i></span>
+                            <span class="cg-name">{{ \App\Support\Loc::pick($category->name_ar, $category->name_en) }}</span>
+                            <span class="cg-count">{{ trans_choice('student.home.cat_courses', $n, ['count' => $n]) }}</span>
                         </a>
                     @endforeach
                 </div>
@@ -86,14 +108,35 @@
 
         {{-- المدرّسون --}}
         @if ($instructors->isNotEmpty())
-            <section>
-                <h2 class="mb-6 text-2xl font-extrabold text-slate-900">{{ __('student.home.trainers') }}</h2>
-                <div class="grid grid-cols-2 gap-4 sm:grid-cols-4">
+            @php $inHues = config('ui.card_hues'); @endphp
+            <section class="in" aria-labelledby="in-title">
+                <div class="in-head">
+                    <span class="in-eyebrow"><i class="fa-solid fa-chalkboard-user"></i> {{ __('student.home.inst_eyebrow') }}</span>
+                    <h2 id="in-title">{{ __('student.home.trainers') }}</h2>
+                    <p>{{ __('student.home.inst_sub') }}</p>
+                </div>
+                <div class="in-grid">
                     @foreach ($instructors as $i)
-                        <div class="rounded-2xl border border-slate-200 bg-white p-5 text-center shadow-sm">
-                            <span class="mx-auto mb-3 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-indigo-700 text-2xl font-extrabold text-white">{{ mb_strtoupper(mb_substr($i->name, 0, 1)) }}</span>
-                            <p class="text-sm font-bold text-slate-800">{{ $i->name }}</p>
-                        </div>
+                        @php
+                            $hue = $inHues[$loop->index % count($inHues)];
+                            $photo = $i->profile?->avatar_url;
+                            $n = (int) $i->published_courses;
+                        @endphp
+                        <article class="in-card" style="--in-a: {{ $hue[0] }}; --in-b: {{ $hue[1] }}; --in-i: {{ $loop->index }}">
+                            <div class="in-cover" aria-hidden="true"></div>
+                            <div class="in-photo">
+                                @if ($photo)
+                                    <img src="{{ $photo }}" alt="{{ $i->name }}" loading="lazy" width="112" height="112">
+                                @else
+                                    <span>{{ mb_strtoupper(mb_substr(trim($i->name), 0, 1)) }}</span>
+                                @endif
+                            </div>
+                            <h3 class="in-name">{{ $i->name }}</h3>
+                            @if (filled($i->profile?->bio))
+                                <p class="in-bio">{{ \Illuminate\Support\Str::limit($i->profile->bio, 90) }}</p>
+                            @endif
+                            <span class="in-count"><i class="fa-solid fa-book-open"></i>{{ trans_choice('student.home.cat_courses', $n, ['count' => $n]) }}</span>
+                        </article>
                     @endforeach
                 </div>
             </section>

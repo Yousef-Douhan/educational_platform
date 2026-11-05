@@ -51,6 +51,10 @@ Route::prefix('cms/admin')->name('cms.admin.')->middleware('auth')->group(functi
     // لوحة التحكم للموظفين فقط؛ الطالب يُحوَّل لواجهته
     Route::get('/', \App\Http\Controllers\DashboardController::class)->middleware('staff')->name('dashboard');
 
+    // ملاحظاتي والسبورة للموظف (شخصية؛ الحفظ عبر مسارات my/notes وmy/board نفسها)
+    Route::get('notes', [\App\Http\Controllers\Student\NoteController::class, 'cmsIndex'])->middleware('staff')->name('notes.index');
+    Route::get('schedule', [\App\Http\Controllers\Student\ScheduleController::class, 'cmsIndex'])->middleware('staff')->name('schedule.index');
+
     /* ---------------------------- Users ---------------------------- */
     Route::get('users/trashed', [UserController::class, 'trashed'])
         ->middleware('can:users.restore')->name('users.trashed');

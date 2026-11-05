@@ -62,7 +62,7 @@
             </div>
             <div class="form-group">
                 <label for="{{ $p }}_layout_accent_color" class="form-label">{{ __('certificate-templates.layout.accent_color') }}</label>
-                <input type="color" id="{{ $p }}_layout_accent_color" name="layout[accent_color]" value="#3730a3" class="color-input">
+                <input type="color" id="{{ $p }}_layout_accent_color" name="layout[accent_color]" value="#1e1b4b" class="color-input">
             </div>
 
             <div class="form-group form-group--full layout-flags">

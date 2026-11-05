@@ -5,6 +5,7 @@ return [
     'lessons_count' => '{0} No lessons|{1} 1 lesson|[2,*] :count lessons',
 
     'nav' => [
+        'notes' => 'My notes', 'schedule' => 'My weekly schedule',
         'certificates' => 'Certificates', 'more' => 'More', 'verify_certificate' => 'Verify a certificate', 'categories' => 'Categories', 'home' => 'Home', 'courses' => 'Courses', 'my_courses' => 'My courses', 'orders' => 'My orders',
         'cart' => 'Cart', 'admin' => 'Admin panel', 'logout' => 'Log out',
         'language' => 'Language', 'theme' => 'Dark / light mode', 'notifications' => 'Notifications', 'live_sessions' => 'Live sessions', 'profile' => 'My account',
@@ -95,7 +96,7 @@ return [
         ],
         'title' => 'Learn new skills at your own pace',
         'subtitle' => 'Structured courses from expert instructors, with progress tracking and certificates.',
-        'categories' => 'Categories', 'latest' => 'Latest courses', 'all' => 'View all',
+        'inst_eyebrow' => 'Our experts', 'inst_sub' => 'Specialists in their fields, guiding you step by step.', 'categories' => 'Categories', 'cat_eyebrow' => 'Explore', 'cat_sub' => 'Pick the field that suits you and start learning.', 'cat_courses' => '{0} No courses yet|{1} 1 course|[2,*] :count courses', 'latest' => 'Latest courses', 'all' => 'View all',
     ],
 
     'catalog' => [
@@ -175,5 +176,40 @@ return [
     'order_status' => [
         'pending' => 'Awaiting payment', 'paid' => 'Paid', 'failed' => 'Payment failed',
         'cancelled' => 'Cancelled', 'refunded' => 'Refunded',
+    ],
+    'notes' => [
+        'title' => 'My notes', 'subtitle' => 'Write notes for each course and sketch on the whiteboard. Everything is saved to your account.',
+        'tab_notes' => 'My notes', 'tab_board' => 'Whiteboard',
+        'general' => 'General', 'new_note' => 'New note', 'untitled' => 'Untitled', 'title_ph' => 'Note title',
+        'body_ph' => 'Write your notes here... (Ctrl+S to save)', 'save' => 'Save', 'clear' => 'Clear', 'delete' => 'Delete',
+        'confirm_delete' => 'Delete this note permanently?', 'confirm_clear_note' => 'Clear this note\'s text?',
+        'saved_at' => 'Saved :time', 'saving' => 'Saving...', 'save_failed' => 'Could not save. Please try again.',
+        'select' => 'Pick a note from the list or create a new one.', 'empty_folder' => 'No notes in this folder.',
+        'preview' => 'Preview', 'edit' => 'Edit', 'folders' => 'Folders', 'limit' => 'You reached the maximum number of notes.',
+        'tb' => ['bold' => 'Bold', 'italic' => 'Italic', 'heading' => 'Heading', 'bullet' => 'Bulleted list', 'number' => 'Numbered list', 'quote' => 'Quote', 'code' => 'Code', 'rule' => 'Divider'],
+        'board' => [
+            'page' => 'Page :n', 'add_page' => 'New page', 'delete_page' => 'Delete page', 'limit' => 'You reached the maximum number of pages.',
+            'tool' => 'Tool', 'pen' => 'Pen', 'eraser' => 'Eraser', 'line' => 'Line', 'rect' => 'Rectangle', 'circle' => 'Circle',
+            'shape' => 'Image', 'image' => 'Upload image', 'color' => 'Color', 'size' => 'Size', 'undo' => 'Undo', 'clear' => 'Clear', 'download' => 'Download',
+            'confirm_clear' => 'Clear the whole board?', 'confirm_page' => 'Delete this page and everything on it?', 'image_bad' => 'The image file is invalid or too large.',
+        ],
+    ],
+    'schedule' => [
+        'title' => 'Weekly Schedule Maker', 'subtitle' => 'Arrange your weekly lectures and labs with automatic conflict checking, saving and high-quality printing.',
+        'add' => 'Add lecture / lab', 'print' => 'Print', 'clear_all' => 'Clear all', 'confirm_clear' => 'Clear the whole schedule? This cannot be undone.',
+        'time' => 'Time', 'edit' => 'Edit', 'new' => 'Add to schedule', 'name' => 'Name', 'name_ph' => 'e.g. Programming 1',
+        'kind' => 'Type', 'day' => 'Day', 'from' => 'From', 'to' => 'To', 'room' => 'Room / place (optional)', 'color' => 'Color',
+        'save' => 'Save', 'cancel' => 'Cancel', 'delete' => 'Delete', 'confirm_delete' => 'Delete this item?',
+        'kinds' => ['lecture' => 'Lecture', 'exam' => 'Exam', 'lab' => 'Lab', 'other' => 'Other'],
+        'days' => ['Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'],
+        'conflict_one' => 'Schedule conflict: two or more items overlap (outlined in red).',
+        'no_conflict' => 'No conflicts.', 'empty' => 'Your schedule is empty. Add your first lecture.',
+        'end_after_start' => 'End time must be after start time.', 'too_many' => 'You reached the maximum number of items.',
+        'saving_failed' => 'Could not save, please try again.', 'conflict_badge' => 'Conflict',
+    ],
+    'pomodoro' => [
+        'title' => 'Focus timer (Pomodoro)', 'open' => 'Focus timer', 'close' => 'Close',
+        'start' => 'Start timer', 'pause' => 'Pause', 'reset' => 'Reset', 'done' => 'Session finished! Take a short break.',
+        'focus' => 'Focus (25 min)', 'short' => 'Break (5 min)', 'long' => 'Break (15 min)',
     ],
 ];

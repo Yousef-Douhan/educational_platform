@@ -64,7 +64,9 @@ class CertificatePdfGenerator
     {
         $path = $certificate->pdf_url;
 
-        if (! $force && $path && Storage::disk('local')->exists($path)) {
+        // النسخة المخزّنة صالحة فقط إن كانت أحدث من ملفات التصميم
+        if (! $force && $path && Storage::disk('local')->exists($path)
+            && Storage::disk('local')->lastModified($path) >= $this->designVersion()) {
             return $path;
         }
 
@@ -92,6 +94,17 @@ class CertificatePdfGenerator
     }
 
     /* ---------- داخلي ---------- */
+
+    /** آخر تعديل على ملفات تصميم الشهادة؛ أي تعديل عليها يعيد توليد الملفات المخزّنة */
+    private function designVersion(): int
+    {
+        $files = [
+            app_path('Services/CertificateBoxes.php'),
+            resource_path('css/certificates/pdf.css'),
+        ];
+
+        return (int) max(array_map(fn(string $f) => File::exists($f) ? File::lastModified($f) : 0, $files));
+    }
 
     private function build(Certificate $certificate, array $langs, bool $custom): string
     {

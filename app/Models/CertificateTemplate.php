@@ -65,7 +65,7 @@ class CertificateTemplate extends Model
         'hide_signature' => false,
         'hide_qr' => false,
         'text_color' => '#111827',
-        'accent_color' => '#3730a3',
+        'accent_color' => '#1e1b4b',
     ];
 
 

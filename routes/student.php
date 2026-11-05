@@ -4,6 +4,8 @@ use App\Http\Controllers\Auth\GoogleAuthController;
 use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Student\AttachmentController;
+use App\Http\Controllers\Student\BoardController;
+use App\Http\Controllers\Student\NoteController;
 use App\Http\Controllers\Student\CartController;
 use App\Http\Controllers\Student\CertificateController;
 use App\Http\Controllers\Student\CatalogController;
@@ -104,6 +106,25 @@ Route::middleware('auth')->name('student.')->group(function () {
         ->where('slug', '[A-Za-z0-9\-_]{1,191}')->middleware('throttle:10,1')->name('certificates.claim');
     Route::get('my/certificates/{certificate}/download', [CertificateController::class, 'download'])
         ->middleware('throttle:30,1')->name('certificates.download');
+
+    // ملاحظاتي والسبورة (JSON للحفظ التلقائي؛ كل شيء مقيَّد بصاحبه)
+    // الجدول الأسبوعي (JSON؛ مقيَّد بصاحبه)
+    Route::get('my/schedule', [\App\Http\Controllers\Student\ScheduleController::class, 'index'])->name('schedule.index');
+    Route::post('my/schedule', [\App\Http\Controllers\Student\ScheduleController::class, 'store'])->middleware('throttle:60,1')->name('schedule.store');
+    Route::delete('my/schedule', [\App\Http\Controllers\Student\ScheduleController::class, 'clear'])->middleware('throttle:10,1')->name('schedule.clear');
+    Route::put('my/schedule/{item}', [\App\Http\Controllers\Student\ScheduleController::class, 'update'])->whereNumber('item')->middleware('throttle:120,1')->name('schedule.update');
+    Route::delete('my/schedule/{item}', [\App\Http\Controllers\Student\ScheduleController::class, 'destroy'])->whereNumber('item')->middleware('throttle:120,1')->name('schedule.destroy');
+
+    Route::get('my/notes', [NoteController::class, 'index'])->name('notes.index');
+    Route::get('my/notes/{note}', [NoteController::class, 'show'])->whereNumber('note')->middleware('throttle:120,1')->name('notes.show');
+    Route::post('my/notes', [NoteController::class, 'store'])->middleware('throttle:30,1')->name('notes.store');
+    Route::put('my/notes/{note}', [NoteController::class, 'update'])->whereNumber('note')->middleware('throttle:120,1')->name('notes.update');
+    Route::delete('my/notes/{note}', [NoteController::class, 'destroy'])->whereNumber('note')->middleware('throttle:60,1')->name('notes.destroy');
+
+    Route::get('my/board/pages/{page}', [BoardController::class, 'show'])->whereNumber('page')->middleware('throttle:120,1')->name('board.show');
+    Route::post('my/board/pages', [BoardController::class, 'store'])->middleware('throttle:30,1')->name('board.store');
+    Route::put('my/board/pages/{page}', [BoardController::class, 'update'])->whereNumber('page')->middleware('throttle:120,1')->name('board.update');
+    Route::delete('my/board/pages/{page}', [BoardController::class, 'destroy'])->whereNumber('page')->middleware('throttle:60,1')->name('board.destroy');
 
     Route::get('cart', [CartController::class, 'show'])->name('cart.show');
     Route::post('cart/items', [CartController::class, 'add'])->middleware('throttle:60,1')->name('cart.add');

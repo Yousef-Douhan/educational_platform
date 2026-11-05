@@ -5,74 +5,103 @@ body {
     padding: 0;
 }
 
-/* ===== التصميم العصري ===== */
-.m-brand {
-    color: #ffffff;
+/* ===== التصميم الاحترافي الجاهز ===== */
+.p-brand {
+    color: #b8913a;
+    font-size: 13pt;
+    font-weight: bold;
+    letter-spacing: 3pt;
+}
+
+.p-title {
+    font-size: 38pt;
+    font-weight: bold;
+    color: #1e1b4b;
+    letter-spacing: 5pt;
+}
+
+.p-subtitle {
     font-size: 12pt;
     font-weight: bold;
+    color: #b8913a;
+    letter-spacing: 4pt;
 }
 
-.m-seal {
-    color: #c9a24b;
-    font-size: 9pt;
-    font-weight: bold;
+.p-lead {
+    font-size: 12.5pt;
+    color: #6b7280;
 }
 
-.m-code {
-    color: #ffffff;
-    font-size: 8.5pt;
-    direction: ltr;
-    letter-spacing: 1pt;
-}
-
-.m-scan {
-    color: #a5b4fc;
-    font-size: 8pt;
-}
-
-.m-title {
-    font-size: 34pt;
+.p-name {
     font-weight: bold;
     color: #1e1b4b;
 }
 
-.m-lead {
+.p-course {
+    font-weight: bold;
+    color: #8a6a22;
+}
+
+.p-seal-brand {
+    color: #ffffff;
+    font-size: 8.5pt;
+    font-weight: bold;
+}
+
+.p-seal {
+    color: #d9c48f;
+    font-size: 6.5pt;
+    font-weight: bold;
+}
+
+.p-foot-value {
     font-size: 12pt;
-    color: #6b7280;
-}
-
-.m-name {
     font-weight: bold;
-    color: #111827;
-}
-
-.m-course {
-    font-weight: bold;
-    color: #4338ca;
-}
-
-.m-foot-value {
-    font-size: 12pt;
-    font-weight: bold;
-    color: #111827;
+    color: #1e1b4b;
     height: 8mm;
 }
 
-.m-foot-line {
-    height: 0.3mm;
-    background-color: #6b7280;
+.p-foot-sign {
+    font-size: 12pt;
+    font-weight: bold;
+    color: #1e1b4b;
+    height: 8mm;
 }
 
-.m-foot-label {
-    font-size: 8.5pt;
+.p-foot-line {
+    height: 0.35mm;
+    background-color: #b8913a;
+}
+
+.p-foot-label {
+    font-size: 9pt;
     color: #6b7280;
     margin-top: 1.5mm;
 }
 
+.p-num-label {
+    font-size: 7.5pt;
+    color: #9ca3af;
+}
+
+.p-num {
+    font-size: 9pt;
+    font-weight: bold;
+    color: #1e1b4b;
+    letter-spacing: 1pt;
+    direction: ltr;
+}
+
+.p-scan {
+    font-size: 7pt;
+    color: #9ca3af;
+}
+
 /* ===== النص فوق صورة القالب ===== */
 .o-title {
-    font-size: 32pt;
+    font-size: 34pt;
     font-weight: bold;
+    letter-spacing: 4pt;
 }
 
 .o-lead {

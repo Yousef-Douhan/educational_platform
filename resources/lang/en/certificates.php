@@ -116,6 +116,9 @@ return [
         'scan' => 'Scan to verify',
         'verify_at' => 'Verify at',
         'sample_student' => 'Student Name',
+        'title_main' => 'CERTIFICATE',
+        'title_sub' => 'OF COMPLETION',
+        'number' => 'Certificate No.',
     ],
     'verify' => [
         'title' => 'Certificate verification',

@@ -10,7 +10,7 @@ use App\Models\Course;
 use App\Models\Enrollment;
 use App\Models\User;
 use App\Services\CatalogQuery;
-use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
+use App\Services\HomePageQuery;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
@@ -21,21 +21,13 @@ class CatalogController extends Controller
     {
     }
 
-    public function home(): View
+    public function home(HomePageQuery $home): View
     {
-        $published = Course::query()->where('status', 'published');
-
         return view('student.home', [
-            'latest'      => $this->published()->orderByDesc('courses.id')->limit(8)->get(),
-            'categories'  => Category::whereNull('parent_id')->orderBy('name_en')->limit(12)->get(),
-            // الاسم فقط: لا بريد ولا أي بيانات خاصة للمدرّسين
-            'instructors' => User::query()->select(['id', 'name'])
-                ->whereIn('id', (clone $published)->select('instructor_id'))->orderBy('name')->limit(8)->get(),
-            'stats'       => [
-                'courses'     => (clone $published)->count(),
-                'instructors' => (clone $published)->distinct('instructor_id')->count('instructor_id'),
-                'students'    => Enrollment::grantingAccess()->distinct('user_id')->count('user_id'),
-            ],
+            'latest'      => $home->latest(),
+            'categories'  => $home->categories(),
+            'instructors' => $home->instructors(),
+            'stats'       => $home->stats(),
         ]);
     }
 
@@ -80,11 +72,6 @@ class CatalogController extends Controller
     }
 
     /* ---------- داخلي ---------- */
-
-    private function published(): BuilderContract
-    {
-        return $this->catalog->published();
-    }
 
     private function stateFor(?User $user, Course $course): array
     {

@@ -116,6 +116,9 @@ return [
         'scan' => 'امسح الرمز للتحقق',
         'verify_at' => 'تحقّق عبر',
         'sample_student' => 'اسم الطالب',
+        'title_main' => 'شهادة إتمام',
+        'title_sub' => 'CERTIFICATE OF COMPLETION',
+        'number' => 'رقم الشهادة',
     ],
     'verify' => [
         'title' => 'التحقق من صحة الشهادة',

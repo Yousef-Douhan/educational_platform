@@ -5,7 +5,7 @@
     $text = $size === 'lg' ? 'text-3xl' : 'text-xl';
 @endphp
 <span class="inline-flex items-center gap-3">
-    <svg class="{{ $box }} shrink-0 drop-shadow-md" viewBox="0 0 48 48" role="img" aria-label="{{ config('app.name') }}">
+    <svg class="{{ $box }} shrink-0 drop-shadow-md" viewBox="0 0 48 48" role="img" aria-label="{{ __('brand.name') }}">
         <defs>
             <linearGradient id="logo-g-{{ $dark ? 'd' : 'l' }}" x1="0" y1="0" x2="1" y2="1">
                 <stop offset="0" stop-color="#4f46e5"/><stop offset="1" stop-color="#7c3aed"/>
@@ -17,5 +17,5 @@
         <path d="M38 20.5V31" stroke="#fbbf24" stroke-width="2.2" stroke-linecap="round"/>
         <circle cx="38" cy="33" r="2.4" fill="#fbbf24"/>
     </svg>
-    <span class="{{ $text }} font-extrabold leading-none tracking-tight {{ $dark ? 'text-white' : 'text-indigo-950' }}">{{ config('app.name', 'Laravel') }}</span>
+    <span class="{{ $text }} font-extrabold leading-none tracking-tight {{ $dark ? 'text-white' : 'text-indigo-950' }}">{{ __('brand.name') }}</span>
 </span>

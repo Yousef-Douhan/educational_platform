@@ -7,7 +7,7 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
 
-    <title>@yield('title', 'Dashboard') | {{ config('app.name', 'Laravel') }}</title>
+    <title>@yield('title', 'Dashboard') | {{ __('brand.name') }}</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -87,6 +87,8 @@
         }
     </style>
     @stack('styles')
+    @include('student.partials.motion')
+    @include('student.partials.palette')
 
 </head>
 
@@ -102,7 +104,7 @@
                 </div>
                 <div>
                     <p class="text-xs uppercase tracking-[0.25em] text-slate-400">Platform</p>
-                    <h1 class="text-lg font-semibold">Educational CMS</h1>
+                    <h1 class="text-lg font-semibold">{{ __('brand.cms') }}</h1>
                 </div>
             </div>
 
@@ -111,6 +113,16 @@
                     class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-200 transition hover:bg-slate-800 hover:text-white {{ request()->routeIs('cms.admin.dashboard') ? 'bg-slate-800 text-white' : '' }}">
                     <i class="fa-solid fa-gauge-high w-5 text-sky-400"></i>
                     {{ __('sidebar.dashboard') }}
+                </a>
+                <a href="{{ route('cms.admin.notes.index') }}"
+                    class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-200 transition hover:bg-slate-800 hover:text-white {{ request()->routeIs('cms.admin.notes.*') ? 'bg-slate-800 text-white' : '' }}">
+                    <i class="fa-solid fa-note-sticky w-5 text-sky-400"></i>
+                    {{ __('student.notes.title') }}
+                </a>
+                <a href="{{ route('cms.admin.schedule.index') }}"
+                    class="flex items-center gap-3 rounded-xl px-3 py-2.5 text-sm font-medium text-slate-200 transition hover:bg-slate-800 hover:text-white {{ request()->routeIs('cms.admin.schedule.*') ? 'bg-slate-800 text-white' : '' }}">
+                    <i class="fa-solid fa-calendar-week w-5 text-sky-400"></i>
+                    {{ __('student.nav.schedule') }}
                 </a>
 
                 @canany(['users.view', 'user-profiles.view', 'roles.view', 'permissions.view'])

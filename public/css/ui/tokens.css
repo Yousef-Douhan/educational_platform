@@ -1,0 +1,28 @@
+/*
+ * رموز التصميم المشتركة لواجهات الطالب/لوحة التحكم الحديثة (الرأس، الأقسام، الملاحظات، الجدول، المؤقت).
+ * مصدر واحد للألوان في الوضعين الفاتح والداكن ومع الألوان العشرة (html[data-palette] تضبط متغيرات --p-*).
+ * المكوّنات تستعمل var(--ui-*) فقط ولا تكرّر تعريف الألوان.
+ */
+:root {
+    --ui-card: #ffffff; --ui-s1: #f1f5f9; --ui-s2: #e4ecf5; --ui-line: #e2e8f0; --ui-text: #1e293b; --ui-muted: #64748b;
+    --ui-tint: #eef2ff; --ui-glass: rgb(255 255 255 / .86); --ui-nav: #0b1224; --ui-bad: #e11d48;
+    --ui-accent: #4f46e5; --ui-hover: #7c3aed; --ui-atext: #4338ca; --ui-on: #ffffff;
+    --ui-teal: #0f8f7a; --ui-on-teal: #ffffff;
+    --ui-sky: #0369a1; --ui-on-sky: #ffffff; --ui-sky-soft: #d8ecfb;
+    --ui-shadow: 0 18px 40px -18px rgb(15 23 42 / .35);
+}
+html.dark {
+    --ui-card: #111a2e; --ui-s1: #1a2540; --ui-s2: #223056; --ui-line: #28365a; --ui-text: #e8edf8; --ui-muted: #94a3b8;
+    --ui-tint: rgb(129 140 248 / .16); --ui-glass: rgb(15 23 42 / .82); --ui-nav: #0b1224;
+    --ui-accent: #818cf8; --ui-hover: #a78bfa; --ui-atext: #c7d2fe; --ui-on: #0b1020;
+    --ui-teal: #2dd4bf; --ui-on-teal: #04201b;
+    --ui-sky: #38bdf8; --ui-on-sky: #06202e; --ui-sky-soft: rgb(56 189 248 / .16);
+    --ui-shadow: 0 18px 40px -18px rgb(0 0 0 / .7);
+}
+html[data-palette] {
+    --ui-card: var(--p-surface); --ui-s1: var(--p-s2); --ui-s2: var(--p-s3); --ui-line: var(--p-border); --ui-text: var(--p-text); --ui-muted: var(--p-muted);
+    --ui-tint: var(--p-soft); --ui-glass: color-mix(in srgb, var(--p-surface) 84%, transparent); --ui-nav: var(--p-nav);
+    --ui-accent: var(--p-accent); --ui-hover: var(--p-hover); --ui-atext: var(--p-atext); --ui-on: var(--p-on);
+    --ui-teal: var(--p-accent); --ui-on-teal: var(--p-on);
+    --ui-sky: var(--p-accent); --ui-on-sky: var(--p-on); --ui-sky-soft: var(--p-soft);
+}

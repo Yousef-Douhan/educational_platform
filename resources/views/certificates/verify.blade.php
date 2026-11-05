@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="robots" content="noindex, nofollow">
-    <title>{{ __('certificates.verify.title', [], 'ar') }} | {{ config('app.name') }}</title>
+    <title>{{ __('certificates.verify.title', [], 'ar') }} | {{ __('brand.name', [], 'ar') }}</title>
     @vite('resources/css/verify.css')
 </head>
 <body>
