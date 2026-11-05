@@ -29,6 +29,12 @@ class AppServiceProvider extends ServiceProvider
     {
         Schema::defaultStringLength(191);
         Passport::loadKeysFrom(storage_path());
+        // رموز الـAPI الشخصية: صلاحياتها محددة وعمرها محدود
+        Passport::tokensCan([
+            'student' => 'Student access',
+            'admin'   => 'CMS administration access',
+        ]);
+        Passport::personalAccessTokensExpireIn(now()->addDays(30));
         Model::preventLazyLoading(! app()->isProduction());
         // معاملات المسارات أرقام فقط حتى لا يلتقط /{role} الكلمتين create وtrashed
         Route::pattern('user', '[0-9]+');
@@ -63,6 +69,17 @@ class AppServiceProvider extends ServiceProvider
 
         // البوابات تتشارك عناوين قليلة، فالحد سخي لكنه موجود
         RateLimiter::for('payment-webhooks', fn(Request $request) => Limit::perMinute(300)->by($request->ip()));
+        // الـAPI: حد عام لكل مستخدم/عنوان، وحد أضيق لمحاولات الدخول والتسجيل (ضد التخمين)
+        RateLimiter::for('api', fn (Request $request) => Limit::perMinute(120)->by($request->user('api')?->id ?: $request->ip()));
+        // حدّان: لكل (IP + بريد) ولكل IP وحده، فتدوير البريد من عنوان واحد لا يتجاوز الحد
+        RateLimiter::for('api-auth', fn (Request $request) => [
+            Limit::perMinute(10)->by($request->ip().'|'.mb_strtolower(mb_substr((string) $request->input('email'), 0, 255))),
+            Limit::perMinute(30)->by('ip:'.$request->ip()),
+        ]);
+        // الإدارة: القراءة أوسع من الكتابة، والمفتاح هو المستخدم
+        RateLimiter::for('api-admin', fn (Request $request) => $request->isMethodSafe()
+            ? Limit::perMinute(240)->by('adm-r:'.($request->user('api')?->id ?: $request->ip()))
+            : Limit::perMinute(60)->by('adm-w:'.($request->user('api')?->id ?: $request->ip())));
         RateLimiter::for('certificate-verify', fn(Request $request) => Limit::perMinute(30)->by($request->ip()));
     }
 }

@@ -33,6 +33,8 @@
             <button type="submit" class="w-full rounded-xl bg-indigo-700 px-4 py-3 text-sm font-bold text-white hover:bg-indigo-800">{{ __('student.auth.sign_in') }}</button>
         </form>
 
+        @include('student.partials.google-button')
+
         <p class="mt-5 text-center text-sm text-slate-500">
             {{ __('student.auth.no_account') }}
             <a href="{{ route('register') }}" class="font-semibold text-indigo-700 hover:underline">{{ __('student.auth.create_account') }}</a>

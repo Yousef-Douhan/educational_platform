@@ -5,7 +5,7 @@ return [
     'lessons_count' => '{0} No lessons|{1} 1 lesson|[2,*] :count lessons',
 
     'nav' => [
-        'certificates' => 'Certificates', 'verify_certificate' => 'Verify a certificate', 'categories' => 'Categories', 'home' => 'Home', 'courses' => 'Courses', 'my_courses' => 'My courses', 'orders' => 'My orders',
+        'certificates' => 'Certificates', 'more' => 'More', 'verify_certificate' => 'Verify a certificate', 'categories' => 'Categories', 'home' => 'Home', 'courses' => 'Courses', 'my_courses' => 'My courses', 'orders' => 'My orders',
         'cart' => 'Cart', 'admin' => 'Admin panel', 'logout' => 'Log out',
         'language' => 'Language', 'theme' => 'Dark / light mode', 'notifications' => 'Notifications', 'live_sessions' => 'Live sessions', 'profile' => 'My account',
         'login' => 'Log in', 'register' => 'Sign up',
@@ -20,6 +20,13 @@ return [
         'upcoming' => 'Upcoming and live', 'past' => 'Past sessions', 'none' => 'No upcoming sessions.',
         'join' => 'Join session', 'opens_at' => 'Opens at :t', 'min' => 'min',
         'not_open' => 'This session is not open for joining right now.', 'bad_link' => 'The session link is invalid. Contact the instructor.',
+    ],
+
+    'verify' => [
+        'title' => 'Verify your email', 'text' => 'We sent a verification link to :email. Open it to activate enrollment and purchases.',
+        'resend' => 'Resend the link', 'browse' => 'Browse courses', 'sent' => 'A new verification link has been sent.',
+        'done' => 'Your email has been verified. You can enroll and buy now.',
+        'banner' => 'Verify your email to enroll in courses and buy.',
     ],
 
     'pw' => [
@@ -41,6 +48,13 @@ return [
     ],
 
     'auth' => [
+        'google' => 'Continue with Google',
+        'or' => 'or',
+        'google_failed' => 'Google sign-in failed. Please try again.',
+        'google_unavailable' => 'Google sign-in is currently unavailable.',
+        'google_unverified' => 'This Google account email is not verified, so it cannot be used.',
+        'google_blocked' => 'This account is not available for sign-in.',
+        'google_staff' => 'Staff accounts sign in with email and password.',
         'create_account' => 'Create account', 'name' => 'Name', 'email' => 'Email',
         'password' => 'Password', 'password_confirmation' => 'Confirm password',
         'password_hint' => 'At least 8 characters with letters and numbers.',

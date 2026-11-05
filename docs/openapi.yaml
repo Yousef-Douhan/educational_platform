@@ -1,0 +1,2743 @@
+openapi: 3.0.3
+info:
+  title: Educational Platform API
+  version: 1.0.0
+  description: |
+    REST API للمنصة التعليمية. المصادقة برمز Bearer من Laravel Passport.
+    اللغة عبر ترويسة `Accept-Language` (`ar` أو `en`).
+    API الإدارة تحت `/admin/*` يتطلب رمزًا بنطاق `admin` (يُمنح تلقائيًا للموظفين عند الدخول) وصلاحية المورد؛ كل عملية تحمل `x-permission` عندما تُفرض على المسار نفسه، وإلا تُفرض داخل المتحكم بنفس صلاحيات لوحة الـCMS.
+    القوائم ترجع `{data, meta{current_page,last_page,per_page,total}, stats?}`. رفع الملفات مع التعديل: `POST` + حقل `_method=PUT`.
+    الأخطاء: 401 (غير مصادق)، 403 (محظور)، 404، 422 (تحقق: `message` + `errors`)، 429 (حد الطلبات).
+servers:
+  - url: http://127.0.0.1:8000/api/v1
+tags:
+  - name: Auth
+  - name: Catalog
+  - name: Me
+  - name: Learning
+  - name: Cart & Orders
+  - name: Quizzes
+  - name: Certificates
+  - name: Notifications
+  - name: Live
+  - name: Admin · Catalog
+  - name: Admin · Users & RBAC
+  - name: Admin · Sales
+  - name: Admin · Learning
+  - name: Admin · System
+components:
+  securitySchemes:
+    bearerAuth: { type: http, scheme: bearer }
+  parameters:
+    AcceptLanguage:
+      name: Accept-Language
+      in: header
+      schema: { type: string, enum: [ar, en] }
+    Page: { name: page, in: query, schema: { type: integer, minimum: 1 } }
+    PerPage: { name: per_page, in: query, schema: { type: integer, minimum: 5, maximum: 100, default: 15 } }
+    Search: { name: search, in: query, schema: { type: string } }
+    Sort: { name: sort, in: query, description: "عمود من القائمة المسموحة لكل مورد، وإلا يُتجاهل", schema: { type: string } }
+    Dir: { name: dir, in: query, schema: { type: string, enum: [asc, desc] } }
+  schemas:
+    User:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        email: { type: string, format: email }
+        email_verified: { type: boolean }
+        status: { type: string, enum: [active, inactive, suspended] }
+        roles: { type: array, items: { type: string } }
+        is_staff: { type: boolean }
+        created_at: { type: string, format: date-time }
+    Token:
+      type: object
+      properties:
+        access_token: { type: string }
+        token_type: { type: string, example: Bearer }
+        expires_at: { type: string, format: date-time, nullable: true }
+        scopes: { type: array, items: { type: string, enum: [student, admin] } }
+    AuthData:
+      type: object
+      properties:
+        user: { $ref: '#/components/schemas/User' }
+        token: { $ref: '#/components/schemas/Token' }
+    Category:
+      type: object
+      properties:
+        id: { type: integer }
+        slug: { type: string }
+        name: { type: string }
+        name_ar: { type: string }
+        name_en: { type: string }
+        icon: { type: string, nullable: true }
+        parent_id: { type: integer, nullable: true }
+        children: { type: array, items: { $ref: '#/components/schemas/Category' } }
+    Course:
+      type: object
+      properties:
+        id: { type: integer }
+        slug: { type: string }
+        title: { type: string }
+        title_ar: { type: string }
+        title_en: { type: string }
+        image: { type: string, nullable: true }
+        level: { type: string, enum: [beginner, intermediate, advanced] }
+        price: { type: string, example: "100.00" }
+        discount_price: { type: string, nullable: true }
+        final_price: { type: string }
+        is_free: { type: boolean }
+        currency: { type: string, example: USD }
+        lessons_count: { type: integer }
+        category: { type: object, nullable: true, properties: { id: { type: integer }, slug: { type: string }, name: { type: string } } }
+        instructor: { type: object, nullable: true, properties: { id: { type: integer }, name: { type: string } } }
+    CourseDetail:
+      allOf:
+        - $ref: '#/components/schemas/Course'
+        - type: object
+          properties:
+            description: { type: string }
+            requirements: { type: array, items: { type: string } }
+            outcomes: { type: array, items: { type: string } }
+            stats: { type: object, properties: { lessons: { type: integer }, minutes: { type: integer } } }
+            sections:
+              type: array
+              items:
+                type: object
+                properties:
+                  id: { type: integer }
+                  title: { type: string }
+                  lessons:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id: { type: integer }
+                        title: { type: string }
+                        type: { type: string, enum: [video, article, document, quiz, live] }
+                        duration_minutes: { type: integer }
+                        is_free_preview: { type: boolean }
+            state:
+              type: object
+              properties:
+                guest: { type: boolean }
+                enrolled: { type: boolean }
+                in_cart: { type: boolean }
+                teaches: { type: boolean }
+    ValidationError:
+      type: object
+      properties:
+        message: { type: string }
+        errors: { type: object, additionalProperties: { type: array, items: { type: string } } }
+  responses:
+    Unauthenticated: { description: Authentication required }
+    Forbidden: { description: "لا صلاحية (رمز بدون نطاق admin، أو ليس موظفًا، أو تنقصه صلاحية المورد)" }
+    Validation:
+      description: Validation failed
+      content: { application/json: { schema: { $ref: '#/components/schemas/ValidationError' } } }
+paths:
+  /auth/register:
+    post:
+      tags: [Auth]
+      summary: إنشاء حساب طالب وإرجاع رمز
+      description: "الحد: 10 طلبات/دقيقة لكل (IP + بريد). الحالة والأدوار والصلاحيات لا تُقبل من الطلب."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, email, password, password_confirmation]
+              properties:
+                name: { type: string, minLength: 2 }
+                email: { type: string, format: email }
+                password: { type: string, minLength: 8, description: حروف وأرقام }
+                password_confirmation: { type: string }
+                device_name: { type: string, maxLength: 100 }
+      responses:
+        '201':
+          description: Created
+          content: { application/json: { schema: { type: object, properties: { message: { type: string }, data: { $ref: '#/components/schemas/AuthData' } } } } }
+        '422': { $ref: '#/components/responses/Validation' }
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: تسجيل الدخول وإرجاع رمز
+      description: "نفس رسالة الخطأ لبريد غير موجود أو كلمة مرور خاطئة أو حساب غير نشط. الموظف يحصل على نطاق admin أيضًا."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email: { type: string, format: email }
+                password: { type: string }
+                device_name: { type: string }
+      responses:
+        '200':
+          description: OK
+          content: { application/json: { schema: { type: object, properties: { data: { $ref: '#/components/schemas/AuthData' } } } } }
+        '422': { $ref: '#/components/responses/Validation' }
+  /auth/forgot-password:
+    post:
+      tags: [Auth]
+      summary: "طلب رابط استعادة (الرد واحد دائماً، الحسابات غير النشطة لا تستلم)"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, required: [email], properties: { email: { type: string, format: email } } }
+      responses:
+        '200': { description: OK }
+        '422': { $ref: '#/components/responses/Validation' }
+  /auth/reset-password:
+    post:
+      tags: [Auth]
+      summary: "إعادة تعيين كلمة المرور بالرمز المرسل (يلغي كل الرموز)"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, required: [token, email, password, password_confirmation], properties: { token: { type: string }, email: { type: string, format: email }, password: { type: string, minLength: 8 }, password_confirmation: { type: string } } }
+      responses:
+        '200': { description: OK }
+        '422': { description: "رمز غير صالح (code=invalid_reset) أو خطأ تحقق" }
+  /auth/email/verification-notification:
+    post:
+      tags: [Auth]
+      summary: "إعادة إرسال رسالة تحقق البريد (3/دقيقة)"
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+  /auth/logout-all:
+    post:
+      tags: [Auth]
+      summary: "تسجيل الخروج من كل الأجهزة (إلغاء كل الرموز)"
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+  /auth/logout:
+    post:
+      tags: [Auth]
+      summary: إبطال رمز الجهاز الحالي
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+  /me:
+    get:
+      tags: [Me]
+      summary: بيانات المستخدم الحالي
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { type: object, properties: { data: { $ref: '#/components/schemas/User' } } } } } }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { description: الحساب غير نشط }
+    put:
+      tags: [Me]
+      summary: تعديل الاسم فقط
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content: { application/json: { schema: { type: object, required: [name], properties: { name: { type: string } } } } }
+      responses:
+        '200': { description: OK }
+        '422': { $ref: '#/components/responses/Validation' }
+  /me/password:
+    put:
+      tags: [Me]
+      summary: تغيير كلمة المرور (يُسجَّل الخروج من الأجهزة الأخرى)
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [current_password, password, password_confirmation]
+              properties:
+                current_password: { type: string }
+                password: { type: string }
+                password_confirmation: { type: string }
+      responses:
+        '200': { description: OK }
+        '422': { $ref: '#/components/responses/Validation' }
+  /categories:
+    get:
+      tags: [Catalog]
+      summary: شجرة الفئات
+      parameters: [{ $ref: '#/components/parameters/AcceptLanguage' }]
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { type: object, properties: { data: { type: array, items: { $ref: '#/components/schemas/Category' } } } } } } }
+  /courses:
+    get:
+      tags: [Catalog]
+      summary: الدورات المنشورة (ترقيم صفحات)
+      parameters:
+        - { $ref: '#/components/parameters/AcceptLanguage' }
+        - { name: q, in: query, schema: { type: string, maxLength: 100 } }
+        - { name: category, in: query, description: slug الفئة (يشمل الفروع), schema: { type: string } }
+        - { name: level, in: query, schema: { type: string, enum: [beginner, intermediate, advanced] } }
+        - { name: price, in: query, schema: { type: string, enum: [free, paid] } }
+        - { name: sort, in: query, schema: { type: string, enum: [newest, price_asc, price_desc] } }
+        - { name: page, in: query, schema: { type: integer, minimum: 1 } }
+        - { name: per_page, in: query, schema: { type: integer, minimum: 1, maximum: 50, default: 12 } }
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { type: object, properties: { data: { type: array, items: { $ref: '#/components/schemas/Course' } }, links: { type: object }, meta: { type: object } } } } } }
+        '422': { $ref: '#/components/responses/Validation' }
+  /courses/{slug}:
+    get:
+      tags: [Catalog]
+      summary: تفاصيل دورة منشورة والمنهج (بدون محتوى الدروس أو روابط الفيديو)
+      description: اختياري إرسال Bearer لإرجاع حالة المستخدم (مسجّل/في السلة).
+      parameters:
+        - { $ref: '#/components/parameters/AcceptLanguage' }
+        - { name: slug, in: path, required: true, schema: { type: string } }
+      responses:
+        '200': { description: OK, content: { application/json: { schema: { type: object, properties: { data: { $ref: '#/components/schemas/CourseDetail' } } } } } }
+        '404': { description: غير موجودة أو غير منشورة }
+  /my-courses:
+    get:
+      tags: [Learning]
+      summary: "دوراتي مع نسبة التقدم"
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { description: "صلاحية student مطلوبة أو غير مسجّل في الدورة" }
+        '404': { description: غير موجود (أو ليس ملكك) }
+        '422': { description: "خطأ تحقق أو منطق (message + code)" }
+  /courses/{slug}/enroll:
+    post:
+      tags: [Learning]
+      summary: "التسجيل في دورة مجانية"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: slug, in: path, required: true, schema: { type: string } }
+      responses:
+        '201': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { description: "صلاحية student مطلوبة أو غير مسجّل في الدورة" }
+        '404': { description: غير موجود (أو ليس ملكك) }
+        '422': { description: "خطأ تحقق أو منطق (message + code)" }
+  /learn/{slug}:
+    get:
+      tags: [Learning]
+      summary: "منهج الدورة (للمسجّل) مع الإكمال والدرس التالي"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: slug, in: path, required: true, schema: { type: string } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { description: "صلاحية student مطلوبة أو غير مسجّل في الدورة" }
+        '404': { description: غير موجود (أو ليس ملكك) }
+        '422': { description: "خطأ تحقق أو منطق (message + code)" }
+  /learn/{slug}/lessons/{lesson}:
+    get:
+      tags: [Learning]
+      summary: "محتوى درس (فيديو/نص/مرفقات/اختبار)"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: slug, in: path, required: true, schema: { type: string } }
+        - { name: lesson, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { description: "صلاحية student مطلوبة أو غير مسجّل في الدورة" }
+        '404': { description: غير موجود (أو ليس ملكك) }
+        '422': { description: "خطأ تحقق أو منطق (message + code)" }
+  /learn/{slug}/lessons/{lesson}/complete:
+    post:
+      tags: [Learning]
+      summary: "إكمال درس"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: slug, in: path, required: true, schema: { type: string } }
+        - { name: lesson, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { description: "صلاحية student مطلوبة أو غير مسجّل في الدورة" }
+        '404': { description: غير موجود (أو ليس ملكك) }
+        '422': { description: "خطأ تحقق أو منطق (message + code)" }
+    delete:
+      tags: [Learning]
+      summary: "إلغاء إكمال درس"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: slug, in: path, required: true, schema: { type: string } }
+        - { name: lesson, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { description: "صلاحية student مطلوبة أو غير مسجّل في الدورة" }
+        '404': { description: غير موجود (أو ليس ملكك) }
+        '422': { description: "خطأ تحقق أو منطق (message + code)" }
+  /attachments/{attachment}/download:
+    get:
+      tags: [Learning]
+      summary: "تنزيل مرفق درس"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: attachment, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { description: "صلاحية student مطلوبة أو غير مسجّل في الدورة" }
+        '404': { description: غير موجود (أو ليس ملكك) }
+        '422': { description: "خطأ تحقق أو منطق (message + code)" }
+  /cart:
+    get:
+      tags: [Cart & Orders]
+      summary: "السلة"
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { description: "صلاحية student مطلوبة أو غير مسجّل في الدورة" }
+        '404': { description: غير موجود (أو ليس ملكك) }
+        '422': { description: "خطأ تحقق أو منطق (message + code)" }
+    post:
+      tags: [Cart & Orders]
+      summary: "إضافة دورة للسلة"
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, required: [course_id], properties: { course_id: { type: integer } } }
+      responses:
+        '201': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { description: "صلاحية student مطلوبة أو غير مسجّل في الدورة" }
+        '404': { description: غير موجود (أو ليس ملكك) }
+        '422': { description: "خطأ تحقق أو منطق (message + code)" }
+  /cart/{course}:
+    delete:
+      tags: [Cart & Orders]
+      summary: "إزالة دورة من السلة"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: course, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { description: "صلاحية student مطلوبة أو غير مسجّل في الدورة" }
+        '404': { description: غير موجود (أو ليس ملكك) }
+        '422': { description: "خطأ تحقق أو منطق (message + code)" }
+  /checkout:
+    post:
+      tags: [Cart & Orders]
+      summary: "إنشاء طلب من السلة (الأسعار تُثبَّت في الخادم)"
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, required: [], properties: { coupon: { type: string } } }
+      responses:
+        '201': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { description: "صلاحية student مطلوبة أو غير مسجّل في الدورة" }
+        '404': { description: غير موجود (أو ليس ملكك) }
+        '422': { description: "خطأ تحقق أو منطق (message + code)" }
+  /orders:
+    get:
+      tags: [Cart & Orders]
+      summary: "طلباتي (ترقيم صفحات)"
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { description: "صلاحية student مطلوبة أو غير مسجّل في الدورة" }
+        '404': { description: غير موجود (أو ليس ملكك) }
+        '422': { description: "خطأ تحقق أو منطق (message + code)" }
+  /orders/{number}:
+    get:
+      tags: [Cart & Orders]
+      summary: "تفاصيل طلب وإيصالاته وطرق الدفع"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: number, in: path, required: true, schema: { type: string } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { description: "صلاحية student مطلوبة أو غير مسجّل في الدورة" }
+        '404': { description: غير موجود (أو ليس ملكك) }
+        '422': { description: "خطأ تحقق أو منطق (message + code)" }
+  /orders/{number}/pay:
+    post:
+      tags: [Cart & Orders]
+      summary: "بدء دفع Stripe ويعيد checkout_url"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: number, in: path, required: true, schema: { type: string } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { description: "صلاحية student مطلوبة أو غير مسجّل في الدورة" }
+        '404': { description: غير موجود (أو ليس ملكك) }
+        '422': { description: "خطأ تحقق أو منطق (message + code)" }
+        '502': { description: خطأ من البوابة }
+        '503': { description: Stripe غير مهيأ }
+  /orders/{number}/receipts:
+    post:
+      tags: [Cart & Orders]
+      summary: "رفع إشعار تحويل (صورة jpeg/png/webp حتى 4MB)"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: number, in: path, required: true, schema: { type: string } }
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema: { type: object, required: [method, sender_name, reference_number, receipt], properties: { method: { type: string }, sender_name: { type: string }, reference_number: { type: string }, receipt: { type: string } } }
+      responses:
+        '201': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { description: "صلاحية student مطلوبة أو غير مسجّل في الدورة" }
+        '404': { description: غير موجود (أو ليس ملكك) }
+        '422': { description: "خطأ تحقق أو منطق (message + code)" }
+  /payment-methods:
+    get:
+      tags: [Cart & Orders]
+      summary: "طرق التحويل المفعّلة"
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { description: "صلاحية student مطلوبة أو غير مسجّل في الدورة" }
+        '404': { description: غير موجود (أو ليس ملكك) }
+        '422': { description: "خطأ تحقق أو منطق (message + code)" }
+  /receipts/{receipt}/image:
+    get:
+      tags: [Cart & Orders]
+      summary: "صورة إشعار التحويل (صاحبه فقط)"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: receipt, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { description: "صلاحية student مطلوبة أو غير مسجّل في الدورة" }
+        '404': { description: غير موجود (أو ليس ملكك) }
+        '422': { description: "خطأ تحقق أو منطق (message + code)" }
+  /quizzes/{quiz}/attempts:
+    post:
+      tags: [Quizzes]
+      summary: "بدء محاولة اختبار (بدون الإجابات الصحيحة)"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: quiz, in: path, required: true, schema: { type: integer } }
+      responses:
+        '201': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { description: "صلاحية student مطلوبة أو غير مسجّل في الدورة" }
+        '404': { description: غير موجود (أو ليس ملكك) }
+        '422': { description: "خطأ تحقق أو منطق (message + code)" }
+  /attempts/{attempt}:
+    get:
+      tags: [Quizzes]
+      summary: "محاولة جارية (أسئلة) أو نتيجتها"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: attempt, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { description: "صلاحية student مطلوبة أو غير مسجّل في الدورة" }
+        '404': { description: غير موجود (أو ليس ملكك) }
+        '422': { description: "خطأ تحقق أو منطق (message + code)" }
+  /attempts/{attempt}/submit:
+    post:
+      tags: [Quizzes]
+      summary: "تسليم المحاولة: answers = {question_id: option_id|text}"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: attempt, in: path, required: true, schema: { type: integer } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { type: object, required: [], properties: { answers: { type: object } } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { description: "صلاحية student مطلوبة أو غير مسجّل في الدورة" }
+        '404': { description: غير موجود (أو ليس ملكك) }
+        '422': { description: "خطأ تحقق أو منطق (message + code)" }
+  /certificates:
+    get:
+      tags: [Certificates]
+      summary: "شهاداتي والدورات القابلة للاستلام"
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { description: "صلاحية student مطلوبة أو غير مسجّل في الدورة" }
+        '404': { description: غير موجود (أو ليس ملكك) }
+        '422': { description: "خطأ تحقق أو منطق (message + code)" }
+  /courses/{slug}/certificate:
+    post:
+      tags: [Certificates]
+      summary: "استلام شهادة دورة مكتملة"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: slug, in: path, required: true, schema: { type: string } }
+      responses:
+        '201': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { description: "صلاحية student مطلوبة أو غير مسجّل في الدورة" }
+        '404': { description: غير موجود (أو ليس ملكك) }
+        '422': { description: "خطأ تحقق أو منطق (message + code)" }
+  /certificates/{certificate}/download:
+    get:
+      tags: [Certificates]
+      summary: "تنزيل PDF (?lang=ar|en)"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: certificate, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { description: "صلاحية student مطلوبة أو غير مسجّل في الدورة" }
+        '404': { description: غير موجود (أو ليس ملكك) }
+        '422': { description: "خطأ تحقق أو منطق (message + code)" }
+  /notifications:
+    get:
+      tags: [Notifications]
+      summary: "إشعاراتي (?state=unread)"
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { description: "صلاحية student مطلوبة أو غير مسجّل في الدورة" }
+        '404': { description: غير موجود (أو ليس ملكك) }
+        '422': { description: "خطأ تحقق أو منطق (message + code)" }
+  /notifications/read-all:
+    post:
+      tags: [Notifications]
+      summary: "تعليم الكل كمقروء"
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { description: "صلاحية student مطلوبة أو غير مسجّل في الدورة" }
+        '404': { description: غير موجود (أو ليس ملكك) }
+        '422': { description: "خطأ تحقق أو منطق (message + code)" }
+  /notifications/{notification}/read:
+    post:
+      tags: [Notifications]
+      summary: "تعليم إشعار كمقروء"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: notification, in: path, required: true, schema: { type: string } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { description: "صلاحية student مطلوبة أو غير مسجّل في الدورة" }
+        '404': { description: غير موجود (أو ليس ملكك) }
+        '422': { description: "خطأ تحقق أو منطق (message + code)" }
+  /notifications/{notification}:
+    delete:
+      tags: [Notifications]
+      summary: "حذف إشعار"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: notification, in: path, required: true, schema: { type: string } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { description: "صلاحية student مطلوبة أو غير مسجّل في الدورة" }
+        '404': { description: غير موجود (أو ليس ملكك) }
+        '422': { description: "خطأ تحقق أو منطق (message + code)" }
+  /live-sessions:
+    get:
+      tags: [Live]
+      summary: "جلسات دوراتي (القادمة والسابقة) بدون رابط الاجتماع"
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { description: "صلاحية student مطلوبة أو غير مسجّل في الدورة" }
+        '404': { description: غير موجود (أو ليس ملكك) }
+        '422': { description: "خطأ تحقق أو منطق (message + code)" }
+  /live-sessions/{session}/join:
+    post:
+      tags: [Live]
+      summary: "رابط الانضمام (قبل البدء بـ15 دقيقة حتى النهاية)"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: session, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { description: "صلاحية student مطلوبة أو غير مسجّل في الدورة" }
+        '404': { description: غير موجود (أو ليس ملكك) }
+        '422': { description: "خطأ تحقق أو منطق (message + code)" }
+  # ======================= API الإدارة (رمز admin + موظف) =======================
+  /admin/categories:
+    get:
+      tags: ["Admin · Catalog"]
+      summary: "تصنيفات — قائمة"
+      x-permission: "categories.view"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/Page' }
+        - { $ref: '#/components/parameters/PerPage' }
+        - { $ref: '#/components/parameters/Search' }
+        - { $ref: '#/components/parameters/Sort' }
+        - { $ref: '#/components/parameters/Dir' }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+    post:
+      tags: ["Admin · Catalog"]
+      summary: "تصنيفات — إنشاء"
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { description: OK }
+        '201': { description: Created }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+        '422': { $ref: '#/components/responses/Validation' }
+        '409': { description: "تعارض في الحالة (مثل طلب غير قابل للانتقال أو عنصر مرتبط)" }
+  /admin/categories/trashed:
+    get:
+      tags: ["Admin · Catalog"]
+      summary: "تصنيفات — المحذوفات"
+      x-permission: "categories.view"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/Page' }
+        - { $ref: '#/components/parameters/PerPage' }
+        - { $ref: '#/components/parameters/Search' }
+        - { $ref: '#/components/parameters/Sort' }
+        - { $ref: '#/components/parameters/Dir' }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+  /admin/categories/{id}/restore:
+    patch:
+      tags: ["Admin · Catalog"]
+      summary: "تصنيفات — استرجاع"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+        '422': { $ref: '#/components/responses/Validation' }
+        '409': { description: "تعارض في الحالة (مثل طلب غير قابل للانتقال أو عنصر مرتبط)" }
+  /admin/categories/{id}/force-delete:
+    delete:
+      tags: ["Admin · Catalog"]
+      summary: "تصنيفات — حذف نهائي"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+        '409': { description: "تعارض في الحالة (مثل طلب غير قابل للانتقال أو عنصر مرتبط)" }
+  /admin/categories/{category}:
+    get:
+      tags: ["Admin · Catalog"]
+      summary: "تصنيفات — عرض"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: category, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+    put:
+      tags: ["Admin · Catalog"]
+      summary: "تصنيفات — تعديل"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: category, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+        '422': { $ref: '#/components/responses/Validation' }
+        '409': { description: "تعارض في الحالة (مثل طلب غير قابل للانتقال أو عنصر مرتبط)" }
+    patch:
+      tags: ["Admin · Catalog"]
+      summary: "تصنيفات — تعديل"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: category, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+        '422': { $ref: '#/components/responses/Validation' }
+        '409': { description: "تعارض في الحالة (مثل طلب غير قابل للانتقال أو عنصر مرتبط)" }
+    delete:
+      tags: ["Admin · Catalog"]
+      summary: "تصنيفات — حذف مؤقت/حذف"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: category, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+        '409': { description: "تعارض في الحالة (مثل طلب غير قابل للانتقال أو عنصر مرتبط)" }
+  /admin/courses:
+    get:
+      tags: ["Admin · Catalog"]
+      summary: "دورات — قائمة"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/Page' }
+        - { $ref: '#/components/parameters/PerPage' }
+        - { $ref: '#/components/parameters/Search' }
+        - { $ref: '#/components/parameters/Sort' }
+        - { $ref: '#/components/parameters/Dir' }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+    post:
+      tags: ["Admin · Catalog"]
+      summary: "دورات — إنشاء"
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { description: OK }
+        '201': { description: Created }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+        '422': { $ref: '#/components/responses/Validation' }
+        '409': { description: "تعارض في الحالة (مثل طلب غير قابل للانتقال أو عنصر مرتبط)" }
+  /admin/courses/trashed:
+    get:
+      tags: ["Admin · Catalog"]
+      summary: "دورات — المحذوفات"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/Page' }
+        - { $ref: '#/components/parameters/PerPage' }
+        - { $ref: '#/components/parameters/Search' }
+        - { $ref: '#/components/parameters/Sort' }
+        - { $ref: '#/components/parameters/Dir' }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+  /admin/courses/{id}/restore:
+    patch:
+      tags: ["Admin · Catalog"]
+      summary: "دورات — استرجاع"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+        '422': { $ref: '#/components/responses/Validation' }
+        '409': { description: "تعارض في الحالة (مثل طلب غير قابل للانتقال أو عنصر مرتبط)" }
+  /admin/courses/{id}/force-delete:
+    delete:
+      tags: ["Admin · Catalog"]
+      summary: "دورات — حذف نهائي"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+        '409': { description: "تعارض في الحالة (مثل طلب غير قابل للانتقال أو عنصر مرتبط)" }
+  /admin/courses/{course}:
+    get:
+      tags: ["Admin · Catalog"]
+      summary: "دورات — عرض"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: course, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+    put:
+      tags: ["Admin · Catalog"]
+      summary: "دورات — تعديل"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: course, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+        '422': { $ref: '#/components/responses/Validation' }
+        '409': { description: "تعارض في الحالة (مثل طلب غير قابل للانتقال أو عنصر مرتبط)" }
+    patch:
+      tags: ["Admin · Catalog"]
+      summary: "دورات — تعديل"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: course, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+        '422': { $ref: '#/components/responses/Validation' }
+        '409': { description: "تعارض في الحالة (مثل طلب غير قابل للانتقال أو عنصر مرتبط)" }
+    delete:
+      tags: ["Admin · Catalog"]
+      summary: "دورات — حذف مؤقت/حذف"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: course, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+        '409': { description: "تعارض في الحالة (مثل طلب غير قابل للانتقال أو عنصر مرتبط)" }
+  /admin/courses/{course}/edit:
+    get:
+      tags: ["Admin · Catalog"]
+      summary: "دورات — بيانات التعديل"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: course, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+  /admin/courses/{course}/curriculum:
+    get:
+      tags: ["Admin · Catalog"]
+      summary: "أقسام — curriculum"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: course, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+  /admin/courses/{course}/sections:
+    post:
+      tags: ["Admin · Catalog"]
+      summary: "أقسام — إنشاء"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: course, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '201': { description: Created }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+        '422': { $ref: '#/components/responses/Validation' }
+        '409': { description: "تعارض في الحالة (مثل طلب غير قابل للانتقال أو عنصر مرتبط)" }
+  /admin/courses/{course}/sections/reorder:
+    post:
+      tags: ["Admin · Catalog"]
+      summary: "أقسام — reorder"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: course, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '201': { description: Created }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+        '422': { $ref: '#/components/responses/Validation' }
+        '409': { description: "تعارض في الحالة (مثل طلب غير قابل للانتقال أو عنصر مرتبط)" }
+  /admin/sections/{section}:
+    put:
+      tags: ["Admin · Catalog"]
+      summary: "أقسام — تعديل"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: section, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+        '422': { $ref: '#/components/responses/Validation' }
+        '409': { description: "تعارض في الحالة (مثل طلب غير قابل للانتقال أو عنصر مرتبط)" }
+    delete:
+      tags: ["Admin · Catalog"]
+      summary: "أقسام — حذف مؤقت/حذف"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: section, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+        '409': { description: "تعارض في الحالة (مثل طلب غير قابل للانتقال أو عنصر مرتبط)" }
+  /admin/courses/{course}/lessons/trashed:
+    get:
+      tags: ["Admin · Catalog"]
+      summary: "دروس — المحذوفات"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: course, in: path, required: true, schema: { type: integer } }
+        - { $ref: '#/components/parameters/Page' }
+        - { $ref: '#/components/parameters/PerPage' }
+        - { $ref: '#/components/parameters/Search' }
+        - { $ref: '#/components/parameters/Sort' }
+        - { $ref: '#/components/parameters/Dir' }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+  /admin/sections/{section}/lessons:
+    post:
+      tags: ["Admin · Catalog"]
+      summary: "أقسام — إنشاء"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: section, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '201': { description: Created }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+        '422': { $ref: '#/components/responses/Validation' }
+        '409': { description: "تعارض في الحالة (مثل طلب غير قابل للانتقال أو عنصر مرتبط)" }
+  /admin/sections/{section}/lessons/reorder:
+    post:
+      tags: ["Admin · Catalog"]
+      summary: "أقسام — reorder"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: section, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '201': { description: Created }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+        '422': { $ref: '#/components/responses/Validation' }
+        '409': { description: "تعارض في الحالة (مثل طلب غير قابل للانتقال أو عنصر مرتبط)" }
+  /admin/lessons/{id}/restore:
+    patch:
+      tags: ["Admin · Catalog"]
+      summary: "دروس — استرجاع"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+        '422': { $ref: '#/components/responses/Validation' }
+        '409': { description: "تعارض في الحالة (مثل طلب غير قابل للانتقال أو عنصر مرتبط)" }
+  /admin/lessons/{id}/force-delete:
+    delete:
+      tags: ["Admin · Catalog"]
+      summary: "دروس — حذف نهائي"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+        '409': { description: "تعارض في الحالة (مثل طلب غير قابل للانتقال أو عنصر مرتبط)" }
+  /admin/lessons/{lesson}:
+    get:
+      tags: ["Admin · Catalog"]
+      summary: "دروس — عرض"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: lesson, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+    put:
+      tags: ["Admin · Catalog"]
+      summary: "دروس — تعديل"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: lesson, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+        '422': { $ref: '#/components/responses/Validation' }
+        '409': { description: "تعارض في الحالة (مثل طلب غير قابل للانتقال أو عنصر مرتبط)" }
+    delete:
+      tags: ["Admin · Catalog"]
+      summary: "دروس — حذف مؤقت/حذف"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: lesson, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+        '409': { description: "تعارض في الحالة (مثل طلب غير قابل للانتقال أو عنصر مرتبط)" }
+  /admin/lessons/{lesson}/attachments:
+    post:
+      tags: ["Admin · Catalog"]
+      summary: "دروس — إنشاء"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: lesson, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '201': { description: Created }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+        '422': { $ref: '#/components/responses/Validation' }
+        '409': { description: "تعارض في الحالة (مثل طلب غير قابل للانتقال أو عنصر مرتبط)" }
+  /admin/attachments/{attachment}/download:
+    get:
+      tags: ["Admin · Catalog"]
+      summary: "مرفقات — download"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: attachment, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+  /admin/attachments/{attachment}:
+    delete:
+      tags: ["Admin · Catalog"]
+      summary: "مرفقات — حذف مؤقت/حذف"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: attachment, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+        '409': { description: "تعارض في الحالة (مثل طلب غير قابل للانتقال أو عنصر مرتبط)" }
+  /admin/users:
+    get:
+      tags: ["Admin · Users & RBAC"]
+      summary: "مستخدمون — قائمة"
+      x-permission: "users.view"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/Page' }
+        - { $ref: '#/components/parameters/PerPage' }
+        - { $ref: '#/components/parameters/Search' }
+        - { $ref: '#/components/parameters/Sort' }
+        - { $ref: '#/components/parameters/Dir' }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+    post:
+      tags: ["Admin · Users & RBAC"]
+      summary: "مستخدمون — إنشاء"
+      x-permission: "users.create"
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { description: OK }
+        '201': { description: Created }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+        '422': { $ref: '#/components/responses/Validation' }
+        '409': { description: "تعارض في الحالة (مثل طلب غير قابل للانتقال أو عنصر مرتبط)" }
+  /admin/users/trashed:
+    get:
+      tags: ["Admin · Users & RBAC"]
+      summary: "مستخدمون — المحذوفات"
+      x-permission: "users.restore"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/Page' }
+        - { $ref: '#/components/parameters/PerPage' }
+        - { $ref: '#/components/parameters/Search' }
+        - { $ref: '#/components/parameters/Sort' }
+        - { $ref: '#/components/parameters/Dir' }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+  /admin/users/{id}/restore:
+    post:
+      tags: ["Admin · Users & RBAC"]
+      summary: "مستخدمون — استرجاع"
+      x-permission: "users.restore"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '201': { description: Created }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+        '422': { $ref: '#/components/responses/Validation' }
+        '409': { description: "تعارض في الحالة (مثل طلب غير قابل للانتقال أو عنصر مرتبط)" }
+  /admin/users/{id}/force-delete:
+    delete:
+      tags: ["Admin · Users & RBAC"]
+      summary: "مستخدمون — حذف نهائي"
+      x-permission: "users.force-delete"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+        '409': { description: "تعارض في الحالة (مثل طلب غير قابل للانتقال أو عنصر مرتبط)" }
+  /admin/users/{user}:
+    get:
+      tags: ["Admin · Users & RBAC"]
+      summary: "مستخدمون — عرض"
+      x-permission: "users.view"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: user, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+    put:
+      tags: ["Admin · Users & RBAC"]
+      summary: "مستخدمون — تعديل"
+      x-permission: "users.edit"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: user, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+        '422': { $ref: '#/components/responses/Validation' }
+        '409': { description: "تعارض في الحالة (مثل طلب غير قابل للانتقال أو عنصر مرتبط)" }
+    patch:
+      tags: ["Admin · Users & RBAC"]
+      summary: "مستخدمون — تعديل"
+      x-permission: "users.edit"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: user, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+        '422': { $ref: '#/components/responses/Validation' }
+        '409': { description: "تعارض في الحالة (مثل طلب غير قابل للانتقال أو عنصر مرتبط)" }
+    delete:
+      tags: ["Admin · Users & RBAC"]
+      summary: "مستخدمون — حذف مؤقت/حذف"
+      x-permission: "users.delete"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: user, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+        '409': { description: "تعارض في الحالة (مثل طلب غير قابل للانتقال أو عنصر مرتبط)" }
+  /admin/users/{user}/edit:
+    get:
+      tags: ["Admin · Users & RBAC"]
+      summary: "مستخدمون — بيانات التعديل"
+      x-permission: "users.edit"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: user, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+  /admin/roles:
+    get:
+      tags: ["Admin · Users & RBAC"]
+      summary: "أدوار — قائمة"
+      x-permission: "roles.view"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/Page' }
+        - { $ref: '#/components/parameters/PerPage' }
+        - { $ref: '#/components/parameters/Search' }
+        - { $ref: '#/components/parameters/Sort' }
+        - { $ref: '#/components/parameters/Dir' }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+    post:
+      tags: ["Admin · Users & RBAC"]
+      summary: "أدوار — إنشاء"
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { description: OK }
+        '201': { description: Created }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+        '422': { $ref: '#/components/responses/Validation' }
+        '409': { description: "تعارض في الحالة (مثل طلب غير قابل للانتقال أو عنصر مرتبط)" }
+  /admin/roles/create:
+    get:
+      tags: ["Admin · Users & RBAC"]
+      summary: "أدوار — بيانات الإنشاء"
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+  /admin/roles/{role}:
+    get:
+      tags: ["Admin · Users & RBAC"]
+      summary: "أدوار — عرض"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: role, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+    put:
+      tags: ["Admin · Users & RBAC"]
+      summary: "أدوار — تعديل"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: role, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+        '422': { $ref: '#/components/responses/Validation' }
+        '409': { description: "تعارض في الحالة (مثل طلب غير قابل للانتقال أو عنصر مرتبط)" }
+    patch:
+      tags: ["Admin · Users & RBAC"]
+      summary: "أدوار — تعديل"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: role, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+        '422': { $ref: '#/components/responses/Validation' }
+        '409': { description: "تعارض في الحالة (مثل طلب غير قابل للانتقال أو عنصر مرتبط)" }
+    delete:
+      tags: ["Admin · Users & RBAC"]
+      summary: "أدوار — حذف مؤقت/حذف"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: role, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+        '409': { description: "تعارض في الحالة (مثل طلب غير قابل للانتقال أو عنصر مرتبط)" }
+  /admin/roles/{role}/edit:
+    get:
+      tags: ["Admin · Users & RBAC"]
+      summary: "أدوار — بيانات التعديل"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: role, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+  /admin/permissions:
+    get:
+      tags: ["Admin · Users & RBAC"]
+      summary: "صلاحيات — قائمة"
+      x-permission: "permissions.view"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/Page' }
+        - { $ref: '#/components/parameters/PerPage' }
+        - { $ref: '#/components/parameters/Search' }
+        - { $ref: '#/components/parameters/Sort' }
+        - { $ref: '#/components/parameters/Dir' }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+    post:
+      tags: ["Admin · Users & RBAC"]
+      summary: "صلاحيات — إنشاء"
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { description: OK }
+        '201': { description: Created }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+        '422': { $ref: '#/components/responses/Validation' }
+        '409': { description: "تعارض في الحالة (مثل طلب غير قابل للانتقال أو عنصر مرتبط)" }
+  /admin/permissions/{permission}:
+    get:
+      tags: ["Admin · Users & RBAC"]
+      summary: "صلاحيات — عرض"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: permission, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+    put:
+      tags: ["Admin · Users & RBAC"]
+      summary: "صلاحيات — تعديل"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: permission, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+        '422': { $ref: '#/components/responses/Validation' }
+        '409': { description: "تعارض في الحالة (مثل طلب غير قابل للانتقال أو عنصر مرتبط)" }
+    patch:
+      tags: ["Admin · Users & RBAC"]
+      summary: "صلاحيات — تعديل"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: permission, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+        '422': { $ref: '#/components/responses/Validation' }
+        '409': { description: "تعارض في الحالة (مثل طلب غير قابل للانتقال أو عنصر مرتبط)" }
+    delete:
+      tags: ["Admin · Users & RBAC"]
+      summary: "صلاحيات — حذف مؤقت/حذف"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: permission, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+        '409': { description: "تعارض في الحالة (مثل طلب غير قابل للانتقال أو عنصر مرتبط)" }
+  /admin/orders:
+    get:
+      tags: ["Admin · Sales"]
+      summary: "طلبات — قائمة"
+      x-permission: "orders.view"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/Page' }
+        - { $ref: '#/components/parameters/PerPage' }
+        - { $ref: '#/components/parameters/Search' }
+        - { $ref: '#/components/parameters/Sort' }
+        - { $ref: '#/components/parameters/Dir' }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+  /admin/orders/{order}:
+    get:
+      tags: ["Admin · Sales"]
+      summary: "طلبات — عرض"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: order, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+  /admin/orders/{order}/mark-paid:
+    post:
+      tags: ["Admin · Sales"]
+      summary: "طلبات — mark-paid"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: order, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '201': { description: Created }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+        '422': { $ref: '#/components/responses/Validation' }
+        '409': { description: "تعارض في الحالة (مثل طلب غير قابل للانتقال أو عنصر مرتبط)" }
+  /admin/orders/{order}/cancel:
+    post:
+      tags: ["Admin · Sales"]
+      summary: "طلبات — cancel"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: order, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '201': { description: Created }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+        '422': { $ref: '#/components/responses/Validation' }
+        '409': { description: "تعارض في الحالة (مثل طلب غير قابل للانتقال أو عنصر مرتبط)" }
+  /admin/orders/{order}/refund:
+    post:
+      tags: ["Admin · Sales"]
+      summary: "طلبات — refund"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: order, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '201': { description: Created }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+        '422': { $ref: '#/components/responses/Validation' }
+        '409': { description: "تعارض في الحالة (مثل طلب غير قابل للانتقال أو عنصر مرتبط)" }
+  /admin/payments:
+    get:
+      tags: ["Admin · Sales"]
+      summary: "مدفوعات — قائمة"
+      x-permission: "payments.view"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/Page' }
+        - { $ref: '#/components/parameters/PerPage' }
+        - { $ref: '#/components/parameters/Search' }
+        - { $ref: '#/components/parameters/Sort' }
+        - { $ref: '#/components/parameters/Dir' }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+  /admin/payments/{payment}:
+    get:
+      tags: ["Admin · Sales"]
+      summary: "مدفوعات — عرض"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: payment, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+  /admin/receipts:
+    get:
+      tags: ["Admin · Sales"]
+      summary: "إيصالات — قائمة"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/Page' }
+        - { $ref: '#/components/parameters/PerPage' }
+        - { $ref: '#/components/parameters/Search' }
+        - { $ref: '#/components/parameters/Sort' }
+        - { $ref: '#/components/parameters/Dir' }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+  /admin/receipts/{receipt}:
+    get:
+      tags: ["Admin · Sales"]
+      summary: "إيصالات — عرض"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: receipt, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+  /admin/receipts/{receipt}/image:
+    get:
+      tags: ["Admin · Sales"]
+      summary: "إيصالات — image"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: receipt, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+  /admin/receipts/{receipt}/approve:
+    post:
+      tags: ["Admin · Sales"]
+      summary: "إيصالات — approve"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: receipt, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '201': { description: Created }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+        '422': { $ref: '#/components/responses/Validation' }
+        '409': { description: "تعارض في الحالة (مثل طلب غير قابل للانتقال أو عنصر مرتبط)" }
+  /admin/receipts/{receipt}/reject:
+    post:
+      tags: ["Admin · Sales"]
+      summary: "إيصالات — reject"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: receipt, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '201': { description: Created }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+        '422': { $ref: '#/components/responses/Validation' }
+        '409': { description: "تعارض في الحالة (مثل طلب غير قابل للانتقال أو عنصر مرتبط)" }
+  /admin/coupons:
+    get:
+      tags: ["Admin · Sales"]
+      summary: "كوبونات — قائمة"
+      x-permission: "coupons.view"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/Page' }
+        - { $ref: '#/components/parameters/PerPage' }
+        - { $ref: '#/components/parameters/Search' }
+        - { $ref: '#/components/parameters/Sort' }
+        - { $ref: '#/components/parameters/Dir' }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+    post:
+      tags: ["Admin · Sales"]
+      summary: "كوبونات — إنشاء"
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { description: OK }
+        '201': { description: Created }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+        '422': { $ref: '#/components/responses/Validation' }
+        '409': { description: "تعارض في الحالة (مثل طلب غير قابل للانتقال أو عنصر مرتبط)" }
+  /admin/coupons/trashed:
+    get:
+      tags: ["Admin · Sales"]
+      summary: "كوبونات — المحذوفات"
+      x-permission: "coupons.view"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/Page' }
+        - { $ref: '#/components/parameters/PerPage' }
+        - { $ref: '#/components/parameters/Search' }
+        - { $ref: '#/components/parameters/Sort' }
+        - { $ref: '#/components/parameters/Dir' }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+  /admin/coupons/{id}/restore:
+    patch:
+      tags: ["Admin · Sales"]
+      summary: "كوبونات — استرجاع"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+        '422': { $ref: '#/components/responses/Validation' }
+        '409': { description: "تعارض في الحالة (مثل طلب غير قابل للانتقال أو عنصر مرتبط)" }
+  /admin/coupons/{id}/force-delete:
+    delete:
+      tags: ["Admin · Sales"]
+      summary: "كوبونات — حذف نهائي"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+        '409': { description: "تعارض في الحالة (مثل طلب غير قابل للانتقال أو عنصر مرتبط)" }
+  /admin/coupons/{coupon}:
+    get:
+      tags: ["Admin · Sales"]
+      summary: "كوبونات — عرض"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: coupon, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+    put:
+      tags: ["Admin · Sales"]
+      summary: "كوبونات — تعديل"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: coupon, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+        '422': { $ref: '#/components/responses/Validation' }
+        '409': { description: "تعارض في الحالة (مثل طلب غير قابل للانتقال أو عنصر مرتبط)" }
+    patch:
+      tags: ["Admin · Sales"]
+      summary: "كوبونات — تعديل"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: coupon, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+        '422': { $ref: '#/components/responses/Validation' }
+        '409': { description: "تعارض في الحالة (مثل طلب غير قابل للانتقال أو عنصر مرتبط)" }
+    delete:
+      tags: ["Admin · Sales"]
+      summary: "كوبونات — حذف مؤقت/حذف"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: coupon, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+        '409': { description: "تعارض في الحالة (مثل طلب غير قابل للانتقال أو عنصر مرتبط)" }
+  /admin/coupons/{coupon}/toggle:
+    patch:
+      tags: ["Admin · Sales"]
+      summary: "كوبونات — toggle"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: coupon, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+        '422': { $ref: '#/components/responses/Validation' }
+        '409': { description: "تعارض في الحالة (مثل طلب غير قابل للانتقال أو عنصر مرتبط)" }
+  /admin/carts:
+    get:
+      tags: ["Admin · Sales"]
+      summary: "سلات — قائمة"
+      x-permission: "carts.view"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/Page' }
+        - { $ref: '#/components/parameters/PerPage' }
+        - { $ref: '#/components/parameters/Search' }
+        - { $ref: '#/components/parameters/Sort' }
+        - { $ref: '#/components/parameters/Dir' }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+  /admin/carts/{cart}:
+    get:
+      tags: ["Admin · Sales"]
+      summary: "سلات — عرض"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: cart, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+  /admin/carts/{cart}/items:
+    delete:
+      tags: ["Admin · Sales"]
+      summary: "سلات — clear"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: cart, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+        '409': { description: "تعارض في الحالة (مثل طلب غير قابل للانتقال أو عنصر مرتبط)" }
+  /admin/dashboard:
+    get:
+      tags: ["Admin · System"]
+      summary: "لوحة الإحصاءات — dashboard"
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+  /admin/enrollments:
+    get:
+      tags: ["Admin · Learning"]
+      summary: "تسجيلات — قائمة"
+      x-permission: "enrollments.view"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/Page' }
+        - { $ref: '#/components/parameters/PerPage' }
+        - { $ref: '#/components/parameters/Search' }
+        - { $ref: '#/components/parameters/Sort' }
+        - { $ref: '#/components/parameters/Dir' }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+    post:
+      tags: ["Admin · Learning"]
+      summary: "تسجيلات — إنشاء"
+      x-permission: "enrollments.create"
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { description: OK }
+        '201': { description: Created }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+        '422': { $ref: '#/components/responses/Validation' }
+        '409': { description: "تعارض في الحالة (مثل طلب غير قابل للانتقال أو عنصر مرتبط)" }
+  /admin/enrollments/lookup/users:
+    get:
+      tags: ["Admin · Learning"]
+      summary: "تسجيلات — lookup-users"
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+  /admin/enrollments/create:
+    get:
+      tags: ["Admin · Learning"]
+      summary: "تسجيلات — بيانات الإنشاء"
+      x-permission: "enrollments.create"
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+  /admin/enrollments/{enrollment}:
+    get:
+      tags: ["Admin · Learning"]
+      summary: "تسجيلات — عرض"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: enrollment, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+    put:
+      tags: ["Admin · Learning"]
+      summary: "تسجيلات — تعديل"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: enrollment, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+        '422': { $ref: '#/components/responses/Validation' }
+        '409': { description: "تعارض في الحالة (مثل طلب غير قابل للانتقال أو عنصر مرتبط)" }
+    patch:
+      tags: ["Admin · Learning"]
+      summary: "تسجيلات — تعديل"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: enrollment, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+        '422': { $ref: '#/components/responses/Validation' }
+        '409': { description: "تعارض في الحالة (مثل طلب غير قابل للانتقال أو عنصر مرتبط)" }
+  /admin/enrollments/{enrollment}/edit:
+    get:
+      tags: ["Admin · Learning"]
+      summary: "تسجيلات — بيانات التعديل"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: enrollment, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+  /admin/certificate-templates:
+    get:
+      tags: ["Admin · Learning"]
+      summary: "قوالب الشهادات — قائمة"
+      x-permission: "certificate-templates.view"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/Page' }
+        - { $ref: '#/components/parameters/PerPage' }
+        - { $ref: '#/components/parameters/Search' }
+        - { $ref: '#/components/parameters/Sort' }
+        - { $ref: '#/components/parameters/Dir' }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+    post:
+      tags: ["Admin · Learning"]
+      summary: "قوالب الشهادات — إنشاء"
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { description: OK }
+        '201': { description: Created }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+        '422': { $ref: '#/components/responses/Validation' }
+        '409': { description: "تعارض في الحالة (مثل طلب غير قابل للانتقال أو عنصر مرتبط)" }
+  /admin/certificate-templates/trashed:
+    get:
+      tags: ["Admin · Learning"]
+      summary: "قوالب الشهادات — المحذوفات"
+      x-permission: "certificate-templates.view"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/Page' }
+        - { $ref: '#/components/parameters/PerPage' }
+        - { $ref: '#/components/parameters/Search' }
+        - { $ref: '#/components/parameters/Sort' }
+        - { $ref: '#/components/parameters/Dir' }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+  /admin/certificate-templates/{id}/restore:
+    patch:
+      tags: ["Admin · Learning"]
+      summary: "قوالب الشهادات — استرجاع"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+        '422': { $ref: '#/components/responses/Validation' }
+        '409': { description: "تعارض في الحالة (مثل طلب غير قابل للانتقال أو عنصر مرتبط)" }
+  /admin/certificate-templates/{id}/force-delete:
+    delete:
+      tags: ["Admin · Learning"]
+      summary: "قوالب الشهادات — حذف نهائي"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+        '409': { description: "تعارض في الحالة (مثل طلب غير قابل للانتقال أو عنصر مرتبط)" }
+  /admin/certificate-templates/{certificate_template}:
+    get:
+      tags: ["Admin · Learning"]
+      summary: "قوالب الشهادات — عرض"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: certificate_template, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+    put:
+      tags: ["Admin · Learning"]
+      summary: "قوالب الشهادات — تعديل"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: certificate_template, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+        '422': { $ref: '#/components/responses/Validation' }
+        '409': { description: "تعارض في الحالة (مثل طلب غير قابل للانتقال أو عنصر مرتبط)" }
+    patch:
+      tags: ["Admin · Learning"]
+      summary: "قوالب الشهادات — تعديل"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: certificate_template, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+        '422': { $ref: '#/components/responses/Validation' }
+        '409': { description: "تعارض في الحالة (مثل طلب غير قابل للانتقال أو عنصر مرتبط)" }
+    delete:
+      tags: ["Admin · Learning"]
+      summary: "قوالب الشهادات — حذف مؤقت/حذف"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: certificate_template, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+        '409': { description: "تعارض في الحالة (مثل طلب غير قابل للانتقال أو عنصر مرتبط)" }
+  /admin/certificate-templates/{certificate_template}/preview:
+    get:
+      tags: ["Admin · Learning"]
+      summary: "قوالب الشهادات — preview"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: certificate_template, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+  /admin/certificates:
+    get:
+      tags: ["Admin · Learning"]
+      summary: "شهادات — قائمة"
+      x-permission: "certificates.view"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/Page' }
+        - { $ref: '#/components/parameters/PerPage' }
+        - { $ref: '#/components/parameters/Search' }
+        - { $ref: '#/components/parameters/Sort' }
+        - { $ref: '#/components/parameters/Dir' }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+    post:
+      tags: ["Admin · Learning"]
+      summary: "شهادات — إنشاء"
+      x-permission: "certificates.create"
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { description: OK }
+        '201': { description: Created }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+        '422': { $ref: '#/components/responses/Validation' }
+        '409': { description: "تعارض في الحالة (مثل طلب غير قابل للانتقال أو عنصر مرتبط)" }
+  /admin/certificates/eligible:
+    get:
+      tags: ["Admin · Learning"]
+      summary: "شهادات — eligible"
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+  /admin/certificates/{certificate}:
+    get:
+      tags: ["Admin · Learning"]
+      summary: "شهادات — عرض"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: certificate, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+  /admin/certificates/{certificate}/download:
+    get:
+      tags: ["Admin · Learning"]
+      summary: "شهادات — download"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: certificate, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+  /admin/certificates/{certificate}/revoke:
+    post:
+      tags: ["Admin · Learning"]
+      summary: "شهادات — revoke"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: certificate, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '201': { description: Created }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+        '422': { $ref: '#/components/responses/Validation' }
+        '409': { description: "تعارض في الحالة (مثل طلب غير قابل للانتقال أو عنصر مرتبط)" }
+  /admin/certificates/{certificate}/reinstate:
+    post:
+      tags: ["Admin · Learning"]
+      summary: "شهادات — reinstate"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: certificate, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '201': { description: Created }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+        '422': { $ref: '#/components/responses/Validation' }
+        '409': { description: "تعارض في الحالة (مثل طلب غير قابل للانتقال أو عنصر مرتبط)" }
+  /admin/live-sessions:
+    get:
+      tags: ["Admin · Learning"]
+      summary: "جلسات مباشرة — قائمة"
+      x-permission: "live-sessions.view"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/Page' }
+        - { $ref: '#/components/parameters/PerPage' }
+        - { $ref: '#/components/parameters/Search' }
+        - { $ref: '#/components/parameters/Sort' }
+        - { $ref: '#/components/parameters/Dir' }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+    post:
+      tags: ["Admin · Learning"]
+      summary: "جلسات مباشرة — إنشاء"
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { description: OK }
+        '201': { description: Created }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+        '422': { $ref: '#/components/responses/Validation' }
+        '409': { description: "تعارض في الحالة (مثل طلب غير قابل للانتقال أو عنصر مرتبط)" }
+  /admin/live-sessions/trashed:
+    get:
+      tags: ["Admin · Learning"]
+      summary: "جلسات مباشرة — المحذوفات"
+      x-permission: "live-sessions.view"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/Page' }
+        - { $ref: '#/components/parameters/PerPage' }
+        - { $ref: '#/components/parameters/Search' }
+        - { $ref: '#/components/parameters/Sort' }
+        - { $ref: '#/components/parameters/Dir' }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+  /admin/live-sessions/create:
+    get:
+      tags: ["Admin · Learning"]
+      summary: "جلسات مباشرة — بيانات الإنشاء"
+      x-permission: "live-sessions.create"
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+  /admin/live-sessions/{id}/restore:
+    patch:
+      tags: ["Admin · Learning"]
+      summary: "جلسات مباشرة — استرجاع"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+        '422': { $ref: '#/components/responses/Validation' }
+        '409': { description: "تعارض في الحالة (مثل طلب غير قابل للانتقال أو عنصر مرتبط)" }
+  /admin/live-sessions/{id}/force-delete:
+    delete:
+      tags: ["Admin · Learning"]
+      summary: "جلسات مباشرة — حذف نهائي"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+        '409': { description: "تعارض في الحالة (مثل طلب غير قابل للانتقال أو عنصر مرتبط)" }
+  /admin/live-sessions/{live_session}:
+    get:
+      tags: ["Admin · Learning"]
+      summary: "جلسات مباشرة — عرض"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: live_session, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+    put:
+      tags: ["Admin · Learning"]
+      summary: "جلسات مباشرة — تعديل"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: live_session, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+        '422': { $ref: '#/components/responses/Validation' }
+        '409': { description: "تعارض في الحالة (مثل طلب غير قابل للانتقال أو عنصر مرتبط)" }
+    patch:
+      tags: ["Admin · Learning"]
+      summary: "جلسات مباشرة — تعديل"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: live_session, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+        '422': { $ref: '#/components/responses/Validation' }
+        '409': { description: "تعارض في الحالة (مثل طلب غير قابل للانتقال أو عنصر مرتبط)" }
+    delete:
+      tags: ["Admin · Learning"]
+      summary: "جلسات مباشرة — حذف مؤقت/حذف"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: live_session, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+        '409': { description: "تعارض في الحالة (مثل طلب غير قابل للانتقال أو عنصر مرتبط)" }
+  /admin/live-sessions/{live_session}/edit:
+    get:
+      tags: ["Admin · Learning"]
+      summary: "جلسات مباشرة — بيانات التعديل"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: live_session, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+  /admin/live-sessions/{live_session}/cancel:
+    post:
+      tags: ["Admin · Learning"]
+      summary: "جلسات مباشرة — cancel"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: live_session, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '201': { description: Created }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+        '422': { $ref: '#/components/responses/Validation' }
+        '409': { description: "تعارض في الحالة (مثل طلب غير قابل للانتقال أو عنصر مرتبط)" }
+  /admin/quizzes:
+    get:
+      tags: ["Admin · Learning"]
+      summary: "اختبارات — قائمة"
+      x-permission: "quizzes.view"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/Page' }
+        - { $ref: '#/components/parameters/PerPage' }
+        - { $ref: '#/components/parameters/Search' }
+        - { $ref: '#/components/parameters/Sort' }
+        - { $ref: '#/components/parameters/Dir' }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+    post:
+      tags: ["Admin · Learning"]
+      summary: "اختبارات — إنشاء"
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { description: OK }
+        '201': { description: Created }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+        '422': { $ref: '#/components/responses/Validation' }
+        '409': { description: "تعارض في الحالة (مثل طلب غير قابل للانتقال أو عنصر مرتبط)" }
+  /admin/quizzes/trashed:
+    get:
+      tags: ["Admin · Learning"]
+      summary: "اختبارات — المحذوفات"
+      x-permission: "quizzes.view"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/Page' }
+        - { $ref: '#/components/parameters/PerPage' }
+        - { $ref: '#/components/parameters/Search' }
+        - { $ref: '#/components/parameters/Sort' }
+        - { $ref: '#/components/parameters/Dir' }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+  /admin/quizzes/create:
+    get:
+      tags: ["Admin · Learning"]
+      summary: "اختبارات — بيانات الإنشاء"
+      x-permission: "quizzes.create"
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+  /admin/quizzes/{id}/restore:
+    patch:
+      tags: ["Admin · Learning"]
+      summary: "اختبارات — استرجاع"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+        '422': { $ref: '#/components/responses/Validation' }
+        '409': { description: "تعارض في الحالة (مثل طلب غير قابل للانتقال أو عنصر مرتبط)" }
+  /admin/quizzes/{id}/force-delete:
+    delete:
+      tags: ["Admin · Learning"]
+      summary: "اختبارات — حذف نهائي"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+        '409': { description: "تعارض في الحالة (مثل طلب غير قابل للانتقال أو عنصر مرتبط)" }
+  /admin/quizzes/{quiz}:
+    get:
+      tags: ["Admin · Learning"]
+      summary: "اختبارات — عرض"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: quiz, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+    put:
+      tags: ["Admin · Learning"]
+      summary: "اختبارات — تعديل"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: quiz, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+        '422': { $ref: '#/components/responses/Validation' }
+        '409': { description: "تعارض في الحالة (مثل طلب غير قابل للانتقال أو عنصر مرتبط)" }
+    patch:
+      tags: ["Admin · Learning"]
+      summary: "اختبارات — تعديل"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: quiz, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+        '422': { $ref: '#/components/responses/Validation' }
+        '409': { description: "تعارض في الحالة (مثل طلب غير قابل للانتقال أو عنصر مرتبط)" }
+    delete:
+      tags: ["Admin · Learning"]
+      summary: "اختبارات — حذف مؤقت/حذف"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: quiz, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+        '409': { description: "تعارض في الحالة (مثل طلب غير قابل للانتقال أو عنصر مرتبط)" }
+  /admin/quizzes/{quiz}/edit:
+    get:
+      tags: ["Admin · Learning"]
+      summary: "اختبارات — بيانات التعديل"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: quiz, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+  /admin/quizzes/{quiz}/questions:
+    get:
+      tags: ["Admin · Learning"]
+      summary: "أسئلة — قائمة"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: quiz, in: path, required: true, schema: { type: integer } }
+        - { $ref: '#/components/parameters/Page' }
+        - { $ref: '#/components/parameters/PerPage' }
+        - { $ref: '#/components/parameters/Search' }
+        - { $ref: '#/components/parameters/Sort' }
+        - { $ref: '#/components/parameters/Dir' }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+    post:
+      tags: ["Admin · Learning"]
+      summary: "أسئلة — إنشاء"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: quiz, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '201': { description: Created }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+        '422': { $ref: '#/components/responses/Validation' }
+        '409': { description: "تعارض في الحالة (مثل طلب غير قابل للانتقال أو عنصر مرتبط)" }
+  /admin/quizzes/{quiz}/questions/reorder:
+    post:
+      tags: ["Admin · Learning"]
+      summary: "أسئلة — reorder"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: quiz, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '201': { description: Created }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+        '422': { $ref: '#/components/responses/Validation' }
+        '409': { description: "تعارض في الحالة (مثل طلب غير قابل للانتقال أو عنصر مرتبط)" }
+  /admin/quizzes/{quiz}/questions/trashed:
+    get:
+      tags: ["Admin · Learning"]
+      summary: "أسئلة — المحذوفات"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: quiz, in: path, required: true, schema: { type: integer } }
+        - { $ref: '#/components/parameters/Page' }
+        - { $ref: '#/components/parameters/PerPage' }
+        - { $ref: '#/components/parameters/Search' }
+        - { $ref: '#/components/parameters/Sort' }
+        - { $ref: '#/components/parameters/Dir' }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+  /admin/questions/{question}:
+    put:
+      tags: ["Admin · Learning"]
+      summary: "أسئلة — تعديل"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: question, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+        '422': { $ref: '#/components/responses/Validation' }
+        '409': { description: "تعارض في الحالة (مثل طلب غير قابل للانتقال أو عنصر مرتبط)" }
+    delete:
+      tags: ["Admin · Learning"]
+      summary: "أسئلة — حذف مؤقت/حذف"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: question, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+        '409': { description: "تعارض في الحالة (مثل طلب غير قابل للانتقال أو عنصر مرتبط)" }
+  /admin/questions/{id}/restore:
+    patch:
+      tags: ["Admin · Learning"]
+      summary: "أسئلة — استرجاع"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+        '422': { $ref: '#/components/responses/Validation' }
+        '409': { description: "تعارض في الحالة (مثل طلب غير قابل للانتقال أو عنصر مرتبط)" }
+  /admin/questions/{id}/force-delete:
+    delete:
+      tags: ["Admin · Learning"]
+      summary: "أسئلة — حذف نهائي"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+        '409': { description: "تعارض في الحالة (مثل طلب غير قابل للانتقال أو عنصر مرتبط)" }
+  /admin/quiz-attempts:
+    get:
+      tags: ["Admin · Learning"]
+      summary: "محاولات الاختبار — قائمة"
+      x-permission: "quiz-attempts.view"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/Page' }
+        - { $ref: '#/components/parameters/PerPage' }
+        - { $ref: '#/components/parameters/Search' }
+        - { $ref: '#/components/parameters/Sort' }
+        - { $ref: '#/components/parameters/Dir' }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+  /admin/quiz-attempts/{attempt}:
+    get:
+      tags: ["Admin · Learning"]
+      summary: "محاولات الاختبار — عرض"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: attempt, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+  /admin/quiz-attempts/{attempt}/void:
+    post:
+      tags: ["Admin · Learning"]
+      summary: "محاولات الاختبار — void"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: attempt, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '201': { description: Created }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+        '422': { $ref: '#/components/responses/Validation' }
+        '409': { description: "تعارض في الحالة (مثل طلب غير قابل للانتقال أو عنصر مرتبط)" }
+  /admin/progress:
+    get:
+      tags: ["Admin · Learning"]
+      summary: "تقدّم الطلاب — قائمة"
+      x-permission: "progress.view"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/Page' }
+        - { $ref: '#/components/parameters/PerPage' }
+        - { $ref: '#/components/parameters/Search' }
+        - { $ref: '#/components/parameters/Sort' }
+        - { $ref: '#/components/parameters/Dir' }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+  /admin/progress/{progress}:
+    get:
+      tags: ["Admin · Learning"]
+      summary: "تقدّم الطلاب — عرض"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: progress, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+  /admin/progress/{progress}/recalculate:
+    post:
+      tags: ["Admin · Learning"]
+      summary: "تقدّم الطلاب — recalculate"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: progress, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '201': { description: Created }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+        '422': { $ref: '#/components/responses/Validation' }
+        '409': { description: "تعارض في الحالة (مثل طلب غير قابل للانتقال أو عنصر مرتبط)" }
+  /admin/notifications:
+    get:
+      tags: ["Admin · System"]
+      summary: "إشعارات (مراقبة) — قائمة"
+      x-permission: "notifications.view"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/Page' }
+        - { $ref: '#/components/parameters/PerPage' }
+        - { $ref: '#/components/parameters/Search' }
+        - { $ref: '#/components/parameters/Sort' }
+        - { $ref: '#/components/parameters/Dir' }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+  /admin/notifications/{notification}:
+    get:
+      tags: ["Admin · System"]
+      summary: "إشعارات (مراقبة) — عرض"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: notification, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+  /admin/audit-logs:
+    get:
+      tags: ["Admin · System"]
+      summary: "سجل التدقيق — قائمة"
+      x-permission: "audit-logs.view"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { $ref: '#/components/parameters/Page' }
+        - { $ref: '#/components/parameters/PerPage' }
+        - { $ref: '#/components/parameters/Search' }
+        - { $ref: '#/components/parameters/Sort' }
+        - { $ref: '#/components/parameters/Dir' }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }
+  /admin/audit-logs/{audit_log}:
+    get:
+      tags: ["Admin · System"]
+      summary: "سجل التدقيق — عرض"
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: audit_log, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200': { description: OK }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { description: غير موجود }

@@ -6,6 +6,6 @@ return [
     'close' => 'Close menu',
     'collapse' => 'Collapse',
     'dashboard' => 'Dashboard',
-    'groups' => ['users' => 'User Management'],
+    'groups' => ['users' => 'إدارة المستخدمين', 'content' => 'المحتوى التعليمي', 'learning' => 'الطلاب والتعلّم', 'sales' => 'المبيعات والمدفوعات', 'system' => 'النظام والمراقبة'],
     'items'  => ['users' => 'Users', 'user_profiles' => 'User Profiles'],
 ];

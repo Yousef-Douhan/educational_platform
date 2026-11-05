@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Auth\GoogleAuthController;
 use App\Http\Controllers\Auth\PasswordResetController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\Student\AttachmentController;
@@ -18,6 +19,7 @@ use App\Http\Controllers\Student\ProfileController;
 use App\Http\Controllers\Student\QuizController;
 use App\Http\Controllers\Student\ReceiptController;
 use App\Http\Controllers\LocaleController;
+use App\Http\Controllers\Auth\VerifyEmailController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -45,6 +47,10 @@ Route::middleware('guest')->group(function () {
     Route::get('register', [RegisterController::class, 'create'])->name('register');
     Route::post('register', [RegisterController::class, 'store'])->middleware('throttle:10,60');
 
+    // الدخول بـGoogle (للزائر فقط؛ المستخدم المسجَّل يُحوَّل لصفحته)
+    Route::get('auth/google', [GoogleAuthController::class, 'redirect'])->middleware('throttle:20,1')->name('auth.google');
+    Route::get('auth/google/callback', [GoogleAuthController::class, 'callback'])->middleware('throttle:20,1')->name('auth.google.callback');
+
     Route::get('forgot-password', [PasswordResetController::class, 'request'])->name('password.request');
     Route::post('forgot-password', [PasswordResetController::class, 'email'])->middleware('throttle:5,1')->name('password.email');
     Route::get('reset-password/{token}', [PasswordResetController::class, 'form'])
@@ -52,12 +58,20 @@ Route::middleware('guest')->group(function () {
     Route::post('reset-password', [PasswordResetController::class, 'update'])->middleware('throttle:5,1')->name('password.update');
 });
 
+Route::middleware('auth')->group(function () {
+    Route::get('email/verify', [VerifyEmailController::class, 'notice'])->name('verification.notice');
+    Route::get('email/verify/{id}/{hash}', [VerifyEmailController::class, 'verify'])
+        ->whereNumber('id')->where('hash', '[a-f0-9]{40}')->middleware(['signed', 'throttle:6,1'])->name('verification.verify');
+    Route::post('email/verification-notification', [VerifyEmailController::class, 'send'])
+        ->middleware('throttle:3,1')->name('verification.send');
+});
+
 Route::middleware('auth')->name('student.')->group(function () {
     Route::get('my', fn () => redirect()->route('student.courses.mine'))->name('dashboard');
     Route::get('my/courses', [MyCoursesController::class, 'index'])->name('courses.mine');
 
     Route::post('courses/{slug}/enroll', [EnrollController::class, 'store'])
-        ->where('slug', '[A-Za-z0-9\-_]{1,191}')->middleware('throttle:20,1')->name('courses.enroll');
+        ->where('slug', '[A-Za-z0-9\-_]{1,191}')->middleware(['verified', 'throttle:20,1'])->name('courses.enroll');
 
     Route::get('learn/{slug}', [LearnController::class, 'course'])
         ->where('slug', '[A-Za-z0-9\-_]{1,191}')->name('learn.course');
@@ -95,14 +109,14 @@ Route::middleware('auth')->name('student.')->group(function () {
     Route::post('cart/items', [CartController::class, 'add'])->middleware('throttle:60,1')->name('cart.add');
     Route::delete('cart/items/{course}', [CartController::class, 'remove'])->name('cart.remove');
 
-    Route::post('checkout', [CheckoutController::class, 'store'])->middleware('throttle:10,1')->name('checkout');
+    Route::post('checkout', [CheckoutController::class, 'store'])->middleware(['verified', 'throttle:10,1'])->name('checkout');
 
     Route::get('my/orders', [OrderController::class, 'index'])->name('orders.index');
     Route::get('my/orders/{number}', [OrderController::class, 'show'])
         ->where('number', 'ORD-[A-Z0-9]{8}')->name('orders.show');
     Route::post('my/orders/{number}/receipt', [ReceiptController::class, 'store'])
-        ->where('number', 'ORD-[A-Z0-9]{8}')->middleware('throttle:6,1')->name('orders.receipt');
+        ->where('number', 'ORD-[A-Z0-9]{8}')->middleware(['verified', 'throttle:6,1'])->name('orders.receipt');
     Route::get('my/receipts/{receipt}', [ReceiptController::class, 'image'])->name('receipts.image');
     Route::post('my/orders/{number}/pay', [PaymentController::class, 'store'])
-        ->where('number', 'ORD-[A-Z0-9]{8}')->middleware('throttle:6,1')->name('orders.pay');
+        ->where('number', 'ORD-[A-Z0-9]{8}')->middleware(['verified', 'throttle:6,1'])->name('orders.pay');
 });

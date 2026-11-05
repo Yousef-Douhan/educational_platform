@@ -1,0 +1,104 @@
+/* الوضع الداكن للوحة التحكم. ملفات CMS تعتمد على متغيرات CSS، فنعيد تعريفها هنا،
+   ثم نعالج الألوان الثابتة (لا تمر بالمتغيرات) بقواعد !important لتغلب محددات #xxxApp. */
+html.dark {
+    --primary-light: rgb(99 102 241 / .16);
+    --success-light: rgb(16 185 129 / .14);
+    --warning-light: rgb(245 158 11 / .14);
+    --danger-light: rgb(239 68 68 / .14);
+    --info-light: rgb(6 182 212 / .14);
+    --background: #0b1120;
+    --surface: #111a2e;
+    --text-primary: #e8edf8;
+    --text-secondary: #94a3b8;
+    --muted-foreground: #94a3b8;
+    --border: #28365a;
+    --shadow-sm: 0 2px 8px rgb(0 0 0 / .35);
+    --shadow-md: 0 10px 30px rgb(0 0 0 / .4);
+    --shadow-lg: 0 20px 45px rgb(0 0 0 / .5);
+}
+
+html.dark body.bg-slate-100 { background-color: #0b1120; }
+html.dark .bg-slate-950 { background-color: #020617; }
+
+/* الأزرار والشارات */
+html.dark .btn-light:hover { border-color: #3b4a70 !important; }
+html.dark .btn-success-soft { color: #6ee7b7 !important; }
+html.dark .btn-success-soft:hover { background: rgb(16 185 129 / .2) !important; }
+html.dark .btn-danger-soft, html.dark .rep-remove, html.dark .opt-remove { color: #fda4af !important; }
+html.dark .btn-danger-soft:hover, html.dark .rep-remove:hover, html.dark .opt-remove:hover:not(:disabled) { background: rgb(244 63 94 / .2) !important; }
+html.dark .badge--success, html.dark .qb-answer { color: #6ee7b7 !important; }
+html.dark .badge--danger { color: #fda4af !important; }
+html.dark .badge--info { color: #67e8f9 !important; }
+html.dark .badge--warning { background: rgb(245 158 11 / .18) !important; color: #fcd34d !important; }
+html.dark .badge--muted { background: #1a2540 !important; }
+html.dark .page-link.is-disabled { color: #55627d !important; }
+html.dark .switch__slider { background: #34456b !important; }
+
+/* التنبيهات */
+html.dark .alert-box--danger { color: #fda4af !important; }
+html.dark .alert-box--info { color: #67e8f9 !important; }
+html.dark .alert-box--warning { color: #fcd34d !important; }
+
+/* الجداول والقوائم */
+html.dark .crud-table tbody tr:hover, html.dark .cur-lesson:hover { background: #162036 !important; }
+html.dark .cur-btn-lite:hover { background: #1a2540 !important; }
+html.dark .table-skeleton { background: rgb(17 26 46 / .85) !important; }
+html.dark .skeleton { background: linear-gradient(90deg, #162036 25%, #1f2c4a 37%, #162036 63%) !important; background-size: 400% 100%; }
+
+/* الإشعارات والتدقيق */
+html.dark #myNotificationsApp .note-list tr.is-unread { background: rgb(99 102 241 / .1) !important; }
+html.dark .stat-card--warning .stat-card__icon { background: rgb(245 158 11 / .18) !important; color: #fcd34d !important; }
+html.dark .changes-table .is-old { background: rgb(239 68 68 / .14) !important; }
+html.dark .changes-table .is-new { background: rgb(16 185 129 / .14) !important; }
+
+/* ---- Users module (public/css/cms/users-ui.css + inline styles) ---- */
+html.dark {
+    --uu-ink: #e8edf8;
+    --uu-ink-2: #aab6cf;
+    --uu-ink-3: #7c8aa8;
+    --uu-line: #28365a;
+    --uu-line-2: #1a2540;
+    --uu-wash: #0f1830;
+    --uu-surface: #111a2e;
+    --uu-brand: #38bdf8;
+    --uu-brand-hover: #7dd3fc;
+    --uu-brand-soft: #0c2a40;
+    --uu-ok: #4ade80;   --uu-ok-soft: #0f2a1d;
+    --uu-warn: #fbbf24; --uu-warn-soft: #2b2110;
+    --uu-bad: #f87171;  --uu-bad-soft: #301616;
+}
+html.dark .uu-title { color: var(--uu-ink) !important; }
+html.dark .uu-btn--primary { color: #0b1120 !important; }
+html.dark .uu-btn--ghost, html.dark .uu-input, html.dark .uu-select { border-color: #34456e !important; color: var(--uu-ink); }
+html.dark .uu-tone-0 { background: #0c2a40 !important; color: #7dd3fc !important; }
+html.dark .uu-tone-1 { background: #0f2a1d !important; color: #86efac !important; }
+html.dark .uu-tone-2 { background: #2b2110 !important; color: #fcd34d !important; }
+html.dark .uu-tone-3 { background: #2d1636 !important; color: #f0abfc !important; }
+html.dark .uu-tone-4 { background: #301620 !important; color: #fda4af !important; }
+html.dark .uu-tone-5, html.dark .uu-chip { background: #1e2350 !important; color: #a5b4fc !important; }
+html.dark .uu-muted { color: #7c8aa8 !important; }
+html.dark .uu-hint { color: #94a3b8 !important; }
+html.dark .uu-role-opt { border-color: #34456e !important; color: var(--uu-ink); }
+html.dark .uu-role-opt:has(input:checked) { border-color: #818cf8 !important; background: #1e2350 !important; }
+html.dark .uu-page-btn.is-active { color: #0b1120 !important; }
+html.dark .uu-input, html.dark .uu-select, html.dark .uu-page input, html.dark .uu-page select { background: var(--uu-surface); color: var(--uu-ink); }
+
+/* ---- CMS header: notifications dropdown + search palette ---- */
+html.dark #cms-notif [data-notif-panel],
+html.dark #cms-search > div { background: #111a2e !important; border-color: #28365a !important; }
+html.dark #cms-notif [data-notif-panel] * { border-color: #28365a !important; }
+html.dark #cms-notif [data-notif-panel] .text-slate-900 { color: #e8edf8 !important; }
+html.dark #cms-notif [data-notif-panel] .text-slate-500 { color: #94a3b8 !important; }
+html.dark #cms-notif [data-notif-panel] li > span { background: #1a2540 !important; color: #cbd5e1 !important; }
+html.dark #cms-notif [data-notif-panel] [class~="bg-sky-50/60"] { background: #0c2a40 !important; }
+html.dark #cms-notif [data-notif-panel] a:hover { background: #1a2540 !important; }
+html.dark #cms-search input { color: #e8edf8 !important; }
+html.dark #cms-search a { color: #cbd5e1 !important; }
+html.dark #cms-search a.bg-slate-100, html.dark #cms-search a:hover { background: #1a2540 !important; }
+
+/* Sidebar: keep scrolling, hide the scrollbar */
+#cms-sidebar nav { scrollbar-width: none; -ms-overflow-style: none; }
+#cms-sidebar nav::-webkit-scrollbar { display: none; width: 0; height: 0; }
+
+/* Desktop: collapsible sidebar */
+@media (min-width: 1024px) { html.sidebar-collapsed #cms-sidebar { display: none !important; } }

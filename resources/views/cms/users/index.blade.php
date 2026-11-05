@@ -23,38 +23,38 @@
     <header class="uu-head">
         <div>
             <h1 class="uu-title">{{ __('users.title') }}</h1>
-            <p class="uu-sub">Manage who can access the system and what state their account is in.</p>
+            <p class="uu-sub">{{ __('users.ui.subtitle') }}</p>
         </div>
         <div class="uu-head-actions">
             @can('users.restore')
                 <a href="{{ route('cms.admin.users.trashed') }}" class="uu-btn uu-btn--ghost">
-                    <i class="fa-solid fa-trash-can-arrow-up" aria-hidden="true"></i> Trash
+                    <i class="fa-solid fa-trash-can-arrow-up" aria-hidden="true"></i> {{ __('users.ui.trash') }}
                 </a>
             @endcan
             @can('users.create')
                 <button type="button" class="uu-btn uu-btn--primary" onclick="openCreateModal()">
-                    <i class="fa-solid fa-plus" aria-hidden="true"></i> Add user
+                    <i class="fa-solid fa-plus" aria-hidden="true"></i> {{ __('users.ui.add_user') }}
                 </button>
             @endcan
         </div>
     </header>
 
     {{-- ============ Stats ============ --}}
-    <section class="uu-stats" aria-label="User statistics">
+    <section class="uu-stats" aria-label="{{ __('users.ui.stats_aria') }}">
         <div class="uu-stat">
-            <span class="uu-stat-label"><i class="uu-dot uu-dot--brand"></i> Total users</span>
+            <span class="uu-stat-label"><i class="uu-dot uu-dot--brand"></i> {{ __('users.ui.total') }}</span>
             <p class="uu-stat-value" id="stat-total">{{ $stats['total'] ?? 0 }}</p>
         </div>
         <div class="uu-stat">
-            <span class="uu-stat-label"><i class="uu-dot uu-dot--ok"></i> Active</span>
+            <span class="uu-stat-label"><i class="uu-dot uu-dot--ok"></i> {{ __('users.active') }}</span>
             <p class="uu-stat-value" id="stat-active">{{ $stats['active'] ?? 0 }}</p>
         </div>
         <div class="uu-stat">
-            <span class="uu-stat-label"><i class="uu-dot uu-dot--warn"></i> Inactive</span>
+            <span class="uu-stat-label"><i class="uu-dot uu-dot--warn"></i> {{ __('users.inactive') }}</span>
             <p class="uu-stat-value" id="stat-inactive">{{ $stats['inactive'] ?? 0 }}</p>
         </div>
         <div class="uu-stat">
-            <span class="uu-stat-label"><i class="uu-dot uu-dot--bad"></i> In trash</span>
+            <span class="uu-stat-label"><i class="uu-dot uu-dot--bad"></i> {{ __('users.ui.in_trash') }}</span>
             <p class="uu-stat-value" id="stat-trashed">{{ $stats['trashed'] ?? 0 }}</p>
         </div>
     </section>
@@ -64,15 +64,15 @@
         <div class="uu-toolbar">
             <div class="uu-search">
                 <i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i>
-                <input type="search" id="search-input" class="uu-input" placeholder="Search by name or email" aria-label="Search users" autocomplete="off">
+                <input type="search" id="search-input" class="uu-input" placeholder="{{ __('users.ui.search_ph') }}" aria-label="{{ __('users.ui.search_aria') }}" autocomplete="off">
             </div>
 
             <input type="hidden" id="status-filter" value="">
-            <div class="uu-tabs" role="group" aria-label="Filter by status">
-                <button type="button" class="uu-tab is-active" data-status="" aria-pressed="true">All</button>
-                <button type="button" class="uu-tab" data-status="active" aria-pressed="false">Active</button>
-                <button type="button" class="uu-tab" data-status="inactive" aria-pressed="false">Inactive</button>
-                <button type="button" class="uu-tab" data-status="suspended" aria-pressed="false">Suspended</button>
+            <div class="uu-tabs" role="group" aria-label="{{ __('users.ui.filter_aria') }}">
+                <button type="button" class="uu-tab is-active" data-status="" aria-pressed="true">{{ __('users.ui.all') }}</button>
+                <button type="button" class="uu-tab" data-status="active" aria-pressed="false">{{ __('users.active') }}</button>
+                <button type="button" class="uu-tab" data-status="inactive" aria-pressed="false">{{ __('users.inactive') }}</button>
+                <button type="button" class="uu-tab" data-status="suspended" aria-pressed="false">{{ __('users.suspended') }}</button>
             </div>
         </div>
 
@@ -80,11 +80,11 @@
             <table class="uu-table">
                 <thead>
                     <tr>
-                        <th scope="col">User</th>
+                        <th scope="col">{{ __('users.ui.user') }}</th>
                         <th scope="col">{{ __('users.roles') }}</th>
                         <th scope="col">{{ __('users.status') }}</th>
-                        <th scope="col" class="uu-col-date">Created</th>
-                        <th scope="col" class="uu-th-end"><span class="sr-only" style="position:absolute;left:-9999px">Actions</span></th>
+                        <th scope="col" class="uu-col-date">{{ __('users.ui.created') }}</th>
+                        <th scope="col" class="uu-th-end"><span class="sr-only" style="position:absolute;left:-9999px">{{ __('users.ui.actions') }}</span></th>
                     </tr>
                 </thead>
                 <tbody id="users-table-body"></tbody>
@@ -111,11 +111,21 @@
 @endphp
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+@php
+    $uiStrings = array_merge(__('users.ui'), [
+        'active'    => __('users.active'),
+        'inactive'  => __('users.inactive'),
+        'suspended' => __('users.suspended'),
+    ]);
+@endphp
+<script>window.UU_T = @json($uiStrings);</script>
 <script src="{{ asset('js/cms/users-ui.js') }}"></script>
 <script>
     const $ = (id) => document.getElementById(id);
     const COLS = 5;
     const CAN = @json($can);
+    const T = @json(__('users.ui'));
+    const fmt = (s, n) => s.replace(':name', n);
     let requestId = 0;
     let firstLoad = true;
 
@@ -140,11 +150,11 @@
                     tbody.innerHTML = UU.emptyRow(
                         COLS,
                         filtered ? 'fa-magnifying-glass' : 'fa-users',
-                        filtered ? 'No users match your filters' : 'No users yet',
-                        filtered ? 'Try a different name, email or status.' : 'Add your first user to get started.',
+                        filtered ? T.no_match : T.no_users,
+                        filtered ? T.try_other : T.add_first,
                         filtered
-                            ? '<button type="button" class="uu-btn uu-btn--ghost" onclick="clearFilters()">Clear filters</button>'
-                            : (CAN.create ? '<button type="button" class="uu-btn uu-btn--primary" onclick="openCreateModal()"><i class="fa-solid fa-plus"></i> Add user</button>' : '')
+                            ? '<button type="button" class="uu-btn uu-btn--ghost" onclick="clearFilters()">' + T.clear_filters + '</button>'
+                            : (CAN.create ? '<button type="button" class="uu-btn uu-btn--primary" onclick="openCreateModal()"><i class="fa-solid fa-plus"></i> ' + T.add_user + '</button>' : '')
                     );
                     $('pagination-wrapper').innerHTML = '';
                     return;
@@ -156,9 +166,9 @@
             .catch(() => {
                 if (id !== requestId) return;
                 firstLoad = false;
-                tbody.innerHTML = UU.emptyRow(COLS, 'fa-triangle-exclamation', "Couldn't load users",
-                    'Check your connection and try again.',
-                    '<button type="button" class="uu-btn uu-btn--ghost" onclick="loadUsers()">Try again</button>');
+                tbody.innerHTML = UU.emptyRow(COLS, 'fa-triangle-exclamation', T.load_fail,
+                    T.check_conn,
+                    '<button type="button" class="uu-btn uu-btn--ghost" onclick="loadUsers()">' + T.try_again + '</button>');
             })
             .finally(() => { if (id === requestId) panel.classList.remove('is-loading'); });
     }
@@ -188,9 +198,9 @@
             <td class="uu-col-date">${UU.fmtDate(u.created_at)}</td>
             <td class="uu-td-end">
                 <div class="uu-actions">
-                    <button type="button" class="uu-icon-btn" data-action="view" data-id="${u.id}" aria-label="View ${name}" title="View"><i class="fa-solid fa-eye"></i></button>
-                    ${canEdit ? `<button type="button" class="uu-icon-btn" data-action="edit" data-id="${u.id}" aria-label="Edit ${name}" title="Edit"><i class="fa-solid fa-pen-to-square"></i></button>` : ''}
-                    ${canDelete ? `<button type="button" class="uu-icon-btn uu-icon-btn--danger" data-action="delete" data-id="${u.id}" data-name="${name}" aria-label="Move ${name} to trash" title="Move to trash"><i class="fa-solid fa-trash-can"></i></button>` : ''}
+                    <button type="button" class="uu-icon-btn" data-action="view" data-id="${u.id}" aria-label="${fmt(T.view_x, name)}" title="${T.view}"><i class="fa-solid fa-eye"></i></button>
+                    ${canEdit ? `<button type="button" class="uu-icon-btn" data-action="edit" data-id="${u.id}" aria-label="${fmt(T.edit_x, name)}" title="${T.edit}"><i class="fa-solid fa-pen-to-square"></i></button>` : ''}
+                    ${canDelete ? `<button type="button" class="uu-icon-btn uu-icon-btn--danger" data-action="delete" data-id="${u.id}" data-name="${name}" aria-label="${fmt(T.trash_x, name)}" title="${T.move_trash}"><i class="fa-solid fa-trash-can"></i></button>` : ''}
                 </div>
             </td>
         </tr>`;
@@ -233,7 +243,7 @@
             const roleIds = (user.roles || []).map((r) => String(r.id));
             form.querySelectorAll('input[name="roles[]"]').forEach((cb) => { cb.checked = roleIds.includes(cb.value); });
             UU.openDrawer('editUserModal');
-        }).catch((err) => UU.showToast(err.response?.data?.message || "Couldn't load this user.", 'error'));
+        }).catch((err) => UU.showToast(err.response?.data?.message || T.cant_load, 'error'));
     }
     function closeEditModal() { UU.closeDrawer('editUserModal'); }
 
@@ -249,21 +259,21 @@
             $('show-edit-btn').dataset.id = user.id;
             $('show-edit-btn').hidden = !CAN.edit;
             UU.openDrawer('showUserModal');
-        }).catch((err) => UU.showToast(err.response?.data?.message || "Couldn't load this user.", 'error'));
+        }).catch((err) => UU.showToast(err.response?.data?.message || T.cant_load, 'error'));
     }
     function closeShowModal() { UU.closeDrawer('showUserModal'); }
 
     /* ---------- Delete ---------- */
     function confirmDelete(id, name) {
         Swal.fire({
-            title: 'Move to trash?',
-            html: `<strong>${UU.esc(name)}</strong> will be moved to trash. You can restore them at any time.`,
+            title: T.trash_q,
+            html: fmt(T.trash_text, `<strong>${UU.esc(name)}</strong>`),
             icon: 'warning',
             showCancelButton: true,
             confirmButtonColor: '#d92d20',
             cancelButtonColor: '#667085',
-            confirmButtonText: 'Move to trash',
-            cancelButtonText: 'Cancel',
+            confirmButtonText: T.move_trash,
+            cancelButtonText: T.cancel,
             reverseButtons: true,
             focusCancel: true
         }).then((result) => {
@@ -273,7 +283,7 @@
                     loadUsers();
                     UU.showToast(data.message, 'success');
                 }
-            }).catch((err) => UU.showToast(err.response?.data?.message || "Couldn't move the user to trash.", 'error'));
+            }).catch((err) => UU.showToast(err.response?.data?.message || T.cant_trash, 'error'));
         });
     }
 
@@ -282,7 +292,7 @@
         const status = err.response?.status;
         if (status === 401 || status === 419) return window.location.reload();
         if (status === 403 || status === 409) {
-            return UU.showToast(err.response.data?.message || 'This action is not allowed.', 'error');
+            return UU.showToast(err.response.data?.message || T.not_allowed, 'error');
         }
         UU.handleFormErrors(err, formId);
     }

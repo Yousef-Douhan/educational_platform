@@ -9,6 +9,7 @@ use App\Models\Category;
 use App\Models\Course;
 use App\Models\Enrollment;
 use App\Models\User;
+use App\Services\CatalogQuery;
 use Illuminate\Contracts\Database\Eloquent\Builder as BuilderContract;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -16,9 +17,9 @@ use Illuminate\View\View;
 /** الصفحات العامة: لا تكشف إلا الدورات المنشورة، ولا تُرسل محتوى الدروس (فيديو/نص) أبدًا */
 class CatalogController extends Controller
 {
-    private const SORTS = ['newest', 'price_asc', 'price_desc'];
-
-    private const EFFECTIVE_PRICE = 'CASE WHEN courses.discount_price IS NOT NULL AND courses.discount_price < courses.price THEN courses.discount_price ELSE courses.price END';
+    public function __construct(private readonly CatalogQuery $catalog)
+    {
+    }
 
     public function home(): View
     {
@@ -40,34 +41,10 @@ class CatalogController extends Controller
 
     public function index(Request $request): View
     {
-        $sort = in_array($request->query('sort'), self::SORTS, true) ? $request->query('sort') : 'newest';
+        $sort = CatalogQuery::sort($request->query('sort'));
         $term = is_string($request->query('q')) ? $request->query('q') : null;
 
-        $query = $this->published()->search($term);
-
-        if (is_string($slug = $request->query('category')) && $slug !== '') {
-            $category = Category::where('slug', $slug)->first();
-            $ids      = $category ? Category::where('parent_id', $category->id)->pluck('id')->push($category->id) : collect([0]);
-            $query->whereIn('courses.category_id', $ids);
-        }
-
-        if (in_array($request->query('level'), Course::LEVELS, true)) {
-            $query->where('courses.level', $request->query('level'));
-        }
-
-        match ($request->query('price')) {
-            'free'  => $query->where('courses.price', '<=', 0),
-            'paid'  => $query->where('courses.price', '>', 0),
-            default => null,
-        };
-
-        match ($sort) {
-            'price_asc'  => $query->orderByRaw(self::EFFECTIVE_PRICE . ' asc'),
-            'price_desc' => $query->orderByRaw(self::EFFECTIVE_PRICE . ' desc'),
-            default      => null,
-        };
-
-        $courses = $query->orderByDesc('courses.id')->paginate(12)->withQueryString();
+        $courses = $this->catalog->search($request->query())->paginate(12)->withQueryString();
 
         return view('student.courses.index', [
             'courses'    => $courses,
@@ -106,10 +83,7 @@ class CatalogController extends Controller
 
     private function published(): BuilderContract
     {
-        return Course::query()
-            ->where('courses.status', 'published')
-            ->with(['category', 'instructor:id,name'])
-            ->withCount(['lessons as lessons_count' => fn ($l) => $l->where('lessons.is_published', true)]);
+        return $this->catalog->published();
     }
 
     private function stateFor(?User $user, Course $course): array

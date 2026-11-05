@@ -37,6 +37,35 @@ class MyNotificationController extends Controller
         return view('cms.notifications.mine', ['records' => $records, 'stats' => $this->stats($request)]);
     }
 
+    /** آخر الإشعارات للقائمة المنسدلة في الترويسة + عدّاد غير المقروءة. */
+    public function latest(Request $request): JsonResponse
+    {
+        $user = $request->user();
+
+        $items = $user->notifications()
+            ->reorder()
+            ->orderByDesc('created_at')
+            ->orderByDesc('id')
+            ->limit(8)
+            ->get()
+            ->map(function ($row) {
+                $view = NotificationPresenter::present($row);
+
+                return [
+                    'title' => (string) $view['title'],
+                    'body'  => (string) $view['body'],
+                    'icon'  => (string) $view['icon'],
+                    'read'  => $row->read_at !== null,
+                    'time'  => $row->created_at->format('Y-m-d H:i'),
+                ];
+            })->values();
+
+        return response()->json([
+            'items'  => $items,
+            'unread' => $user->unreadNotifications()->reorder()->count(),
+        ]);
+    }
+
     public function read(Request $request, string $notification): JsonResponse
     {
         $this->own($request, $notification)->markAsRead();

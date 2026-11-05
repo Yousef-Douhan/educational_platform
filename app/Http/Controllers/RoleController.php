@@ -6,6 +6,8 @@ use App\Http\Requests\StoreRoleRequest;
 use App\Http\Requests\UpdateRoleRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
@@ -13,9 +15,20 @@ use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Throwable;
 
-class RoleController extends Controller
+class RoleController extends Controller implements HasMiddleware
 {
     private const SORTABLE = ['id', 'name', 'guard_name', 'created_at', 'updated_at', 'permissions_count'];
+
+    /** كانت هذه المسارات بلا أي فحص صلاحية: كل مستخدم مسجّل كان يستطيع تعديل الأدوار */
+    public static function middleware(): array
+    {
+        return [
+            new Middleware('permission:roles.view',   only: ['index', 'show']),
+            new Middleware('permission:roles.create', only: ['create', 'store']),
+            new Middleware('permission:roles.edit',   only: ['edit', 'update']),
+            new Middleware('permission:roles.delete', only: ['destroy']),
+        ];
+    }
 
     public function index(Request $request): View|JsonResponse
     {
@@ -57,9 +70,14 @@ class RoleController extends Controller
 
     public function store(StoreRoleRequest $request): JsonResponse
     {
+        $guard = $request->validated('guard_name') ?: config('cms.rbac_guard');
+        if ($denied = $this->denyEscalation($request, $this->permissionsFor($request->validated('permissions', []), $guard))) {
+            return $denied;
+        }
+
         try {
             $role = DB::transaction(function () use ($request) {
-                $guard = $request->validated('guard_name') ?: config('auth.defaults.guard');
+                $guard = $request->validated('guard_name') ?: config('cms.rbac_guard');
 
                 $role = Role::create([
                     'name'       => $request->validated('name'),
@@ -95,8 +113,12 @@ class RoleController extends Controller
         ]);
     }
 
-    public function edit(Role $role): JsonResponse
+    public function edit(Request $request, Role $role): JsonResponse
     {
+        if ($blocked = $this->blockSuperRole($request, $role)) {
+            return $blocked;
+        }
+
         return response()->json([
             'data'           => $role->only(['id', 'name', 'guard_name']),
             'permission_ids' => $role->permissions()->pluck('permissions.id'),
@@ -106,10 +128,19 @@ class RoleController extends Controller
 
     public function update(UpdateRoleRequest $request, Role $role): JsonResponse
     {
+        if ($blocked = $this->blockSuperRole($request, $role)) {
+            return $blocked;
+        }
+
+        $permissions = $this->permissionsFor($request->validated('permissions', []), $role->guard_name);
+        if ($denied = $this->denyEscalation($request, $permissions, $role)) {
+            return $denied;
+        }
+
         try {
-            DB::transaction(function () use ($request, $role) {
+            DB::transaction(function () use ($request, $role, $permissions) {
                 $role->update(['name' => $request->validated('name')]);
-                $role->syncPermissions($this->permissionsFor($request->validated('permissions', []), $role->guard_name));
+                $role->syncPermissions($permissions);
             });
         } catch (Throwable $e) {
             report($e);
@@ -123,8 +154,16 @@ class RoleController extends Controller
         ]);
     }
 
-    public function destroy(Role $role): JsonResponse
+    public function destroy(Request $request, Role $role): JsonResponse
     {
+        if ($blocked = $this->blockSuperRole($request, $role)) {
+            return $blocked;
+        }
+
+        if ($role->name === config('cms.super_admin_role')) {
+            return response()->json(['message' => __('roles.messages.super_protected')], 403);
+        }
+
         if ($role->users()->exists()) {
             return response()->json(['message' => __('roles.messages.in_use')], 409);
         }
@@ -135,6 +174,40 @@ class RoleController extends Controller
             'message' => __('roles.messages.deleted'),
             'stats'   => $this->stats(),
         ]);
+    }
+
+    /** دور المدير الأعلى لا يعدّله ولا يعرض نموذج تعديله غير المدير الأعلى */
+    private function blockSuperRole(Request $request, Role $role): ?JsonResponse
+    {
+        $super = config('cms.super_admin_role');
+
+        if ($role->name === $super && ! $request->user()->hasRole($super)) {
+            return response()->json(['message' => __('roles.messages.super_protected')], 403);
+        }
+
+        return null;
+    }
+
+    /**
+     * غير المدير الأعلى لا يمنح دورًا صلاحية لا يملكها هو نفسه (يمنع رفع صلاحيات دوره بنفسه).
+     * المقارنة على الصلاحيات المضافة فقط؛ الإبقاء على صلاحيات موجودة سابقًا مسموح.
+     */
+    private function denyEscalation(Request $request, $permissions, ?Role $role = null): ?JsonResponse
+    {
+        $user = $request->user();
+
+        if ($user->hasRole(config('cms.super_admin_role'))) {
+            return null;
+        }
+
+        $current = $role ? $role->permissions()->pluck('permissions.id') : collect();
+
+        // can() يمر من Gate فيحترم صلاحيات الأدوار والمنح المباشر معًا
+        $missing = $permissions->reject(fn ($p) => $current->contains($p->id) || $user->can($p->name));
+
+        return $missing->isNotEmpty()
+            ? response()->json(['message' => __('roles.messages.cannot_grant')], 403)
+            : null;
     }
 
     private function stats(): array

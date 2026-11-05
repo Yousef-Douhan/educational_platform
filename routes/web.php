@@ -49,7 +49,7 @@ Route::post('logout', [LoginController::class, 'destroy'])->middleware('auth')->
 */
 Route::prefix('cms/admin')->name('cms.admin.')->middleware('auth')->group(function () {
     // لوحة التحكم للموظفين فقط؛ الطالب يُحوَّل لواجهته
-    Route::view('/', 'cms.dashboard')->middleware('staff')->name('dashboard');
+    Route::get('/', \App\Http\Controllers\DashboardController::class)->middleware('staff')->name('dashboard');
 
     /* ---------------------------- Users ---------------------------- */
     Route::get('users/trashed', [UserController::class, 'trashed'])
@@ -161,6 +161,7 @@ Route::prefix('cms/admin')->name('cms.admin.')->middleware('auth')->group(functi
     /* ------------------------ Notifications ------------------------- */
     // إشعاراتي: لكل مستخدم مسجّل، ولا تحتاج صلاحية لأنها مقيّدة بصاحبها
     Route::get('my-notifications', [MyNotificationController::class, 'index'])->name('my-notifications.index');
+    Route::get('my-notifications/latest', [MyNotificationController::class, 'latest'])->name('my-notifications.latest');
     Route::post('my-notifications/read-all', [MyNotificationController::class, 'readAll'])->name('my-notifications.read-all');
     Route::post('my-notifications/{notification}/read', [MyNotificationController::class, 'read'])->name('my-notifications.read');
     Route::delete('my-notifications/{notification}', [MyNotificationController::class, 'destroy'])->name('my-notifications.destroy');

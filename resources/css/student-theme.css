@@ -75,3 +75,17 @@ html.dark .shadow-sm, html.dark .shadow-lg, html.dark .shadow-xl { --tw-shadow-c
 
 /* أيقونة الثيم: FontAwesome غير مطبقة بطبقات فتغلب أصناف Tailwind، فنخفي بقاعدة غير مطبقة بطبقات أيضًا */
 html:not(.dark) [data-theme-icon="sun"], html.dark [data-theme-icon="moon"] { display: none; }
+
+/* إضافات لوحة التحكم */
+html.dark .bg-white\/80 { background-color: rgb(17 26 46 / .8); }
+html.dark .hover\:bg-slate-200:hover { background-color: #263350; }
+
+/* أصناف بشفافية: نستخدم محدد الخاصية لأنه لا يعتمد على هروب الشرطة المائلة */
+html.dark [class~="bg-white/80"] { background-color: rgb(17 26 46 / .8); }
+html.dark [class~="bg-white/95"] { background-color: rgb(17 26 46 / .95); }
+html.dark .bg-sky-100 { background-color: rgb(14 165 233 / .2); }
+html.dark .bg-violet-100 { background-color: rgb(139 92 246 / .22); }
+html.dark .text-violet-700 { color: #c4b5fd; }
+html.dark .hover\:bg-sky-50:hover { background-color: rgb(14 165 233 / .14); }
+html.dark .hover\:border-sky-200:hover { border-color: #1e5f87; }
+html.dark .hover\:text-sky-700:hover { color: #7dd3fc; }

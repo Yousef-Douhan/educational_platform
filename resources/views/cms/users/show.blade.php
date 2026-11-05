@@ -6,10 +6,10 @@
         <header class="uu-drawer-head">
             <span class="uu-drawer-icon"><i class="fa-solid fa-id-card" aria-hidden="true"></i></span>
             <div>
-                <h2 id="showUserTitle" class="uu-drawer-title">User details</h2>
-                <p class="uu-drawer-sub">Account information at a glance.</p>
+                <h2 id="showUserTitle" class="uu-drawer-title">{{ __('users.ui.details_title') }}</h2>
+                <p class="uu-drawer-sub">{{ __('users.ui.details_sub') }}</p>
             </div>
-            <button type="button" class="uu-icon-btn uu-drawer-x" data-drawer-close aria-label="Close">
+            <button type="button" class="uu-icon-btn uu-drawer-x" data-drawer-close aria-label="{{ __('users.ui.close') }}">
                 <i class="fa-solid fa-xmark"></i>
             </button>
         </header>
@@ -30,16 +30,16 @@
                     <dd id="show-roles"></dd>
                 </div>
                 <div class="uu-dl-row">
-                    <dt>Created</dt>
+                    <dt>{{ __('users.ui.created') }}</dt>
                     <dd id="show-created"></dd>
                 </div>
             </dl>
         </div>
 
         <footer class="uu-drawer-foot">
-            <button type="button" class="uu-btn uu-btn--ghost" data-drawer-close>Close</button>
+            <button type="button" class="uu-btn uu-btn--ghost" data-drawer-close>{{ __('users.ui.close') }}</button>
             <button type="button" class="uu-btn uu-btn--primary" id="show-edit-btn">
-                <i class="fa-solid fa-pen-to-square" aria-hidden="true"></i> Edit user
+                <i class="fa-solid fa-pen-to-square" aria-hidden="true"></i> {{ __('users.ui.edit_user') }}
             </button>
         </footer>
     </section>

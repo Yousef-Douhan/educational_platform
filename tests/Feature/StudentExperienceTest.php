@@ -68,6 +68,15 @@ class StudentExperienceTest extends TestCase
         $this->withCookie('locale', 'en')->get(route('login'))->assertOk()->assertSee('Sign in')->assertDontSee('Educational CMS');
     }
 
+    public function test_cms_has_theme_and_language_controls(): void
+    {
+        $staff = User::factory()->create();
+        $staff->givePermissionTo(\Spatie\Permission\Models\Permission::findOrCreate('carts.view', 'web'));
+
+        $this->actingAs($staff)->get(route('cms.admin.dashboard'))
+            ->assertOk()->assertSee('data-theme-toggle', false)->assertSee(route('locale.update', 'en'), false);
+    }
+
     /* ---------- الإشعارات ---------- */
 
     public function test_student_sees_only_his_notifications_and_can_manage_them(): void

@@ -63,6 +63,8 @@ return [
         'updated' => 'Role updated successfully.',
         'deleted' => 'Role deleted successfully.',
         'in_use' => 'This role is assigned to users. Remove it from them first.',
+        'super_protected' => 'Only a super admin can modify the super admin role.',
+        'cannot_grant' => 'You cannot grant permissions you do not have yourself.',
         'error' => 'Something went wrong. Please try again.',
     ],
     // يُمرَّر إلى JavaScript. لا تستخدم علامة الاقتباس المفردة هنا.

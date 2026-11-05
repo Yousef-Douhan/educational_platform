@@ -22,6 +22,14 @@ class RolesAndPermissionsSeeder extends Seeder
             }
         }
 
+        // اختبارات الدورات + عمليات الاسترجاع/الحذف النهائي للمستخدمين وملفاتهم (كانت مستخدمة في المسارات دون زرعها)
+        foreach (['view', 'create', 'edit', 'delete'] as $action) {
+            Permission::findOrCreate("quizzes.{$action}", 'web');
+        }
+        foreach (['users.restore', 'users.force-delete', 'user-profiles.restore', 'user-profiles.force-delete'] as $name) {
+            Permission::findOrCreate($name, 'web');
+        }
+
         foreach (['courses.manage-all', 'courses.publish'] as $name) {
             Permission::findOrCreate($name, 'web');
         }

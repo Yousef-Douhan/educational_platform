@@ -1,0 +1,7418 @@
+{
+ "info": {
+  "name": "Educational Platform API",
+  "description": "استورد ملف البيئة مع المجموعة. سجّل الدخول (Auth → POST /auth/login) فيُحفظ التوكن تلقائيًا في المتغير token. حساب الموظف يحصل تلقائيًا على نطاق admin.",
+  "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+ },
+ "auth": {
+  "type": "bearer",
+  "bearer": [
+   {
+    "key": "token",
+    "value": "{{token}}",
+    "type": "string"
+   }
+  ]
+ },
+ "variable": [
+  {
+   "key": "token",
+   "value": ""
+  }
+ ],
+ "item": [
+  {
+   "name": "Auth",
+   "item": [
+    {
+     "name": "POST /auth/register  —  إنشاء حساب طالب وإرجاع رمز",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/auth/register",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "auth",
+        "register"
+       ]
+      },
+      "description": "إنشاء حساب طالب وإرجاع رمز",
+      "auth": {
+       "type": "noauth"
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"name\": \"Student One\",\n  \"email\": \"student1@example.com\",\n  \"password\": \"secret123\",\n  \"password_confirmation\": \"secret123\",\n  \"device_name\": \"postman\"\n}",
+       "options": {
+        "raw": {
+         "language": "json"
+        }
+       }
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "const j = pm.response.json();",
+         "if (j && j.data && j.data.token) { pm.collectionVariables.set('token', j.data.token.access_token); }"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "POST /auth/login  —  تسجيل الدخول وإرجاع رمز",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/auth/login",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "auth",
+        "login"
+       ]
+      },
+      "description": "تسجيل الدخول وإرجاع رمز",
+      "auth": {
+       "type": "noauth"
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"email\": \"student1@example.com\",\n  \"password\": \"secret123\",\n  \"device_name\": \"postman\"\n}",
+       "options": {
+        "raw": {
+         "language": "json"
+        }
+       }
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "const j = pm.response.json();",
+         "if (j && j.data && j.data.token) { pm.collectionVariables.set('token', j.data.token.access_token); }"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "POST /auth/forgot-password  —  طلب رابط استعادة (الرد واحد دائماً، الحسابات غير النشطة لا تستلم)",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/auth/forgot-password",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "auth",
+        "forgot-password"
+       ]
+      },
+      "description": "طلب رابط استعادة (الرد واحد دائماً، الحسابات غير النشطة لا تستلم)",
+      "auth": {
+       "type": "noauth"
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"email\": \"user@example.com\"\n}",
+       "options": {
+        "raw": {
+         "language": "json"
+        }
+       }
+      }
+     }
+    },
+    {
+     "name": "POST /auth/reset-password  —  إعادة تعيين كلمة المرور بالرمز المرسل (يلغي كل الرموز)",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/auth/reset-password",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "auth",
+        "reset-password"
+       ]
+      },
+      "description": "إعادة تعيين كلمة المرور بالرمز المرسل (يلغي كل الرموز)",
+      "auth": {
+       "type": "noauth"
+      },
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"token\": \"string\",\n  \"email\": \"user@example.com\",\n  \"password\": \"string\",\n  \"password_confirmation\": \"string\"\n}",
+       "options": {
+        "raw": {
+         "language": "json"
+        }
+       }
+      }
+     }
+    },
+    {
+     "name": "POST /auth/email/verification-notification  —  إعادة إرسال رسالة تحقق البريد (3/دقيقة)",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/auth/email/verification-notification",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "auth",
+        "email",
+        "verification-notification"
+       ]
+      },
+      "description": "إعادة إرسال رسالة تحقق البريد (3/دقيقة)",
+      "body": {
+       "mode": "raw",
+       "raw": "{}",
+       "options": {
+        "raw": {
+         "language": "json"
+        }
+       }
+      }
+     }
+    },
+    {
+     "name": "POST /auth/logout-all  —  تسجيل الخروج من كل الأجهزة (إلغاء كل الرموز)",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/auth/logout-all",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "auth",
+        "logout-all"
+       ]
+      },
+      "description": "تسجيل الخروج من كل الأجهزة (إلغاء كل الرموز)",
+      "body": {
+       "mode": "raw",
+       "raw": "{}",
+       "options": {
+        "raw": {
+         "language": "json"
+        }
+       }
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.collectionVariables.set('token', '');"
+        ]
+       }
+      }
+     ]
+    },
+    {
+     "name": "POST /auth/logout  —  إبطال رمز الجهاز الحالي",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/auth/logout",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "auth",
+        "logout"
+       ]
+      },
+      "description": "إبطال رمز الجهاز الحالي",
+      "body": {
+       "mode": "raw",
+       "raw": "{}",
+       "options": {
+        "raw": {
+         "language": "json"
+        }
+       }
+      }
+     },
+     "event": [
+      {
+       "listen": "test",
+       "script": {
+        "type": "text/javascript",
+        "exec": [
+         "pm.collectionVariables.set('token', '');"
+        ]
+       }
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Me",
+   "item": [
+    {
+     "name": "GET /me  —  بيانات المستخدم الحالي",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/me",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "me"
+       ]
+      },
+      "description": "بيانات المستخدم الحالي"
+     }
+    },
+    {
+     "name": "PUT /me  —  تعديل الاسم فقط",
+     "request": {
+      "method": "PUT",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/me",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "me"
+       ]
+      },
+      "description": "تعديل الاسم فقط",
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"name\": \"string\"\n}",
+       "options": {
+        "raw": {
+         "language": "json"
+        }
+       }
+      }
+     }
+    },
+    {
+     "name": "PUT /me/password  —  تغيير كلمة المرور (يُسجَّل الخروج من الأجهزة الأخرى)",
+     "request": {
+      "method": "PUT",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/me/password",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "me",
+        "password"
+       ]
+      },
+      "description": "تغيير كلمة المرور (يُسجَّل الخروج من الأجهزة الأخرى)",
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"current_password\": \"string\",\n  \"password\": \"string\",\n  \"password_confirmation\": \"string\"\n}",
+       "options": {
+        "raw": {
+         "language": "json"
+        }
+       }
+      }
+     }
+    }
+   ]
+  },
+  {
+   "name": "Catalog",
+   "item": [
+    {
+     "name": "GET /categories  —  شجرة الفئات",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/categories",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "categories"
+       ]
+      },
+      "description": "شجرة الفئات",
+      "auth": {
+       "type": "noauth"
+      }
+     }
+    },
+    {
+     "name": "GET /courses  —  الدورات المنشورة (ترقيم صفحات)",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/courses",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "courses"
+       ]
+      },
+      "description": "الدورات المنشورة (ترقيم صفحات)",
+      "auth": {
+       "type": "noauth"
+      }
+     }
+    },
+    {
+     "name": "GET /courses/{slug}  —  تفاصيل دورة منشورة والمنهج (بدون محتوى الدروس أو روابط الفيديو)",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/courses/{{slug}}",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "courses",
+        "{{slug}}"
+       ]
+      },
+      "description": "تفاصيل دورة منشورة والمنهج (بدون محتوى الدروس أو روابط الفيديو)",
+      "auth": {
+       "type": "noauth"
+      }
+     }
+    }
+   ]
+  },
+  {
+   "name": "Learning",
+   "item": [
+    {
+     "name": "GET /my-courses  —  دوراتي مع نسبة التقدم",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/my-courses",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "my-courses"
+       ]
+      },
+      "description": "دوراتي مع نسبة التقدم"
+     }
+    },
+    {
+     "name": "POST /courses/{slug}/enroll  —  التسجيل في دورة مجانية",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/courses/{{slug}}/enroll",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "courses",
+        "{{slug}}",
+        "enroll"
+       ]
+      },
+      "description": "التسجيل في دورة مجانية",
+      "body": {
+       "mode": "raw",
+       "raw": "{}",
+       "options": {
+        "raw": {
+         "language": "json"
+        }
+       }
+      }
+     }
+    },
+    {
+     "name": "GET /learn/{slug}  —  منهج الدورة (للمسجّل) مع الإكمال والدرس التالي",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/learn/{{slug}}",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "learn",
+        "{{slug}}"
+       ]
+      },
+      "description": "منهج الدورة (للمسجّل) مع الإكمال والدرس التالي"
+     }
+    },
+    {
+     "name": "GET /learn/{slug}/lessons/{lesson}  —  محتوى درس (فيديو/نص/مرفقات/اختبار)",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/learn/{{slug}}/lessons/{{lesson}}",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "learn",
+        "{{slug}}",
+        "lessons",
+        "{{lesson}}"
+       ]
+      },
+      "description": "محتوى درس (فيديو/نص/مرفقات/اختبار)"
+     }
+    },
+    {
+     "name": "POST /learn/{slug}/lessons/{lesson}/complete  —  إكمال درس",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/learn/{{slug}}/lessons/{{lesson}}/complete",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "learn",
+        "{{slug}}",
+        "lessons",
+        "{{lesson}}",
+        "complete"
+       ]
+      },
+      "description": "إكمال درس",
+      "body": {
+       "mode": "raw",
+       "raw": "{}",
+       "options": {
+        "raw": {
+         "language": "json"
+        }
+       }
+      }
+     }
+    },
+    {
+     "name": "DELETE /learn/{slug}/lessons/{lesson}/complete  —  إلغاء إكمال درس",
+     "request": {
+      "method": "DELETE",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/learn/{{slug}}/lessons/{{lesson}}/complete",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "learn",
+        "{{slug}}",
+        "lessons",
+        "{{lesson}}",
+        "complete"
+       ]
+      },
+      "description": "إلغاء إكمال درس"
+     }
+    },
+    {
+     "name": "GET /attachments/{attachment}/download  —  تنزيل مرفق درس",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/attachments/{{attachment}}/download",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "attachments",
+        "{{attachment}}",
+        "download"
+       ]
+      },
+      "description": "تنزيل مرفق درس"
+     }
+    }
+   ]
+  },
+  {
+   "name": "Cart & Orders",
+   "item": [
+    {
+     "name": "GET /cart  —  السلة",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/cart",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "cart"
+       ]
+      },
+      "description": "السلة"
+     }
+    },
+    {
+     "name": "POST /cart  —  إضافة دورة للسلة",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/cart",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "cart"
+       ]
+      },
+      "description": "إضافة دورة للسلة",
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"course_id\": 1\n}",
+       "options": {
+        "raw": {
+         "language": "json"
+        }
+       }
+      }
+     }
+    },
+    {
+     "name": "DELETE /cart/{course}  —  إزالة دورة من السلة",
+     "request": {
+      "method": "DELETE",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/cart/{{course}}",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "cart",
+        "{{course}}"
+       ]
+      },
+      "description": "إزالة دورة من السلة"
+     }
+    },
+    {
+     "name": "POST /checkout  —  إنشاء طلب من السلة (الأسعار تُثبَّت في الخادم)",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/checkout",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "checkout"
+       ]
+      },
+      "description": "إنشاء طلب من السلة (الأسعار تُثبَّت في الخادم)",
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"coupon\": \"\"\n}",
+       "options": {
+        "raw": {
+         "language": "json"
+        }
+       }
+      }
+     }
+    },
+    {
+     "name": "GET /orders  —  طلباتي (ترقيم صفحات)",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/orders",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "orders"
+       ]
+      },
+      "description": "طلباتي (ترقيم صفحات)"
+     }
+    },
+    {
+     "name": "GET /orders/{number}  —  تفاصيل طلب وإيصالاته وطرق الدفع",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/orders/{{number}}",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "orders",
+        "{{number}}"
+       ]
+      },
+      "description": "تفاصيل طلب وإيصالاته وطرق الدفع"
+     }
+    },
+    {
+     "name": "POST /orders/{number}/pay  —  بدء دفع Stripe ويعيد checkout_url",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/orders/{{number}}/pay",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "orders",
+        "{{number}}",
+        "pay"
+       ]
+      },
+      "description": "بدء دفع Stripe ويعيد checkout_url",
+      "body": {
+       "mode": "raw",
+       "raw": "{}",
+       "options": {
+        "raw": {
+         "language": "json"
+        }
+       }
+      }
+     }
+    },
+    {
+     "name": "POST /orders/{number}/receipts  —  رفع إشعار تحويل (صورة jpeg/png/webp حتى 4MB)",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/orders/{{number}}/receipts",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "orders",
+        "{{number}}",
+        "receipts"
+       ]
+      },
+      "description": "رفع إشعار تحويل (صورة jpeg/png/webp حتى 4MB)",
+      "body": {
+       "mode": "formdata",
+       "formdata": [
+        {
+         "key": "method",
+         "type": "text",
+         "value": "x"
+        },
+        {
+         "key": "sender_name",
+         "type": "text",
+         "value": "x"
+        },
+        {
+         "key": "reference_number",
+         "type": "text",
+         "value": "x"
+        },
+        {
+         "key": "receipt",
+         "type": "text",
+         "value": "x"
+        }
+       ]
+      }
+     }
+    },
+    {
+     "name": "GET /payment-methods  —  طرق التحويل المفعّلة",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/payment-methods",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "payment-methods"
+       ]
+      },
+      "description": "طرق التحويل المفعّلة"
+     }
+    },
+    {
+     "name": "GET /receipts/{receipt}/image  —  صورة إشعار التحويل (صاحبه فقط)",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/receipts/{{receipt}}/image",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "receipts",
+        "{{receipt}}",
+        "image"
+       ]
+      },
+      "description": "صورة إشعار التحويل (صاحبه فقط)"
+     }
+    }
+   ]
+  },
+  {
+   "name": "Quizzes",
+   "item": [
+    {
+     "name": "POST /quizzes/{quiz}/attempts  —  بدء محاولة اختبار (بدون الإجابات الصحيحة)",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/quizzes/{{quiz}}/attempts",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "quizzes",
+        "{{quiz}}",
+        "attempts"
+       ]
+      },
+      "description": "بدء محاولة اختبار (بدون الإجابات الصحيحة)",
+      "body": {
+       "mode": "raw",
+       "raw": "{}",
+       "options": {
+        "raw": {
+         "language": "json"
+        }
+       }
+      }
+     }
+    },
+    {
+     "name": "GET /attempts/{attempt}  —  محاولة جارية (أسئلة) أو نتيجتها",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/attempts/{{attempt}}",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "attempts",
+        "{{attempt}}"
+       ]
+      },
+      "description": "محاولة جارية (أسئلة) أو نتيجتها"
+     }
+    },
+    {
+     "name": "POST /attempts/{attempt}/submit  —  تسليم المحاولة: answers = {question_id: option_id|text}",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/attempts/{{attempt}}/submit",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "attempts",
+        "{{attempt}}",
+        "submit"
+       ]
+      },
+      "description": "تسليم المحاولة: answers = {question_id: option_id|text}",
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"answers\": {\n    \"1\": 2\n  }\n}",
+       "options": {
+        "raw": {
+         "language": "json"
+        }
+       }
+      }
+     }
+    }
+   ]
+  },
+  {
+   "name": "Certificates",
+   "item": [
+    {
+     "name": "GET /certificates  —  شهاداتي والدورات القابلة للاستلام",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/certificates",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "certificates"
+       ]
+      },
+      "description": "شهاداتي والدورات القابلة للاستلام"
+     }
+    },
+    {
+     "name": "POST /courses/{slug}/certificate  —  استلام شهادة دورة مكتملة",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/courses/{{slug}}/certificate",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "courses",
+        "{{slug}}",
+        "certificate"
+       ]
+      },
+      "description": "استلام شهادة دورة مكتملة",
+      "body": {
+       "mode": "raw",
+       "raw": "{}",
+       "options": {
+        "raw": {
+         "language": "json"
+        }
+       }
+      }
+     }
+    },
+    {
+     "name": "GET /certificates/{certificate}/download  —  تنزيل PDF (?lang=ar|en)",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/certificates/{{certificate}}/download",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "certificates",
+        "{{certificate}}",
+        "download"
+       ]
+      },
+      "description": "تنزيل PDF (?lang=ar|en)"
+     }
+    }
+   ]
+  },
+  {
+   "name": "Notifications",
+   "item": [
+    {
+     "name": "GET /notifications  —  إشعاراتي (?state=unread)",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/notifications",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "notifications"
+       ]
+      },
+      "description": "إشعاراتي (?state=unread)"
+     }
+    },
+    {
+     "name": "POST /notifications/read-all  —  تعليم الكل كمقروء",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/notifications/read-all",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "notifications",
+        "read-all"
+       ]
+      },
+      "description": "تعليم الكل كمقروء",
+      "body": {
+       "mode": "raw",
+       "raw": "{}",
+       "options": {
+        "raw": {
+         "language": "json"
+        }
+       }
+      }
+     }
+    },
+    {
+     "name": "POST /notifications/{notification}/read  —  تعليم إشعار كمقروء",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/notifications/{{notification}}/read",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "notifications",
+        "{{notification}}",
+        "read"
+       ]
+      },
+      "description": "تعليم إشعار كمقروء",
+      "body": {
+       "mode": "raw",
+       "raw": "{}",
+       "options": {
+        "raw": {
+         "language": "json"
+        }
+       }
+      }
+     }
+    },
+    {
+     "name": "DELETE /notifications/{notification}  —  حذف إشعار",
+     "request": {
+      "method": "DELETE",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/notifications/{{notification}}",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "notifications",
+        "{{notification}}"
+       ]
+      },
+      "description": "حذف إشعار"
+     }
+    }
+   ]
+  },
+  {
+   "name": "Live",
+   "item": [
+    {
+     "name": "GET /live-sessions  —  جلسات دوراتي (القادمة والسابقة) بدون رابط الاجتماع",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/live-sessions",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "live-sessions"
+       ]
+      },
+      "description": "جلسات دوراتي (القادمة والسابقة) بدون رابط الاجتماع"
+     }
+    },
+    {
+     "name": "POST /live-sessions/{session}/join  —  رابط الانضمام (قبل البدء بـ15 دقيقة حتى النهاية)",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/live-sessions/{{session}}/join",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "live-sessions",
+        "{{session}}",
+        "join"
+       ]
+      },
+      "description": "رابط الانضمام (قبل البدء بـ15 دقيقة حتى النهاية)",
+      "body": {
+       "mode": "raw",
+       "raw": "{}",
+       "options": {
+        "raw": {
+         "language": "json"
+        }
+       }
+      }
+     }
+    }
+   ]
+  },
+  {
+   "name": "Admin · Catalog",
+   "item": [
+    {
+     "name": "GET /admin/categories  —  تصنيفات — قائمة",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/categories",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "categories"
+       ],
+       "query": [
+        {
+         "key": "page",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "per_page",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "search",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "sort",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "dir",
+         "value": "",
+         "disabled": true
+        }
+       ]
+      },
+      "description": "تصنيفات — قائمة\nالصلاحية: categories.view"
+     }
+    },
+    {
+     "name": "POST /admin/categories  —  تصنيفات — إنشاء",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/categories",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "categories"
+       ]
+      },
+      "description": "تصنيفات — إنشاء",
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"name_ar\": \"برمجة\",\n  \"name_en\": \"Programming\",\n  \"slug\": \"programming\"\n}",
+       "options": {
+        "raw": {
+         "language": "json"
+        }
+       }
+      }
+     }
+    },
+    {
+     "name": "GET /admin/categories/trashed  —  تصنيفات — المحذوفات",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/categories/trashed",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "categories",
+        "trashed"
+       ],
+       "query": [
+        {
+         "key": "page",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "per_page",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "search",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "sort",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "dir",
+         "value": "",
+         "disabled": true
+        }
+       ]
+      },
+      "description": "تصنيفات — المحذوفات\nالصلاحية: categories.view"
+     }
+    },
+    {
+     "name": "PATCH /admin/categories/{id}/restore  —  تصنيفات — استرجاع",
+     "request": {
+      "method": "PATCH",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/categories/{{id}}/restore",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "categories",
+        "{{id}}",
+        "restore"
+       ]
+      },
+      "description": "تصنيفات — استرجاع",
+      "body": {
+       "mode": "raw",
+       "raw": "{}",
+       "options": {
+        "raw": {
+         "language": "json"
+        }
+       }
+      }
+     }
+    },
+    {
+     "name": "DELETE /admin/categories/{id}/force-delete  —  تصنيفات — حذف نهائي",
+     "request": {
+      "method": "DELETE",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/categories/{{id}}/force-delete",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "categories",
+        "{{id}}",
+        "force-delete"
+       ]
+      },
+      "description": "تصنيفات — حذف نهائي"
+     }
+    },
+    {
+     "name": "GET /admin/categories/{category}  —  تصنيفات — عرض",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/categories/{{category}}",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "categories",
+        "{{category}}"
+       ]
+      },
+      "description": "تصنيفات — عرض"
+     }
+    },
+    {
+     "name": "PUT /admin/categories/{category}  —  تصنيفات — تعديل",
+     "request": {
+      "method": "PUT",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/categories/{{category}}",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "categories",
+        "{{category}}"
+       ]
+      },
+      "description": "تصنيفات — تعديل",
+      "body": {
+       "mode": "raw",
+       "raw": "{}",
+       "options": {
+        "raw": {
+         "language": "json"
+        }
+       }
+      }
+     }
+    },
+    {
+     "name": "PATCH /admin/categories/{category}  —  تصنيفات — تعديل",
+     "request": {
+      "method": "PATCH",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/categories/{{category}}",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "categories",
+        "{{category}}"
+       ]
+      },
+      "description": "تصنيفات — تعديل",
+      "body": {
+       "mode": "raw",
+       "raw": "{}",
+       "options": {
+        "raw": {
+         "language": "json"
+        }
+       }
+      }
+     }
+    },
+    {
+     "name": "DELETE /admin/categories/{category}  —  تصنيفات — حذف مؤقت/حذف",
+     "request": {
+      "method": "DELETE",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/categories/{{category}}",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "categories",
+        "{{category}}"
+       ]
+      },
+      "description": "تصنيفات — حذف مؤقت/حذف"
+     }
+    },
+    {
+     "name": "GET /admin/courses  —  دورات — قائمة",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/courses",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "courses"
+       ],
+       "query": [
+        {
+         "key": "page",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "per_page",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "search",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "sort",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "dir",
+         "value": "",
+         "disabled": true
+        }
+       ]
+      },
+      "description": "دورات — قائمة"
+     }
+    },
+    {
+     "name": "POST /admin/courses  —  دورات — إنشاء",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/courses",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "courses"
+       ]
+      },
+      "description": "دورات — إنشاء",
+      "body": {
+       "mode": "raw",
+       "raw": "{}",
+       "options": {
+        "raw": {
+         "language": "json"
+        }
+       }
+      }
+     }
+    },
+    {
+     "name": "GET /admin/courses/trashed  —  دورات — المحذوفات",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/courses/trashed",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "courses",
+        "trashed"
+       ],
+       "query": [
+        {
+         "key": "page",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "per_page",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "search",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "sort",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "dir",
+         "value": "",
+         "disabled": true
+        }
+       ]
+      },
+      "description": "دورات — المحذوفات"
+     }
+    },
+    {
+     "name": "PATCH /admin/courses/{id}/restore  —  دورات — استرجاع",
+     "request": {
+      "method": "PATCH",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/courses/{{id}}/restore",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "courses",
+        "{{id}}",
+        "restore"
+       ]
+      },
+      "description": "دورات — استرجاع",
+      "body": {
+       "mode": "raw",
+       "raw": "{}",
+       "options": {
+        "raw": {
+         "language": "json"
+        }
+       }
+      }
+     }
+    },
+    {
+     "name": "DELETE /admin/courses/{id}/force-delete  —  دورات — حذف نهائي",
+     "request": {
+      "method": "DELETE",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/courses/{{id}}/force-delete",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "courses",
+        "{{id}}",
+        "force-delete"
+       ]
+      },
+      "description": "دورات — حذف نهائي"
+     }
+    },
+    {
+     "name": "GET /admin/courses/{course}  —  دورات — عرض",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/courses/{{course}}",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "courses",
+        "{{course}}"
+       ]
+      },
+      "description": "دورات — عرض"
+     }
+    },
+    {
+     "name": "PUT /admin/courses/{course}  —  دورات — تعديل",
+     "request": {
+      "method": "PUT",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/courses/{{course}}",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "courses",
+        "{{course}}"
+       ]
+      },
+      "description": "دورات — تعديل",
+      "body": {
+       "mode": "raw",
+       "raw": "{}",
+       "options": {
+        "raw": {
+         "language": "json"
+        }
+       }
+      }
+     }
+    },
+    {
+     "name": "PATCH /admin/courses/{course}  —  دورات — تعديل",
+     "request": {
+      "method": "PATCH",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/courses/{{course}}",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "courses",
+        "{{course}}"
+       ]
+      },
+      "description": "دورات — تعديل",
+      "body": {
+       "mode": "raw",
+       "raw": "{}",
+       "options": {
+        "raw": {
+         "language": "json"
+        }
+       }
+      }
+     }
+    },
+    {
+     "name": "DELETE /admin/courses/{course}  —  دورات — حذف مؤقت/حذف",
+     "request": {
+      "method": "DELETE",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/courses/{{course}}",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "courses",
+        "{{course}}"
+       ]
+      },
+      "description": "دورات — حذف مؤقت/حذف"
+     }
+    },
+    {
+     "name": "GET /admin/courses/{course}/edit  —  دورات — بيانات التعديل",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/courses/{{course}}/edit",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "courses",
+        "{{course}}",
+        "edit"
+       ]
+      },
+      "description": "دورات — بيانات التعديل"
+     }
+    },
+    {
+     "name": "GET /admin/courses/{course}/curriculum  —  أقسام — curriculum",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/courses/{{course}}/curriculum",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "courses",
+        "{{course}}",
+        "curriculum"
+       ]
+      },
+      "description": "أقسام — curriculum"
+     }
+    },
+    {
+     "name": "POST /admin/courses/{course}/sections  —  أقسام — إنشاء",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/courses/{{course}}/sections",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "courses",
+        "{{course}}",
+        "sections"
+       ]
+      },
+      "description": "أقسام — إنشاء",
+      "body": {
+       "mode": "raw",
+       "raw": "{}",
+       "options": {
+        "raw": {
+         "language": "json"
+        }
+       }
+      }
+     }
+    },
+    {
+     "name": "POST /admin/courses/{course}/sections/reorder  —  أقسام — reorder",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/courses/{{course}}/sections/reorder",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "courses",
+        "{{course}}",
+        "sections",
+        "reorder"
+       ]
+      },
+      "description": "أقسام — reorder",
+      "body": {
+       "mode": "raw",
+       "raw": "{}",
+       "options": {
+        "raw": {
+         "language": "json"
+        }
+       }
+      }
+     }
+    },
+    {
+     "name": "PUT /admin/sections/{section}  —  أقسام — تعديل",
+     "request": {
+      "method": "PUT",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/sections/{{section}}",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "sections",
+        "{{section}}"
+       ]
+      },
+      "description": "أقسام — تعديل",
+      "body": {
+       "mode": "raw",
+       "raw": "{}",
+       "options": {
+        "raw": {
+         "language": "json"
+        }
+       }
+      }
+     }
+    },
+    {
+     "name": "DELETE /admin/sections/{section}  —  أقسام — حذف مؤقت/حذف",
+     "request": {
+      "method": "DELETE",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/sections/{{section}}",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "sections",
+        "{{section}}"
+       ]
+      },
+      "description": "أقسام — حذف مؤقت/حذف"
+     }
+    },
+    {
+     "name": "GET /admin/courses/{course}/lessons/trashed  —  دروس — المحذوفات",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/courses/{{course}}/lessons/trashed",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "courses",
+        "{{course}}",
+        "lessons",
+        "trashed"
+       ],
+       "query": [
+        {
+         "key": "page",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "per_page",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "search",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "sort",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "dir",
+         "value": "",
+         "disabled": true
+        }
+       ]
+      },
+      "description": "دروس — المحذوفات"
+     }
+    },
+    {
+     "name": "POST /admin/sections/{section}/lessons  —  أقسام — إنشاء",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/sections/{{section}}/lessons",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "sections",
+        "{{section}}",
+        "lessons"
+       ]
+      },
+      "description": "أقسام — إنشاء",
+      "body": {
+       "mode": "raw",
+       "raw": "{}",
+       "options": {
+        "raw": {
+         "language": "json"
+        }
+       }
+      }
+     }
+    },
+    {
+     "name": "POST /admin/sections/{section}/lessons/reorder  —  أقسام — reorder",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/sections/{{section}}/lessons/reorder",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "sections",
+        "{{section}}",
+        "lessons",
+        "reorder"
+       ]
+      },
+      "description": "أقسام — reorder",
+      "body": {
+       "mode": "raw",
+       "raw": "{}",
+       "options": {
+        "raw": {
+         "language": "json"
+        }
+       }
+      }
+     }
+    },
+    {
+     "name": "PATCH /admin/lessons/{id}/restore  —  دروس — استرجاع",
+     "request": {
+      "method": "PATCH",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/lessons/{{id}}/restore",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "lessons",
+        "{{id}}",
+        "restore"
+       ]
+      },
+      "description": "دروس — استرجاع",
+      "body": {
+       "mode": "raw",
+       "raw": "{}",
+       "options": {
+        "raw": {
+         "language": "json"
+        }
+       }
+      }
+     }
+    },
+    {
+     "name": "DELETE /admin/lessons/{id}/force-delete  —  دروس — حذف نهائي",
+     "request": {
+      "method": "DELETE",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/lessons/{{id}}/force-delete",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "lessons",
+        "{{id}}",
+        "force-delete"
+       ]
+      },
+      "description": "دروس — حذف نهائي"
+     }
+    },
+    {
+     "name": "GET /admin/lessons/{lesson}  —  دروس — عرض",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/lessons/{{lesson}}",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "lessons",
+        "{{lesson}}"
+       ]
+      },
+      "description": "دروس — عرض"
+     }
+    },
+    {
+     "name": "PUT /admin/lessons/{lesson}  —  دروس — تعديل",
+     "request": {
+      "method": "PUT",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/lessons/{{lesson}}",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "lessons",
+        "{{lesson}}"
+       ]
+      },
+      "description": "دروس — تعديل",
+      "body": {
+       "mode": "raw",
+       "raw": "{}",
+       "options": {
+        "raw": {
+         "language": "json"
+        }
+       }
+      }
+     }
+    },
+    {
+     "name": "DELETE /admin/lessons/{lesson}  —  دروس — حذف مؤقت/حذف",
+     "request": {
+      "method": "DELETE",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/lessons/{{lesson}}",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "lessons",
+        "{{lesson}}"
+       ]
+      },
+      "description": "دروس — حذف مؤقت/حذف"
+     }
+    },
+    {
+     "name": "POST /admin/lessons/{lesson}/attachments  —  دروس — إنشاء",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/lessons/{{lesson}}/attachments",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "lessons",
+        "{{lesson}}",
+        "attachments"
+       ]
+      },
+      "description": "دروس — إنشاء",
+      "body": {
+       "mode": "raw",
+       "raw": "{}",
+       "options": {
+        "raw": {
+         "language": "json"
+        }
+       }
+      }
+     }
+    },
+    {
+     "name": "GET /admin/attachments/{attachment}/download  —  مرفقات — download",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/attachments/{{attachment}}/download",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "attachments",
+        "{{attachment}}",
+        "download"
+       ]
+      },
+      "description": "مرفقات — download"
+     }
+    },
+    {
+     "name": "DELETE /admin/attachments/{attachment}  —  مرفقات — حذف مؤقت/حذف",
+     "request": {
+      "method": "DELETE",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/attachments/{{attachment}}",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "attachments",
+        "{{attachment}}"
+       ]
+      },
+      "description": "مرفقات — حذف مؤقت/حذف"
+     }
+    }
+   ]
+  },
+  {
+   "name": "Admin · Users & RBAC",
+   "item": [
+    {
+     "name": "GET /admin/users  —  مستخدمون — قائمة",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/users",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "users"
+       ],
+       "query": [
+        {
+         "key": "page",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "per_page",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "search",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "sort",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "dir",
+         "value": "",
+         "disabled": true
+        }
+       ]
+      },
+      "description": "مستخدمون — قائمة\nالصلاحية: users.view"
+     }
+    },
+    {
+     "name": "POST /admin/users  —  مستخدمون — إنشاء",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/users",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "users"
+       ]
+      },
+      "description": "مستخدمون — إنشاء\nالصلاحية: users.create",
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"name\": \"Staff\",\n  \"email\": \"staff@example.com\",\n  \"password\": \"secret123\",\n  \"status\": \"active\",\n  \"roles\": []\n}",
+       "options": {
+        "raw": {
+         "language": "json"
+        }
+       }
+      }
+     }
+    },
+    {
+     "name": "GET /admin/users/trashed  —  مستخدمون — المحذوفات",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/users/trashed",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "users",
+        "trashed"
+       ],
+       "query": [
+        {
+         "key": "page",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "per_page",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "search",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "sort",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "dir",
+         "value": "",
+         "disabled": true
+        }
+       ]
+      },
+      "description": "مستخدمون — المحذوفات\nالصلاحية: users.restore"
+     }
+    },
+    {
+     "name": "POST /admin/users/{id}/restore  —  مستخدمون — استرجاع",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/users/{{id}}/restore",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "users",
+        "{{id}}",
+        "restore"
+       ]
+      },
+      "description": "مستخدمون — استرجاع\nالصلاحية: users.restore",
+      "body": {
+       "mode": "raw",
+       "raw": "{}",
+       "options": {
+        "raw": {
+         "language": "json"
+        }
+       }
+      }
+     }
+    },
+    {
+     "name": "DELETE /admin/users/{id}/force-delete  —  مستخدمون — حذف نهائي",
+     "request": {
+      "method": "DELETE",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/users/{{id}}/force-delete",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "users",
+        "{{id}}",
+        "force-delete"
+       ]
+      },
+      "description": "مستخدمون — حذف نهائي\nالصلاحية: users.force-delete"
+     }
+    },
+    {
+     "name": "GET /admin/users/{user}  —  مستخدمون — عرض",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/users/{{user}}",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "users",
+        "{{user}}"
+       ]
+      },
+      "description": "مستخدمون — عرض\nالصلاحية: users.view"
+     }
+    },
+    {
+     "name": "PUT /admin/users/{user}  —  مستخدمون — تعديل",
+     "request": {
+      "method": "PUT",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/users/{{user}}",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "users",
+        "{{user}}"
+       ]
+      },
+      "description": "مستخدمون — تعديل\nالصلاحية: users.edit",
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"name\": \"Staff\",\n  \"email\": \"staff@example.com\",\n  \"status\": \"active\"\n}",
+       "options": {
+        "raw": {
+         "language": "json"
+        }
+       }
+      }
+     }
+    },
+    {
+     "name": "PATCH /admin/users/{user}  —  مستخدمون — تعديل",
+     "request": {
+      "method": "PATCH",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/users/{{user}}",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "users",
+        "{{user}}"
+       ]
+      },
+      "description": "مستخدمون — تعديل\nالصلاحية: users.edit",
+      "body": {
+       "mode": "raw",
+       "raw": "{}",
+       "options": {
+        "raw": {
+         "language": "json"
+        }
+       }
+      }
+     }
+    },
+    {
+     "name": "DELETE /admin/users/{user}  —  مستخدمون — حذف مؤقت/حذف",
+     "request": {
+      "method": "DELETE",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/users/{{user}}",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "users",
+        "{{user}}"
+       ]
+      },
+      "description": "مستخدمون — حذف مؤقت/حذف\nالصلاحية: users.delete"
+     }
+    },
+    {
+     "name": "GET /admin/users/{user}/edit  —  مستخدمون — بيانات التعديل",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/users/{{user}}/edit",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "users",
+        "{{user}}",
+        "edit"
+       ]
+      },
+      "description": "مستخدمون — بيانات التعديل\nالصلاحية: users.edit"
+     }
+    },
+    {
+     "name": "GET /admin/roles  —  أدوار — قائمة",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/roles",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "roles"
+       ],
+       "query": [
+        {
+         "key": "page",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "per_page",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "search",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "sort",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "dir",
+         "value": "",
+         "disabled": true
+        }
+       ]
+      },
+      "description": "أدوار — قائمة\nالصلاحية: roles.view"
+     }
+    },
+    {
+     "name": "POST /admin/roles  —  أدوار — إنشاء",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/roles",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "roles"
+       ]
+      },
+      "description": "أدوار — إنشاء",
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"name\": \"editor\",\n  \"permissions\": []\n}",
+       "options": {
+        "raw": {
+         "language": "json"
+        }
+       }
+      }
+     }
+    },
+    {
+     "name": "GET /admin/roles/create  —  أدوار — بيانات الإنشاء",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/roles/create",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "roles",
+        "create"
+       ]
+      },
+      "description": "أدوار — بيانات الإنشاء"
+     }
+    },
+    {
+     "name": "GET /admin/roles/{role}  —  أدوار — عرض",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/roles/{{role}}",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "roles",
+        "{{role}}"
+       ]
+      },
+      "description": "أدوار — عرض"
+     }
+    },
+    {
+     "name": "PUT /admin/roles/{role}  —  أدوار — تعديل",
+     "request": {
+      "method": "PUT",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/roles/{{role}}",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "roles",
+        "{{role}}"
+       ]
+      },
+      "description": "أدوار — تعديل",
+      "body": {
+       "mode": "raw",
+       "raw": "{}",
+       "options": {
+        "raw": {
+         "language": "json"
+        }
+       }
+      }
+     }
+    },
+    {
+     "name": "PATCH /admin/roles/{role}  —  أدوار — تعديل",
+     "request": {
+      "method": "PATCH",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/roles/{{role}}",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "roles",
+        "{{role}}"
+       ]
+      },
+      "description": "أدوار — تعديل",
+      "body": {
+       "mode": "raw",
+       "raw": "{}",
+       "options": {
+        "raw": {
+         "language": "json"
+        }
+       }
+      }
+     }
+    },
+    {
+     "name": "DELETE /admin/roles/{role}  —  أدوار — حذف مؤقت/حذف",
+     "request": {
+      "method": "DELETE",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/roles/{{role}}",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "roles",
+        "{{role}}"
+       ]
+      },
+      "description": "أدوار — حذف مؤقت/حذف"
+     }
+    },
+    {
+     "name": "GET /admin/roles/{role}/edit  —  أدوار — بيانات التعديل",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/roles/{{role}}/edit",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "roles",
+        "{{role}}",
+        "edit"
+       ]
+      },
+      "description": "أدوار — بيانات التعديل"
+     }
+    },
+    {
+     "name": "GET /admin/permissions  —  صلاحيات — قائمة",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/permissions",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "permissions"
+       ],
+       "query": [
+        {
+         "key": "page",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "per_page",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "search",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "sort",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "dir",
+         "value": "",
+         "disabled": true
+        }
+       ]
+      },
+      "description": "صلاحيات — قائمة\nالصلاحية: permissions.view"
+     }
+    },
+    {
+     "name": "POST /admin/permissions  —  صلاحيات — إنشاء",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/permissions",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "permissions"
+       ]
+      },
+      "description": "صلاحيات — إنشاء",
+      "body": {
+       "mode": "raw",
+       "raw": "{}",
+       "options": {
+        "raw": {
+         "language": "json"
+        }
+       }
+      }
+     }
+    },
+    {
+     "name": "GET /admin/permissions/{permission}  —  صلاحيات — عرض",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/permissions/{{permission}}",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "permissions",
+        "{{permission}}"
+       ]
+      },
+      "description": "صلاحيات — عرض"
+     }
+    },
+    {
+     "name": "PUT /admin/permissions/{permission}  —  صلاحيات — تعديل",
+     "request": {
+      "method": "PUT",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/permissions/{{permission}}",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "permissions",
+        "{{permission}}"
+       ]
+      },
+      "description": "صلاحيات — تعديل",
+      "body": {
+       "mode": "raw",
+       "raw": "{}",
+       "options": {
+        "raw": {
+         "language": "json"
+        }
+       }
+      }
+     }
+    },
+    {
+     "name": "PATCH /admin/permissions/{permission}  —  صلاحيات — تعديل",
+     "request": {
+      "method": "PATCH",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/permissions/{{permission}}",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "permissions",
+        "{{permission}}"
+       ]
+      },
+      "description": "صلاحيات — تعديل",
+      "body": {
+       "mode": "raw",
+       "raw": "{}",
+       "options": {
+        "raw": {
+         "language": "json"
+        }
+       }
+      }
+     }
+    },
+    {
+     "name": "DELETE /admin/permissions/{permission}  —  صلاحيات — حذف مؤقت/حذف",
+     "request": {
+      "method": "DELETE",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/permissions/{{permission}}",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "permissions",
+        "{{permission}}"
+       ]
+      },
+      "description": "صلاحيات — حذف مؤقت/حذف"
+     }
+    }
+   ]
+  },
+  {
+   "name": "Admin · Sales",
+   "item": [
+    {
+     "name": "GET /admin/orders  —  طلبات — قائمة",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/orders",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "orders"
+       ],
+       "query": [
+        {
+         "key": "page",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "per_page",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "search",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "sort",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "dir",
+         "value": "",
+         "disabled": true
+        }
+       ]
+      },
+      "description": "طلبات — قائمة\nالصلاحية: orders.view"
+     }
+    },
+    {
+     "name": "GET /admin/orders/{order}  —  طلبات — عرض",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/orders/{{order}}",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "orders",
+        "{{order}}"
+       ]
+      },
+      "description": "طلبات — عرض"
+     }
+    },
+    {
+     "name": "POST /admin/orders/{order}/mark-paid  —  طلبات — mark-paid",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/orders/{{order}}/mark-paid",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "orders",
+        "{{order}}",
+        "mark-paid"
+       ]
+      },
+      "description": "طلبات — mark-paid",
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"gateway\": \"manual\",\n  \"transaction_reference\": \"TX-1001\",\n  \"note\": \"تحويل بنكي\"\n}",
+       "options": {
+        "raw": {
+         "language": "json"
+        }
+       }
+      }
+     }
+    },
+    {
+     "name": "POST /admin/orders/{order}/cancel  —  طلبات — cancel",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/orders/{{order}}/cancel",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "orders",
+        "{{order}}",
+        "cancel"
+       ]
+      },
+      "description": "طلبات — cancel",
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"note\": \"\"\n}",
+       "options": {
+        "raw": {
+         "language": "json"
+        }
+       }
+      }
+     }
+    },
+    {
+     "name": "POST /admin/orders/{order}/refund  —  طلبات — refund",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/orders/{{order}}/refund",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "orders",
+        "{{order}}",
+        "refund"
+       ]
+      },
+      "description": "طلبات — refund",
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"note\": \"طلب العميل\"\n}",
+       "options": {
+        "raw": {
+         "language": "json"
+        }
+       }
+      }
+     }
+    },
+    {
+     "name": "GET /admin/payments  —  مدفوعات — قائمة",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/payments",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "payments"
+       ],
+       "query": [
+        {
+         "key": "page",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "per_page",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "search",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "sort",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "dir",
+         "value": "",
+         "disabled": true
+        }
+       ]
+      },
+      "description": "مدفوعات — قائمة\nالصلاحية: payments.view"
+     }
+    },
+    {
+     "name": "GET /admin/payments/{payment}  —  مدفوعات — عرض",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/payments/{{payment}}",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "payments",
+        "{{payment}}"
+       ]
+      },
+      "description": "مدفوعات — عرض"
+     }
+    },
+    {
+     "name": "GET /admin/receipts  —  إيصالات — قائمة",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/receipts",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "receipts"
+       ],
+       "query": [
+        {
+         "key": "page",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "per_page",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "search",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "sort",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "dir",
+         "value": "",
+         "disabled": true
+        }
+       ]
+      },
+      "description": "إيصالات — قائمة"
+     }
+    },
+    {
+     "name": "GET /admin/receipts/{receipt}  —  إيصالات — عرض",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/receipts/{{receipt}}",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "receipts",
+        "{{receipt}}"
+       ]
+      },
+      "description": "إيصالات — عرض"
+     }
+    },
+    {
+     "name": "GET /admin/receipts/{receipt}/image  —  إيصالات — image",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/receipts/{{receipt}}/image",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "receipts",
+        "{{receipt}}",
+        "image"
+       ]
+      },
+      "description": "إيصالات — image"
+     }
+    },
+    {
+     "name": "POST /admin/receipts/{receipt}/approve  —  إيصالات — approve",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/receipts/{{receipt}}/approve",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "receipts",
+        "{{receipt}}",
+        "approve"
+       ]
+      },
+      "description": "إيصالات — approve",
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"note\": \"\"\n}",
+       "options": {
+        "raw": {
+         "language": "json"
+        }
+       }
+      }
+     }
+    },
+    {
+     "name": "POST /admin/receipts/{receipt}/reject  —  إيصالات — reject",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/receipts/{{receipt}}/reject",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "receipts",
+        "{{receipt}}",
+        "reject"
+       ]
+      },
+      "description": "إيصالات — reject",
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"reason\": \"الصورة غير واضحة\"\n}",
+       "options": {
+        "raw": {
+         "language": "json"
+        }
+       }
+      }
+     }
+    },
+    {
+     "name": "GET /admin/coupons  —  كوبونات — قائمة",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/coupons",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "coupons"
+       ],
+       "query": [
+        {
+         "key": "page",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "per_page",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "search",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "sort",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "dir",
+         "value": "",
+         "disabled": true
+        }
+       ]
+      },
+      "description": "كوبونات — قائمة\nالصلاحية: coupons.view"
+     }
+    },
+    {
+     "name": "POST /admin/coupons  —  كوبونات — إنشاء",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/coupons",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "coupons"
+       ]
+      },
+      "description": "كوبونات — إنشاء",
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"code\": \"SAVE10\",\n  \"discount_type\": \"percentage\",\n  \"discount_value\": 10,\n  \"max_discount\": 50,\n  \"usage_limit\": 100,\n  \"per_user_limit\": 1,\n  \"is_active\": true,\n  \"expires_at\": \"2030-01-01 00:00:00\"\n}",
+       "options": {
+        "raw": {
+         "language": "json"
+        }
+       }
+      }
+     }
+    },
+    {
+     "name": "GET /admin/coupons/trashed  —  كوبونات — المحذوفات",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/coupons/trashed",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "coupons",
+        "trashed"
+       ],
+       "query": [
+        {
+         "key": "page",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "per_page",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "search",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "sort",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "dir",
+         "value": "",
+         "disabled": true
+        }
+       ]
+      },
+      "description": "كوبونات — المحذوفات\nالصلاحية: coupons.view"
+     }
+    },
+    {
+     "name": "PATCH /admin/coupons/{id}/restore  —  كوبونات — استرجاع",
+     "request": {
+      "method": "PATCH",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/coupons/{{id}}/restore",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "coupons",
+        "{{id}}",
+        "restore"
+       ]
+      },
+      "description": "كوبونات — استرجاع",
+      "body": {
+       "mode": "raw",
+       "raw": "{}",
+       "options": {
+        "raw": {
+         "language": "json"
+        }
+       }
+      }
+     }
+    },
+    {
+     "name": "DELETE /admin/coupons/{id}/force-delete  —  كوبونات — حذف نهائي",
+     "request": {
+      "method": "DELETE",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/coupons/{{id}}/force-delete",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "coupons",
+        "{{id}}",
+        "force-delete"
+       ]
+      },
+      "description": "كوبونات — حذف نهائي"
+     }
+    },
+    {
+     "name": "GET /admin/coupons/{coupon}  —  كوبونات — عرض",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/coupons/{{coupon}}",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "coupons",
+        "{{coupon}}"
+       ]
+      },
+      "description": "كوبونات — عرض"
+     }
+    },
+    {
+     "name": "PUT /admin/coupons/{coupon}  —  كوبونات — تعديل",
+     "request": {
+      "method": "PUT",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/coupons/{{coupon}}",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "coupons",
+        "{{coupon}}"
+       ]
+      },
+      "description": "كوبونات — تعديل",
+      "body": {
+       "mode": "raw",
+       "raw": "{}",
+       "options": {
+        "raw": {
+         "language": "json"
+        }
+       }
+      }
+     }
+    },
+    {
+     "name": "PATCH /admin/coupons/{coupon}  —  كوبونات — تعديل",
+     "request": {
+      "method": "PATCH",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/coupons/{{coupon}}",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "coupons",
+        "{{coupon}}"
+       ]
+      },
+      "description": "كوبونات — تعديل",
+      "body": {
+       "mode": "raw",
+       "raw": "{}",
+       "options": {
+        "raw": {
+         "language": "json"
+        }
+       }
+      }
+     }
+    },
+    {
+     "name": "DELETE /admin/coupons/{coupon}  —  كوبونات — حذف مؤقت/حذف",
+     "request": {
+      "method": "DELETE",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/coupons/{{coupon}}",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "coupons",
+        "{{coupon}}"
+       ]
+      },
+      "description": "كوبونات — حذف مؤقت/حذف"
+     }
+    },
+    {
+     "name": "PATCH /admin/coupons/{coupon}/toggle  —  كوبونات — toggle",
+     "request": {
+      "method": "PATCH",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/coupons/{{coupon}}/toggle",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "coupons",
+        "{{coupon}}",
+        "toggle"
+       ]
+      },
+      "description": "كوبونات — toggle",
+      "body": {
+       "mode": "raw",
+       "raw": "{}",
+       "options": {
+        "raw": {
+         "language": "json"
+        }
+       }
+      }
+     }
+    },
+    {
+     "name": "GET /admin/carts  —  سلات — قائمة",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/carts",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "carts"
+       ],
+       "query": [
+        {
+         "key": "page",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "per_page",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "search",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "sort",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "dir",
+         "value": "",
+         "disabled": true
+        }
+       ]
+      },
+      "description": "سلات — قائمة\nالصلاحية: carts.view"
+     }
+    },
+    {
+     "name": "GET /admin/carts/{cart}  —  سلات — عرض",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/carts/{{cart}}",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "carts",
+        "{{cart}}"
+       ]
+      },
+      "description": "سلات — عرض"
+     }
+    },
+    {
+     "name": "DELETE /admin/carts/{cart}/items  —  سلات — clear",
+     "request": {
+      "method": "DELETE",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/carts/{{cart}}/items",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "carts",
+        "{{cart}}",
+        "items"
+       ]
+      },
+      "description": "سلات — clear"
+     }
+    }
+   ]
+  },
+  {
+   "name": "Admin · System",
+   "item": [
+    {
+     "name": "GET /admin/dashboard  —  لوحة الإحصاءات — dashboard",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/dashboard",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "dashboard"
+       ]
+      },
+      "description": "لوحة الإحصاءات — dashboard"
+     }
+    },
+    {
+     "name": "GET /admin/notifications  —  إشعارات (مراقبة) — قائمة",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/notifications",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "notifications"
+       ],
+       "query": [
+        {
+         "key": "page",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "per_page",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "search",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "sort",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "dir",
+         "value": "",
+         "disabled": true
+        }
+       ]
+      },
+      "description": "إشعارات (مراقبة) — قائمة\nالصلاحية: notifications.view"
+     }
+    },
+    {
+     "name": "GET /admin/notifications/{notification}  —  إشعارات (مراقبة) — عرض",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/notifications/{{notification}}",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "notifications",
+        "{{notification}}"
+       ]
+      },
+      "description": "إشعارات (مراقبة) — عرض"
+     }
+    },
+    {
+     "name": "GET /admin/audit-logs  —  سجل التدقيق — قائمة",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/audit-logs",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "audit-logs"
+       ],
+       "query": [
+        {
+         "key": "page",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "per_page",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "search",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "sort",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "dir",
+         "value": "",
+         "disabled": true
+        }
+       ]
+      },
+      "description": "سجل التدقيق — قائمة\nالصلاحية: audit-logs.view"
+     }
+    },
+    {
+     "name": "GET /admin/audit-logs/{audit_log}  —  سجل التدقيق — عرض",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/audit-logs/{{audit_log}}",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "audit-logs",
+        "{{audit_log}}"
+       ]
+      },
+      "description": "سجل التدقيق — عرض"
+     }
+    }
+   ]
+  },
+  {
+   "name": "Admin · Learning",
+   "item": [
+    {
+     "name": "GET /admin/enrollments  —  تسجيلات — قائمة",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/enrollments",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "enrollments"
+       ],
+       "query": [
+        {
+         "key": "page",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "per_page",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "search",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "sort",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "dir",
+         "value": "",
+         "disabled": true
+        }
+       ]
+      },
+      "description": "تسجيلات — قائمة\nالصلاحية: enrollments.view"
+     }
+    },
+    {
+     "name": "POST /admin/enrollments  —  تسجيلات — إنشاء",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/enrollments",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "enrollments"
+       ]
+      },
+      "description": "تسجيلات — إنشاء\nالصلاحية: enrollments.create",
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"user_id\": 1,\n  \"course_id\": 1\n}",
+       "options": {
+        "raw": {
+         "language": "json"
+        }
+       }
+      }
+     }
+    },
+    {
+     "name": "GET /admin/enrollments/lookup/users  —  تسجيلات — lookup-users",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/enrollments/lookup/users",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "enrollments",
+        "lookup",
+        "users"
+       ]
+      },
+      "description": "تسجيلات — lookup-users"
+     }
+    },
+    {
+     "name": "GET /admin/enrollments/create  —  تسجيلات — بيانات الإنشاء",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/enrollments/create",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "enrollments",
+        "create"
+       ]
+      },
+      "description": "تسجيلات — بيانات الإنشاء\nالصلاحية: enrollments.create"
+     }
+    },
+    {
+     "name": "GET /admin/enrollments/{enrollment}  —  تسجيلات — عرض",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/enrollments/{{enrollment}}",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "enrollments",
+        "{{enrollment}}"
+       ]
+      },
+      "description": "تسجيلات — عرض"
+     }
+    },
+    {
+     "name": "PUT /admin/enrollments/{enrollment}  —  تسجيلات — تعديل",
+     "request": {
+      "method": "PUT",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/enrollments/{{enrollment}}",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "enrollments",
+        "{{enrollment}}"
+       ]
+      },
+      "description": "تسجيلات — تعديل",
+      "body": {
+       "mode": "raw",
+       "raw": "{}",
+       "options": {
+        "raw": {
+         "language": "json"
+        }
+       }
+      }
+     }
+    },
+    {
+     "name": "PATCH /admin/enrollments/{enrollment}  —  تسجيلات — تعديل",
+     "request": {
+      "method": "PATCH",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/enrollments/{{enrollment}}",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "enrollments",
+        "{{enrollment}}"
+       ]
+      },
+      "description": "تسجيلات — تعديل",
+      "body": {
+       "mode": "raw",
+       "raw": "{}",
+       "options": {
+        "raw": {
+         "language": "json"
+        }
+       }
+      }
+     }
+    },
+    {
+     "name": "GET /admin/enrollments/{enrollment}/edit  —  تسجيلات — بيانات التعديل",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/enrollments/{{enrollment}}/edit",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "enrollments",
+        "{{enrollment}}",
+        "edit"
+       ]
+      },
+      "description": "تسجيلات — بيانات التعديل"
+     }
+    },
+    {
+     "name": "GET /admin/certificate-templates  —  قوالب الشهادات — قائمة",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/certificate-templates",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "certificate-templates"
+       ],
+       "query": [
+        {
+         "key": "page",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "per_page",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "search",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "sort",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "dir",
+         "value": "",
+         "disabled": true
+        }
+       ]
+      },
+      "description": "قوالب الشهادات — قائمة\nالصلاحية: certificate-templates.view"
+     }
+    },
+    {
+     "name": "POST /admin/certificate-templates  —  قوالب الشهادات — إنشاء",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/certificate-templates",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "certificate-templates"
+       ]
+      },
+      "description": "قوالب الشهادات — إنشاء",
+      "body": {
+       "mode": "raw",
+       "raw": "{}",
+       "options": {
+        "raw": {
+         "language": "json"
+        }
+       }
+      }
+     }
+    },
+    {
+     "name": "GET /admin/certificate-templates/trashed  —  قوالب الشهادات — المحذوفات",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/certificate-templates/trashed",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "certificate-templates",
+        "trashed"
+       ],
+       "query": [
+        {
+         "key": "page",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "per_page",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "search",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "sort",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "dir",
+         "value": "",
+         "disabled": true
+        }
+       ]
+      },
+      "description": "قوالب الشهادات — المحذوفات\nالصلاحية: certificate-templates.view"
+     }
+    },
+    {
+     "name": "PATCH /admin/certificate-templates/{id}/restore  —  قوالب الشهادات — استرجاع",
+     "request": {
+      "method": "PATCH",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/certificate-templates/{{id}}/restore",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "certificate-templates",
+        "{{id}}",
+        "restore"
+       ]
+      },
+      "description": "قوالب الشهادات — استرجاع",
+      "body": {
+       "mode": "raw",
+       "raw": "{}",
+       "options": {
+        "raw": {
+         "language": "json"
+        }
+       }
+      }
+     }
+    },
+    {
+     "name": "DELETE /admin/certificate-templates/{id}/force-delete  —  قوالب الشهادات — حذف نهائي",
+     "request": {
+      "method": "DELETE",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/certificate-templates/{{id}}/force-delete",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "certificate-templates",
+        "{{id}}",
+        "force-delete"
+       ]
+      },
+      "description": "قوالب الشهادات — حذف نهائي"
+     }
+    },
+    {
+     "name": "GET /admin/certificate-templates/{certificate_template}  —  قوالب الشهادات — عرض",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/certificate-templates/{{certificate_template}}",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "certificate-templates",
+        "{{certificate_template}}"
+       ]
+      },
+      "description": "قوالب الشهادات — عرض"
+     }
+    },
+    {
+     "name": "PUT /admin/certificate-templates/{certificate_template}  —  قوالب الشهادات — تعديل",
+     "request": {
+      "method": "PUT",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/certificate-templates/{{certificate_template}}",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "certificate-templates",
+        "{{certificate_template}}"
+       ]
+      },
+      "description": "قوالب الشهادات — تعديل",
+      "body": {
+       "mode": "raw",
+       "raw": "{}",
+       "options": {
+        "raw": {
+         "language": "json"
+        }
+       }
+      }
+     }
+    },
+    {
+     "name": "PATCH /admin/certificate-templates/{certificate_template}  —  قوالب الشهادات — تعديل",
+     "request": {
+      "method": "PATCH",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/certificate-templates/{{certificate_template}}",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "certificate-templates",
+        "{{certificate_template}}"
+       ]
+      },
+      "description": "قوالب الشهادات — تعديل",
+      "body": {
+       "mode": "raw",
+       "raw": "{}",
+       "options": {
+        "raw": {
+         "language": "json"
+        }
+       }
+      }
+     }
+    },
+    {
+     "name": "DELETE /admin/certificate-templates/{certificate_template}  —  قوالب الشهادات — حذف مؤقت/حذف",
+     "request": {
+      "method": "DELETE",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/certificate-templates/{{certificate_template}}",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "certificate-templates",
+        "{{certificate_template}}"
+       ]
+      },
+      "description": "قوالب الشهادات — حذف مؤقت/حذف"
+     }
+    },
+    {
+     "name": "GET /admin/certificate-templates/{certificate_template}/preview  —  قوالب الشهادات — preview",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/certificate-templates/{{certificate_template}}/preview",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "certificate-templates",
+        "{{certificate_template}}",
+        "preview"
+       ]
+      },
+      "description": "قوالب الشهادات — preview"
+     }
+    },
+    {
+     "name": "GET /admin/certificates  —  شهادات — قائمة",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/certificates",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "certificates"
+       ],
+       "query": [
+        {
+         "key": "page",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "per_page",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "search",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "sort",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "dir",
+         "value": "",
+         "disabled": true
+        }
+       ]
+      },
+      "description": "شهادات — قائمة\nالصلاحية: certificates.view"
+     }
+    },
+    {
+     "name": "POST /admin/certificates  —  شهادات — إنشاء",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/certificates",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "certificates"
+       ]
+      },
+      "description": "شهادات — إنشاء\nالصلاحية: certificates.create",
+      "body": {
+       "mode": "raw",
+       "raw": "{}",
+       "options": {
+        "raw": {
+         "language": "json"
+        }
+       }
+      }
+     }
+    },
+    {
+     "name": "GET /admin/certificates/eligible  —  شهادات — eligible",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/certificates/eligible",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "certificates",
+        "eligible"
+       ]
+      },
+      "description": "شهادات — eligible"
+     }
+    },
+    {
+     "name": "GET /admin/certificates/{certificate}  —  شهادات — عرض",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/certificates/{{certificate}}",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "certificates",
+        "{{certificate}}"
+       ]
+      },
+      "description": "شهادات — عرض"
+     }
+    },
+    {
+     "name": "GET /admin/certificates/{certificate}/download  —  شهادات — download",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/certificates/{{certificate}}/download",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "certificates",
+        "{{certificate}}",
+        "download"
+       ]
+      },
+      "description": "شهادات — download"
+     }
+    },
+    {
+     "name": "POST /admin/certificates/{certificate}/revoke  —  شهادات — revoke",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/certificates/{{certificate}}/revoke",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "certificates",
+        "{{certificate}}",
+        "revoke"
+       ]
+      },
+      "description": "شهادات — revoke",
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"reason\": \"صدرت بالخطأ\"\n}",
+       "options": {
+        "raw": {
+         "language": "json"
+        }
+       }
+      }
+     }
+    },
+    {
+     "name": "POST /admin/certificates/{certificate}/reinstate  —  شهادات — reinstate",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/certificates/{{certificate}}/reinstate",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "certificates",
+        "{{certificate}}",
+        "reinstate"
+       ]
+      },
+      "description": "شهادات — reinstate",
+      "body": {
+       "mode": "raw",
+       "raw": "{}",
+       "options": {
+        "raw": {
+         "language": "json"
+        }
+       }
+      }
+     }
+    },
+    {
+     "name": "GET /admin/live-sessions  —  جلسات مباشرة — قائمة",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/live-sessions",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "live-sessions"
+       ],
+       "query": [
+        {
+         "key": "page",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "per_page",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "search",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "sort",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "dir",
+         "value": "",
+         "disabled": true
+        }
+       ]
+      },
+      "description": "جلسات مباشرة — قائمة\nالصلاحية: live-sessions.view"
+     }
+    },
+    {
+     "name": "POST /admin/live-sessions  —  جلسات مباشرة — إنشاء",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/live-sessions",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "live-sessions"
+       ]
+      },
+      "description": "جلسات مباشرة — إنشاء",
+      "body": {
+       "mode": "raw",
+       "raw": "{}",
+       "options": {
+        "raw": {
+         "language": "json"
+        }
+       }
+      }
+     }
+    },
+    {
+     "name": "GET /admin/live-sessions/trashed  —  جلسات مباشرة — المحذوفات",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/live-sessions/trashed",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "live-sessions",
+        "trashed"
+       ],
+       "query": [
+        {
+         "key": "page",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "per_page",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "search",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "sort",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "dir",
+         "value": "",
+         "disabled": true
+        }
+       ]
+      },
+      "description": "جلسات مباشرة — المحذوفات\nالصلاحية: live-sessions.view"
+     }
+    },
+    {
+     "name": "GET /admin/live-sessions/create  —  جلسات مباشرة — بيانات الإنشاء",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/live-sessions/create",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "live-sessions",
+        "create"
+       ]
+      },
+      "description": "جلسات مباشرة — بيانات الإنشاء\nالصلاحية: live-sessions.create"
+     }
+    },
+    {
+     "name": "PATCH /admin/live-sessions/{id}/restore  —  جلسات مباشرة — استرجاع",
+     "request": {
+      "method": "PATCH",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/live-sessions/{{id}}/restore",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "live-sessions",
+        "{{id}}",
+        "restore"
+       ]
+      },
+      "description": "جلسات مباشرة — استرجاع",
+      "body": {
+       "mode": "raw",
+       "raw": "{}",
+       "options": {
+        "raw": {
+         "language": "json"
+        }
+       }
+      }
+     }
+    },
+    {
+     "name": "DELETE /admin/live-sessions/{id}/force-delete  —  جلسات مباشرة — حذف نهائي",
+     "request": {
+      "method": "DELETE",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/live-sessions/{{id}}/force-delete",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "live-sessions",
+        "{{id}}",
+        "force-delete"
+       ]
+      },
+      "description": "جلسات مباشرة — حذف نهائي"
+     }
+    },
+    {
+     "name": "GET /admin/live-sessions/{live_session}  —  جلسات مباشرة — عرض",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/live-sessions/{{live_session}}",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "live-sessions",
+        "{{live_session}}"
+       ]
+      },
+      "description": "جلسات مباشرة — عرض"
+     }
+    },
+    {
+     "name": "PUT /admin/live-sessions/{live_session}  —  جلسات مباشرة — تعديل",
+     "request": {
+      "method": "PUT",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/live-sessions/{{live_session}}",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "live-sessions",
+        "{{live_session}}"
+       ]
+      },
+      "description": "جلسات مباشرة — تعديل",
+      "body": {
+       "mode": "raw",
+       "raw": "{}",
+       "options": {
+        "raw": {
+         "language": "json"
+        }
+       }
+      }
+     }
+    },
+    {
+     "name": "PATCH /admin/live-sessions/{live_session}  —  جلسات مباشرة — تعديل",
+     "request": {
+      "method": "PATCH",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/live-sessions/{{live_session}}",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "live-sessions",
+        "{{live_session}}"
+       ]
+      },
+      "description": "جلسات مباشرة — تعديل",
+      "body": {
+       "mode": "raw",
+       "raw": "{}",
+       "options": {
+        "raw": {
+         "language": "json"
+        }
+       }
+      }
+     }
+    },
+    {
+     "name": "DELETE /admin/live-sessions/{live_session}  —  جلسات مباشرة — حذف مؤقت/حذف",
+     "request": {
+      "method": "DELETE",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/live-sessions/{{live_session}}",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "live-sessions",
+        "{{live_session}}"
+       ]
+      },
+      "description": "جلسات مباشرة — حذف مؤقت/حذف"
+     }
+    },
+    {
+     "name": "GET /admin/live-sessions/{live_session}/edit  —  جلسات مباشرة — بيانات التعديل",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/live-sessions/{{live_session}}/edit",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "live-sessions",
+        "{{live_session}}",
+        "edit"
+       ]
+      },
+      "description": "جلسات مباشرة — بيانات التعديل"
+     }
+    },
+    {
+     "name": "POST /admin/live-sessions/{live_session}/cancel  —  جلسات مباشرة — cancel",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/live-sessions/{{live_session}}/cancel",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "live-sessions",
+        "{{live_session}}",
+        "cancel"
+       ]
+      },
+      "description": "جلسات مباشرة — cancel",
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"reason\": \"ظرف طارئ\"\n}",
+       "options": {
+        "raw": {
+         "language": "json"
+        }
+       }
+      }
+     }
+    },
+    {
+     "name": "GET /admin/quizzes  —  اختبارات — قائمة",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/quizzes",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "quizzes"
+       ],
+       "query": [
+        {
+         "key": "page",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "per_page",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "search",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "sort",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "dir",
+         "value": "",
+         "disabled": true
+        }
+       ]
+      },
+      "description": "اختبارات — قائمة\nالصلاحية: quizzes.view"
+     }
+    },
+    {
+     "name": "POST /admin/quizzes  —  اختبارات — إنشاء",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/quizzes",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "quizzes"
+       ]
+      },
+      "description": "اختبارات — إنشاء",
+      "body": {
+       "mode": "raw",
+       "raw": "{}",
+       "options": {
+        "raw": {
+         "language": "json"
+        }
+       }
+      }
+     }
+    },
+    {
+     "name": "GET /admin/quizzes/trashed  —  اختبارات — المحذوفات",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/quizzes/trashed",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "quizzes",
+        "trashed"
+       ],
+       "query": [
+        {
+         "key": "page",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "per_page",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "search",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "sort",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "dir",
+         "value": "",
+         "disabled": true
+        }
+       ]
+      },
+      "description": "اختبارات — المحذوفات\nالصلاحية: quizzes.view"
+     }
+    },
+    {
+     "name": "GET /admin/quizzes/create  —  اختبارات — بيانات الإنشاء",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/quizzes/create",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "quizzes",
+        "create"
+       ]
+      },
+      "description": "اختبارات — بيانات الإنشاء\nالصلاحية: quizzes.create"
+     }
+    },
+    {
+     "name": "PATCH /admin/quizzes/{id}/restore  —  اختبارات — استرجاع",
+     "request": {
+      "method": "PATCH",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/quizzes/{{id}}/restore",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "quizzes",
+        "{{id}}",
+        "restore"
+       ]
+      },
+      "description": "اختبارات — استرجاع",
+      "body": {
+       "mode": "raw",
+       "raw": "{}",
+       "options": {
+        "raw": {
+         "language": "json"
+        }
+       }
+      }
+     }
+    },
+    {
+     "name": "DELETE /admin/quizzes/{id}/force-delete  —  اختبارات — حذف نهائي",
+     "request": {
+      "method": "DELETE",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/quizzes/{{id}}/force-delete",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "quizzes",
+        "{{id}}",
+        "force-delete"
+       ]
+      },
+      "description": "اختبارات — حذف نهائي"
+     }
+    },
+    {
+     "name": "GET /admin/quizzes/{quiz}  —  اختبارات — عرض",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/quizzes/{{quiz}}",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "quizzes",
+        "{{quiz}}"
+       ]
+      },
+      "description": "اختبارات — عرض"
+     }
+    },
+    {
+     "name": "PUT /admin/quizzes/{quiz}  —  اختبارات — تعديل",
+     "request": {
+      "method": "PUT",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/quizzes/{{quiz}}",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "quizzes",
+        "{{quiz}}"
+       ]
+      },
+      "description": "اختبارات — تعديل",
+      "body": {
+       "mode": "raw",
+       "raw": "{}",
+       "options": {
+        "raw": {
+         "language": "json"
+        }
+       }
+      }
+     }
+    },
+    {
+     "name": "PATCH /admin/quizzes/{quiz}  —  اختبارات — تعديل",
+     "request": {
+      "method": "PATCH",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/quizzes/{{quiz}}",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "quizzes",
+        "{{quiz}}"
+       ]
+      },
+      "description": "اختبارات — تعديل",
+      "body": {
+       "mode": "raw",
+       "raw": "{}",
+       "options": {
+        "raw": {
+         "language": "json"
+        }
+       }
+      }
+     }
+    },
+    {
+     "name": "DELETE /admin/quizzes/{quiz}  —  اختبارات — حذف مؤقت/حذف",
+     "request": {
+      "method": "DELETE",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/quizzes/{{quiz}}",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "quizzes",
+        "{{quiz}}"
+       ]
+      },
+      "description": "اختبارات — حذف مؤقت/حذف"
+     }
+    },
+    {
+     "name": "GET /admin/quizzes/{quiz}/edit  —  اختبارات — بيانات التعديل",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/quizzes/{{quiz}}/edit",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "quizzes",
+        "{{quiz}}",
+        "edit"
+       ]
+      },
+      "description": "اختبارات — بيانات التعديل"
+     }
+    },
+    {
+     "name": "GET /admin/quizzes/{quiz}/questions  —  أسئلة — قائمة",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/quizzes/{{quiz}}/questions",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "quizzes",
+        "{{quiz}}",
+        "questions"
+       ],
+       "query": [
+        {
+         "key": "page",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "per_page",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "search",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "sort",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "dir",
+         "value": "",
+         "disabled": true
+        }
+       ]
+      },
+      "description": "أسئلة — قائمة"
+     }
+    },
+    {
+     "name": "POST /admin/quizzes/{quiz}/questions  —  أسئلة — إنشاء",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/quizzes/{{quiz}}/questions",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "quizzes",
+        "{{quiz}}",
+        "questions"
+       ]
+      },
+      "description": "أسئلة — إنشاء",
+      "body": {
+       "mode": "raw",
+       "raw": "{}",
+       "options": {
+        "raw": {
+         "language": "json"
+        }
+       }
+      }
+     }
+    },
+    {
+     "name": "POST /admin/quizzes/{quiz}/questions/reorder  —  أسئلة — reorder",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/quizzes/{{quiz}}/questions/reorder",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "quizzes",
+        "{{quiz}}",
+        "questions",
+        "reorder"
+       ]
+      },
+      "description": "أسئلة — reorder",
+      "body": {
+       "mode": "raw",
+       "raw": "{}",
+       "options": {
+        "raw": {
+         "language": "json"
+        }
+       }
+      }
+     }
+    },
+    {
+     "name": "GET /admin/quizzes/{quiz}/questions/trashed  —  أسئلة — المحذوفات",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/quizzes/{{quiz}}/questions/trashed",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "quizzes",
+        "{{quiz}}",
+        "questions",
+        "trashed"
+       ],
+       "query": [
+        {
+         "key": "page",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "per_page",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "search",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "sort",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "dir",
+         "value": "",
+         "disabled": true
+        }
+       ]
+      },
+      "description": "أسئلة — المحذوفات"
+     }
+    },
+    {
+     "name": "PUT /admin/questions/{question}  —  أسئلة — تعديل",
+     "request": {
+      "method": "PUT",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/questions/{{question}}",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "questions",
+        "{{question}}"
+       ]
+      },
+      "description": "أسئلة — تعديل",
+      "body": {
+       "mode": "raw",
+       "raw": "{}",
+       "options": {
+        "raw": {
+         "language": "json"
+        }
+       }
+      }
+     }
+    },
+    {
+     "name": "DELETE /admin/questions/{question}  —  أسئلة — حذف مؤقت/حذف",
+     "request": {
+      "method": "DELETE",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/questions/{{question}}",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "questions",
+        "{{question}}"
+       ]
+      },
+      "description": "أسئلة — حذف مؤقت/حذف"
+     }
+    },
+    {
+     "name": "PATCH /admin/questions/{id}/restore  —  أسئلة — استرجاع",
+     "request": {
+      "method": "PATCH",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/questions/{{id}}/restore",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "questions",
+        "{{id}}",
+        "restore"
+       ]
+      },
+      "description": "أسئلة — استرجاع",
+      "body": {
+       "mode": "raw",
+       "raw": "{}",
+       "options": {
+        "raw": {
+         "language": "json"
+        }
+       }
+      }
+     }
+    },
+    {
+     "name": "DELETE /admin/questions/{id}/force-delete  —  أسئلة — حذف نهائي",
+     "request": {
+      "method": "DELETE",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/questions/{{id}}/force-delete",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "questions",
+        "{{id}}",
+        "force-delete"
+       ]
+      },
+      "description": "أسئلة — حذف نهائي"
+     }
+    },
+    {
+     "name": "GET /admin/quiz-attempts  —  محاولات الاختبار — قائمة",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/quiz-attempts",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "quiz-attempts"
+       ],
+       "query": [
+        {
+         "key": "page",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "per_page",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "search",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "sort",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "dir",
+         "value": "",
+         "disabled": true
+        }
+       ]
+      },
+      "description": "محاولات الاختبار — قائمة\nالصلاحية: quiz-attempts.view"
+     }
+    },
+    {
+     "name": "GET /admin/quiz-attempts/{attempt}  —  محاولات الاختبار — عرض",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/quiz-attempts/{{attempt}}",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "quiz-attempts",
+        "{{attempt}}"
+       ]
+      },
+      "description": "محاولات الاختبار — عرض"
+     }
+    },
+    {
+     "name": "POST /admin/quiz-attempts/{attempt}/void  —  محاولات الاختبار — void",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/quiz-attempts/{{attempt}}/void",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "quiz-attempts",
+        "{{attempt}}",
+        "void"
+       ]
+      },
+      "description": "محاولات الاختبار — void",
+      "body": {
+       "mode": "raw",
+       "raw": "{\n  \"reason\": \"مخالفة\"\n}",
+       "options": {
+        "raw": {
+         "language": "json"
+        }
+       }
+      }
+     }
+    },
+    {
+     "name": "GET /admin/progress  —  تقدّم الطلاب — قائمة",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/progress",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "progress"
+       ],
+       "query": [
+        {
+         "key": "page",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "per_page",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "search",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "sort",
+         "value": "",
+         "disabled": true
+        },
+        {
+         "key": "dir",
+         "value": "",
+         "disabled": true
+        }
+       ]
+      },
+      "description": "تقدّم الطلاب — قائمة\nالصلاحية: progress.view"
+     }
+    },
+    {
+     "name": "GET /admin/progress/{progress}  —  تقدّم الطلاب — عرض",
+     "request": {
+      "method": "GET",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/progress/{{progress}}",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "progress",
+        "{{progress}}"
+       ]
+      },
+      "description": "تقدّم الطلاب — عرض"
+     }
+    },
+    {
+     "name": "POST /admin/progress/{progress}/recalculate  —  تقدّم الطلاب — recalculate",
+     "request": {
+      "method": "POST",
+      "header": [
+       {
+        "key": "Accept",
+        "value": "application/json"
+       },
+       {
+        "key": "Accept-Language",
+        "value": "{{lang}}"
+       },
+       {
+        "key": "Content-Type",
+        "value": "application/json"
+       }
+      ],
+      "url": {
+       "raw": "{{base_url}}/admin/progress/{{progress}}/recalculate",
+       "host": [
+        "{{base_url}}"
+       ],
+       "path": [
+        "admin",
+        "progress",
+        "{{progress}}",
+        "recalculate"
+       ]
+      },
+      "description": "تقدّم الطلاب — recalculate",
+      "body": {
+       "mode": "raw",
+       "raw": "{}",
+       "options": {
+        "raw": {
+         "language": "json"
+        }
+       }
+      }
+     }
+    }
+   ]
+  }
+ ]
+}

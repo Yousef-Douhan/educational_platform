@@ -25,7 +25,7 @@
     <style>body{font-family:'Cairo',system-ui,sans-serif}details>summary{list-style:none}details>summary::-webkit-details-marker{display:none}</style>
     @stack('styles')
 </head>
-<body class="flex min-h-screen flex-col bg-slate-50 text-slate-800 antialiased">
+<body class="flex min-h-screen flex-col overflow-x-clip bg-slate-50 text-slate-800 antialiased">
     @include('student.partials.theme-toggle')
     {{-- الشريط العلوي --}}
     <div class="bg-slate-900 text-xs text-slate-300">
@@ -49,8 +49,8 @@
                 @include('student.partials.logo', ['size' => 'lg'])
             </a>
 
-            {{-- قائمة الجوال (الروابط الرئيسية تختفي تحت lg) --}}
-            <details class="relative lg:hidden">
+            {{-- قائمة الجوال والشاشات المتوسطة (الروابط الرئيسية تختفي تحت xl) --}}
+            <details class="relative xl:hidden">
                 <summary class="flex h-10 w-10 cursor-pointer items-center justify-center rounded-full bg-slate-100 text-slate-700" aria-label="Menu"><i class="fa-solid fa-bars"></i></summary>
                 <div class="absolute start-0 top-full z-40 mt-2 w-64 rounded-xl border border-slate-200 bg-white p-2 text-sm font-semibold text-slate-700 shadow-xl">
                     <a href="{{ route('student.home') }}" class="block rounded-lg px-3 py-2 hover:bg-slate-100">{{ __('student.nav.home') }}</a>
@@ -70,7 +70,7 @@
                 </div>
             </details>
 
-            <nav class="hidden items-center gap-0.5 text-sm font-semibold text-slate-700 lg:flex">
+            <nav class="hidden min-w-0 items-center gap-0.5 text-sm font-semibold text-slate-700 xl:flex">
                 <a href="{{ route('student.home') }}" class="rounded-lg whitespace-nowrap px-2.5 py-2 hover:bg-slate-100 hover:text-indigo-700">{{ __('student.nav.home') }}</a>
                 <a href="{{ route('student.courses.index') }}" class="rounded-lg whitespace-nowrap px-2.5 py-2 hover:bg-slate-100 hover:text-indigo-700">{{ __('student.nav.courses') }}</a>
                 @if ($navCategories->isNotEmpty())
@@ -85,11 +85,19 @@
                 @endif
                 @auth
                     <a href="{{ route('student.courses.mine') }}" class="rounded-lg whitespace-nowrap px-2.5 py-2 hover:bg-slate-100 hover:text-indigo-700">{{ __('student.nav.my_courses') }}</a>
-                    <a href="{{ route('student.certificates.index') }}" class="rounded-lg whitespace-nowrap px-2.5 py-2 hover:bg-slate-100 hover:text-indigo-700">{{ __('student.nav.certificates') }}</a>
-                    <a href="{{ route('student.live.index') }}" class="rounded-lg whitespace-nowrap px-2.5 py-2 hover:bg-slate-100 hover:text-indigo-700">{{ __('student.nav.live_sessions') }}</a>
-                    <a href="{{ route('student.orders.index') }}" class="rounded-lg whitespace-nowrap px-2.5 py-2 hover:bg-slate-100 hover:text-indigo-700">{{ __('student.nav.orders') }}</a>
                 @endauth
-                <a href="{{ route('certificates.verify.form') }}" class="rounded-lg whitespace-nowrap px-2.5 py-2 hover:bg-slate-100 hover:text-indigo-700">{{ __('student.nav.verify_certificate') }}</a>
+                {{-- روابط ثانوية في قائمة "المزيد" كي لا يفيض الرأس --}}
+                <details class="relative">
+                    <summary class="cursor-pointer rounded-lg whitespace-nowrap px-2.5 py-2 hover:bg-slate-100 hover:text-indigo-700">{{ __('student.nav.more') }} <i class="fa-solid fa-chevron-down ms-1 text-[10px]"></i></summary>
+                    <div class="absolute start-0 top-full z-40 mt-2 w-56 rounded-xl border border-slate-200 bg-white p-2 shadow-xl">
+                        @auth
+                            <a href="{{ route('student.certificates.index') }}" class="block rounded-lg whitespace-nowrap px-2.5 py-2 hover:bg-indigo-50 hover:text-indigo-700">{{ __('student.nav.certificates') }}</a>
+                            <a href="{{ route('student.live.index') }}" class="block rounded-lg whitespace-nowrap px-2.5 py-2 hover:bg-indigo-50 hover:text-indigo-700">{{ __('student.nav.live_sessions') }}</a>
+                            <a href="{{ route('student.orders.index') }}" class="block rounded-lg whitespace-nowrap px-2.5 py-2 hover:bg-indigo-50 hover:text-indigo-700">{{ __('student.nav.orders') }}</a>
+                        @endauth
+                        <a href="{{ route('certificates.verify.form') }}" class="block rounded-lg whitespace-nowrap px-2.5 py-2 hover:bg-indigo-50 hover:text-indigo-700">{{ __('student.nav.verify_certificate') }}</a>
+                    </div>
+                </details>
             </nav>
 
             <div class="flex shrink-0 items-center gap-2 whitespace-nowrap text-sm font-semibold">
@@ -130,7 +138,19 @@
     </header>
 
     <main class="flex-1">
-        <div class="mx-auto w-full max-w-7xl px-4 pt-6">@include('student.partials.alerts')</div>
+        <div class="mx-auto w-full max-w-7xl px-4 pt-6">
+            @include('student.partials.alerts')
+            @auth
+                @unless (auth()->user()->hasVerifiedEmail() || request()->routeIs('verification.*'))
+                    <div class="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+                        <p><i class="fa-solid fa-envelope me-2"></i>{{ __('student.verify.banner') }}</p>
+                        <form method="POST" action="{{ route('verification.send') }}">@csrf
+                            <button class="font-bold underline">{{ __('student.verify.resend') }}</button>
+                        </form>
+                    </div>
+                @endunless
+            @endauth
+        </div>
         @if (trim($__env->yieldContent('fullwidth')) !== '')
             @yield('content')
         @else

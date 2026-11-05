@@ -6,13 +6,26 @@ use App\Http\Requests\StorePermissionRequest;
 use App\Http\Requests\UpdatePermissionRequest;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\View\View;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
 use Throwable;
 
-class PermissionController extends Controller
+class PermissionController extends Controller implements HasMiddleware
 {
+    /** كانت هذه المسارات بلا أي فحص صلاحية */
+    public static function middleware(): array
+    {
+        return [
+            new Middleware('permission:permissions.view',   only: ['index', 'show']),
+            new Middleware('permission:permissions.create', only: ['create', 'store']),
+            new Middleware('permission:permissions.edit',   only: ['edit', 'update']),
+            new Middleware('permission:permissions.delete', only: ['destroy']),
+        ];
+    }
+
     private const SORTABLE = ['id', 'name', 'guard_name', 'created_at', 'updated_at', 'roles_count'];
 
     public function index(Request $request): View|JsonResponse
@@ -57,7 +70,7 @@ class PermissionController extends Controller
         try {
             $permission = Permission::create([
                 'name'       => $request->validated('name'),
-                'guard_name' => $request->validated('guard_name') ?: config('auth.defaults.guard'),
+                'guard_name' => $request->validated('guard_name') ?: config('cms.rbac_guard'),
             ]);
         } catch (Throwable $e) {
             report($e);

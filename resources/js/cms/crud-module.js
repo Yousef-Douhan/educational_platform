@@ -279,5 +279,16 @@ export function createCrudModule(app, hooks = {}) {
 
     hooks.init?.(app);
 
+    /* رابط عميق: ?open=ID يفتح نافذة التفاصيل مباشرة (يستعمله الداشبورد) ثم ينظّف العنوان */
+    if (showModal) {
+        const url = new URL(window.location.href);
+        const openId = url.searchParams.get('open');
+        if (openId && /^\d+$/.test(openId)) {
+            url.searchParams.delete('open');
+            window.history.replaceState({}, '', url.pathname + (url.search || '') + url.hash);
+            openShowModal(openId);
+        }
+    }
+
     return { loadRecords };
 }

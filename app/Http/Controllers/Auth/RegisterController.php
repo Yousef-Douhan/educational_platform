@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -40,6 +41,13 @@ class RegisterController extends Controller
 
             return $user;
         });
+
+        // يرسل رابط تحقق البريد (المستمع الافتراضي). فشل البريد لا يُفشل التسجيل
+        try {
+            event(new Registered($user));
+        } catch (\Throwable $e) {
+            report($e);
+        }
 
         Auth::login($user);
         $request->session()->regenerate();

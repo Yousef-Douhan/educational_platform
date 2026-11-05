@@ -14,7 +14,7 @@ class StorePermissionRequest extends FormRequest
 
     public function rules(): array
     {
-        $guard = $this->input('guard_name') ?: config('auth.defaults.guard');
+        $guard = $this->input('guard_name') ?: config('cms.rbac_guard');
 
         return [
             'name'       => [

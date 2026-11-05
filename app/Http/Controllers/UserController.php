@@ -127,7 +127,9 @@ class UserController extends Controller
         }
 
         $roles = null;
-        if ($this->canAssignRoles($request)) {
+        // الـAPI يقبل تحديثًا جزئيًا: غياب roles يعني «لا تغيّر الأدوار» (الإفراغ بإرسال roles: [])
+        $touchesRoles = $request->has('roles') || ! $request->is('api/*');
+        if ($touchesRoles && $this->canAssignRoles($request)) {
             $roles = $this->resolveRoles($this->validatedRoleIds($request));
 
             // لا يجوز سحب دور super-admin من آخر مستخدم يملكه
@@ -147,6 +149,11 @@ class UserController extends Controller
                 $user->syncRoles($roles);
             }
         });
+
+        // تغيير كلمة المرور أو الحالة أو الأدوار يُنهي رموز الـAPI الحالية (يعيد المستخدم الدخول بصلاحيات محدّثة)
+        if (isset($data['password']) || isset($data['status']) || $roles !== null) {
+            $this->revokeApiTokens($user, $request);
+        }
 
         return response()->json([
             'success' => true,
@@ -174,6 +181,7 @@ class UserController extends Controller
             return $this->conflict('users.has_courses');
         }
 
+        $this->revokeApiTokens($user, $request);
         $user->delete();
 
         return response()->json([
@@ -269,7 +277,7 @@ class UserController extends Controller
     private function assignableRoles()
     {
         return Role::query()
-            ->where('guard_name', config('auth.defaults.guard'))
+            ->where('guard_name', config('cms.rbac_guard'))
             ->when(! $this->actorIsSuperAdmin(), fn($q) => $q->where('name', '!=', $this->superRole()))
             ->orderBy('name')
             ->get(['id', 'name']);
@@ -291,7 +299,7 @@ class UserController extends Controller
     private function resolveRoles(array $ids)
     {
         return Role::whereIn('id', $ids)
-            ->where('guard_name', config('auth.defaults.guard'))
+            ->where('guard_name', config('cms.rbac_guard'))
             ->get();
     }
 
@@ -308,5 +316,15 @@ class UserController extends Controller
     private function conflict(string $messageKey): JsonResponse
     {
         return response()->json(['message' => __($messageKey)], 409);
+    }
+
+    /** إلغاء رموز Passport للمستخدم (لا يُلغى رمز المدير نفسه إن عدّل حسابه) */
+    private function revokeApiTokens(User $user, Request $request): void
+    {
+        if ($user->is($request->user())) {
+            return;
+        }
+
+        $user->tokens()->get()->each(fn ($token) => $token->revoke());
     }
 }

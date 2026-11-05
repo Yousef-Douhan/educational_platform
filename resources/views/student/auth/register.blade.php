@@ -26,6 +26,7 @@
             </div>
             <button class="w-full rounded-xl bg-sky-600 px-4 py-3 text-sm font-semibold text-white hover:bg-sky-700">{{ __('student.auth.create_account') }}</button>
         </form>
+        @include('student.partials.google-button')
         <p class="mt-4 text-center text-sm text-slate-500">{{ __('student.auth.have_account') }} <a class="font-medium text-sky-700 hover:underline" href="{{ route('login') }}">{{ __('student.nav.login') }}</a></p>
     </div>
 @endsection

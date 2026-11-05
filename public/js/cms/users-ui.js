@@ -17,8 +17,10 @@
         { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]
     ));
 
-    const fmtDate = (v) => v ? new Date(v).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' }) : '—';
-    const fmtDateTime = (v) => v ? new Date(v).toLocaleString(undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—';
+    const TT = w.UU_T || {};
+    const tr = (k, d) => TT[k] || d;
+    const fmtDate = (v) => v ? new Date(v).toLocaleDateString(document.documentElement.lang || undefined, { year: 'numeric', month: 'short', day: 'numeric' }) : '—';
+    const fmtDateTime = (v) => v ? new Date(v).toLocaleString(document.documentElement.lang || undefined, { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' }) : '—';
 
     function initials(name) {
         const parts = String(name || '?').trim().split(/\s+/);
@@ -37,12 +39,12 @@
         `<span class="uu-avatar uu-tone-${tone(name)}${large ? ' uu-avatar--lg' : ''}" aria-hidden="true">${esc(initials(name))}</span>`;
 
     const STATUS = {
-        active: { label: 'Active', cls: 'ok' },
-        inactive: { label: 'Inactive', cls: 'warn' },
-        suspended: { label: 'Suspended', cls: 'bad' },
+        active: { label: tr('active', 'Active'), cls: 'ok' },
+        inactive: { label: tr('inactive', 'Inactive'), cls: 'warn' },
+        suspended: { label: tr('suspended', 'Suspended'), cls: 'bad' },
     };
     const badge = (status) => {
-        const m = STATUS[status] || { label: status || 'Unknown', cls: 'muted' };
+        const m = STATUS[status] || { label: status || tr('unknown', 'Unknown'), cls: 'muted' };
         return `<span class="uu-badge uu-badge--${m.cls}">${esc(m.label)}</span>`;
     };
 
@@ -139,7 +141,7 @@
             });
             if (first) first.focus();
         } else {
-            showToast('Something went wrong. Please try again.', 'error');
+            showToast(tr('generic_error', 'Something went wrong. Please try again.'), 'error');
         }
     }
 
@@ -190,7 +192,7 @@
             const show = input.type === 'password';
             input.type = show ? 'text' : 'password';
             toggle.querySelector('i').className = show ? 'fa-solid fa-eye-slash' : 'fa-solid fa-eye';
-            toggle.setAttribute('aria-label', show ? 'Hide password' : 'Show password');
+            toggle.setAttribute('aria-label', show ? tr('hide_pw', 'Hide password') : tr('show_pw', 'Show password'));
         }
     });
 
