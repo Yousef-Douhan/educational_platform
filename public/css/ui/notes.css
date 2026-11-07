@@ -76,3 +76,26 @@ html[dir="rtl"] .st-folder .st-chev { rotate: 180deg; }
 .st-bstatus { margin-inline-start: auto; font-size: .75rem; color: var(--ui-muted); }
 [hidden] { display: none !important; }
 @media (prefers-reduced-motion: reduce) { .st-folder.open .st-list { animation: none; } }
+
+/* تحكم أوسع بالقلم وبالصورة على السبورة */
+.st-select { padding: 6px 10px; border: 1px solid var(--ui-line); border-radius: 10px; background: var(--ui-s1); color: var(--ui-text); font: inherit; font-size: .8rem; font-weight: 700; }
+.st-check { display: inline-flex; align-items: center; gap: 6px; font-size: .78rem; font-weight: 700; color: var(--ui-text); cursor: pointer; }
+.st-check input { accent-color: var(--ui-sky); width: 16px; height: 16px; }
+.st-imgbar { background: var(--ui-sky-soft); }
+.st-imgbar[hidden] { display: none; }
+.st-imgbar .st-btn { padding: 6px 10px; }
+.st-imgbar .st-danger { color: var(--ui-bad); }
+.st-imgbar .st-hint { margin-inline-start: auto; font-weight: 500; }
+.st-btn:disabled{opacity:.45;cursor:not-allowed}
+.st-imgbar input:disabled, .st-imgbar button:disabled, .st-imgbar label:has(:disabled) { opacity: .45; cursor: not-allowed; }
+
+/* حجم عرض السبورة وملء الشاشة */
+.st-canvas-wrap { margin-inline: auto; }
+.st-card.st-full { position: relative; display: flex; flex-direction: column; width: 100%; height: 100%; border: 0; border-radius: 0; overflow: auto; }
+.st-card.st-full .st-canvas-wrap { flex: none; border-radius: 0; margin-block: auto; }
+.st-card.st-fallback { position: fixed; inset: 0; z-index: 2147483000; width: 100vw; height: 100vh; }
+.st-card.st-notools #b-bar, .st-card.st-notools #b-imgbar { display: none; }
+.st-fsctl { position: absolute; top: 10px; inset-inline-end: 10px; z-index: 3; display: flex; gap: 6px; }
+.st-fsctl[hidden] { display: none; }
+.st-fsbtn { width: 38px; height: 38px; border-radius: 9999px; border: 1px solid rgb(255 255 255 / .35); background: rgb(15 23 42 / .72); color: #fff; cursor: pointer; backdrop-filter: blur(6px); }
+.st-fsbtn:hover, .st-fsbtn[aria-pressed="true"] { background: var(--ui-sky); }

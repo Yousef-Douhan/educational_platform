@@ -69,5 +69,5 @@
 @php
     $scConfig = ['labels' => $scLabels, 'items' => $items, 'csrf' => csrf_token(), 'url' => route('student.schedule.store')];
 @endphp
-<script type="application/json" id="sc-config">{!! json_encode($scConfig, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT) !!}</script>
+<script type="application/json" id="sc-config">@json($scConfig, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT)</script>
 @include('student.partials.asset', ['type' => 'js', 'file' => 'schedule'])

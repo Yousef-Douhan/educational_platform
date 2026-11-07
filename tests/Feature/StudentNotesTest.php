@@ -201,6 +201,63 @@ class StudentNotesTest extends TestCase
         $this->actingAs($me)->getJson(route('student.board.show', $page))->assertOk()->assertJsonCount(4, 'objects');
     }
 
+    public function test_pen_and_image_controls_are_kept_when_valid(): void
+    {
+        $png = 'data:image/png;base64,iVBORw0KGgo=';
+
+        $saved = BoardSanitizer::clean([
+            ['t' => 'p', 'c' => '#FF0000', 'w' => 20, 'p' => [[1, 2], [3, 4]], 'a' => 0.4, 'd' => 2, 'sm' => 1, 'k' => 'h'],
+            ['t' => 'l', 'c' => '#00ff00', 'w' => 2, 'x1' => 0, 'y1' => 0, 'x2' => 9, 'y2' => 9, 'a' => 0.5, 'd' => 1],
+            ['t' => 'r', 'c' => '#00ff00', 'w' => 2, 'x' => 1, 'y' => 1, 'bw' => 5, 'bh' => 5, 'a' => 0.25, 'd' => 1],
+            ['t' => 'i', 'src' => $png, 'x' => 0, 'y' => 0, 'bw' => 50, 'bh' => 40, 'rot' => -45.55, 'a' => 0.25, 'fx' => 1, 'fy' => 1],
+        ]);
+
+        $this->assertCount(4, $saved);
+        $this->assertSame(['a' => 0.4, 'd' => 2, 'sm' => 1, 'k' => 'h'], array_intersect_key($saved[0], array_flip(['a', 'd', 'sm', 'k'])));
+        $this->assertSame([0.5, 1], [$saved[1]['a'], $saved[1]['d']]);
+        $this->assertSame([0.25, 1], [$saved[2]['a'], $saved[2]['d']]);
+        $this->assertEquals(-45.6, $saved[3]['rot']);
+        $this->assertSame([0.25, 1, 1], [$saved[3]['a'], $saved[3]['fx'], $saved[3]['fy']]);
+    }
+
+    public function test_invalid_or_default_controls_are_dropped_without_dropping_the_object(): void
+    {
+        $png = 'data:image/png;base64,iVBORw0KGgo=';
+
+        $saved = BoardSanitizer::clean([
+            ['t' => 'p', 'c' => '#ff0000', 'w' => 5, 'p' => [[1, 2]], 'a' => 7, 'd' => 9, 'sm' => 'yes', 'k' => '<b>'],
+            ['t' => 'p', 'c' => '#ff0000', 'w' => 5, 'p' => [[1, 2]], 'a' => 1, 'd' => 0, 'sm' => 0],
+            ['t' => 'e', 'c' => '#ff0000', 'w' => 5, 'p' => [[1, 2]], 'a' => 0.3, 'd' => 1, 'sm' => 1, 'k' => 'h'],
+            ['t' => 'i', 'src' => $png, 'x' => 0, 'y' => 0, 'bw' => 5, 'bh' => 5, 'rot' => 999, 'a' => 0.01, 'fx' => 0, 'fy' => 'x'],
+            ['t' => 'i', 'src' => $png, 'x' => 0, 'y' => 0, 'bw' => 5, 'bh' => 5, 'rot' => 0, 'a' => 'half', 'd' => 1, 'sm' => 1],
+        ]);
+
+        $this->assertCount(5, $saved);
+        $this->assertSame(['t', 'c', 'w', 'p'], array_keys($saved[0]));
+        $this->assertSame(['t', 'c', 'w', 'p'], array_keys($saved[1]));
+        $this->assertSame(['t', 'c', 'w', 'p'], array_keys($saved[2]));   // الممحاة: لا شفافية ولا نمط
+        $this->assertSame(['t', 'src', 'x', 'y', 'bw', 'bh'], array_keys($saved[3]));
+        $this->assertSame(['t', 'src', 'x', 'y', 'bw', 'bh'], array_keys($saved[4]));   // d وsm لا يخصّان الصور
+    }
+
+    public function test_new_controls_survive_a_save_and_reload(): void
+    {
+        $me = User::factory()->create();
+        $page = $this->page($me);
+        $png = 'data:image/png;base64,iVBORw0KGgo=';
+
+        $this->actingAs($me)->putJson(route('student.board.update', $page), ['objects' => [
+            ['t' => 'i', 'src' => $png, 'x' => 10, 'y' => 20, 'bw' => 300, 'bh' => 200, 'rot' => 90, 'a' => 0.6, 'fx' => 1],
+        ]])->assertOk();
+
+        $o = $this->actingAs($me)->getJson(route('student.board.show', $page))->assertOk()->json('objects.0');
+
+        $this->assertEquals(90, $o['rot']);   // JSON لا يميّز 90 عن 90.0
+        $this->assertEquals(0.6, $o['a']);
+        $this->assertEquals(1, $o['fx']);
+        $this->assertArrayNotHasKey('fy', $o);
+    }
+
     public function test_eraser_color_is_forced_and_name_can_be_renamed(): void
     {
         $me = User::factory()->create();

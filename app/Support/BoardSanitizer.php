@@ -7,6 +7,10 @@ namespace App\Support;
  * وألوان #rrggbb، وصور data: من png/jpeg/webp بحجم محدود. أي عنصر مخالف يُسقَط بصمت.
  *
  * الأنواع: p قلم، e ممحاة، l خط، r مستطيل، o بيضاوي/دائرة، i صورة.
+ *
+ * حقول اختيارية (تُهمَل بصمت إن لم تكن صالحة، ولا تُخزَّن قيمها الافتراضية):
+ *  a شفافية 0.05–1 (كل الأنواع إلا الممحاة)، d نمط الخط 1 متقطع / 2 منقّط (قلم/خط/مستطيل/بيضاوي)،
+ *  sm تنعيم المنحنى (قلم)، k نوع القلم h تظليل (قلم)، rot تدوير بالدرجات وfx/fy قلب (صورة).
  */
 final class BoardSanitizer
 {
@@ -56,6 +60,53 @@ final class BoardSanitizer
         return is_string($v) && preg_match('/^#[0-9a-fA-F]{6}$/', $v) ? strtolower($v) : null;
     }
 
+    /** شفافية 0.05–1، وأي قيمة أخرى أو 1 تعني الافتراضي (null) */
+    private static function alpha(mixed $v): ?float
+    {
+        if ((! is_int($v) && ! is_float($v)) || ! is_finite((float) $v)) {
+            return null;
+        }
+        $v = round((float) $v, 2);
+
+        return $v >= 0.05 && $v < 1 ? $v : null;
+    }
+
+    /**
+     * يضيف الحقول الاختيارية المسموحة لنوع العنصر إلى عنصر نظيف.
+     *
+     * @param  array<string,mixed>  $in
+     * @param  array<string,mixed>  $clean
+     * @return array<string,mixed>
+     */
+    private static function extras(array $in, array $clean, string $t): array
+    {
+        if ($t !== 'e' && ($a = self::alpha($in['a'] ?? null)) !== null) {
+            $clean['a'] = $a;
+        }
+        if (in_array($t, ['p', 'l', 'r', 'o'], true) && in_array($in['d'] ?? null, [1, 2], true)) {
+            $clean['d'] = $in['d'];
+        }
+        if ($t === 'p' && ($in['sm'] ?? null) === 1) {
+            $clean['sm'] = 1;
+        }
+        if ($t === 'p' && ($in['k'] ?? null) === 'h') {
+            $clean['k'] = 'h';
+        }
+        if ($t === 'i') {
+            $rot = self::num($in['rot'] ?? null);
+            if ($rot !== null && abs($rot) <= 360 && $rot != 0.0) {
+                $clean['rot'] = $rot;
+            }
+            foreach (['fx', 'fy'] as $f) {
+                if (($in[$f] ?? null) === 1) {
+                    $clean[$f] = 1;
+                }
+            }
+        }
+
+        return $clean;
+    }
+
     private static function width(mixed $v): ?float
     {
         $n = self::num($v);
@@ -81,7 +132,7 @@ final class BoardSanitizer
                 }
             }
 
-            return $pts === [] ? null : ['t' => $t, 'c' => $c, 'w' => $w, 'p' => $pts];
+            return $pts === [] ? null : self::extras($o, ['t' => $t, 'c' => $c, 'w' => $w, 'p' => $pts], $t);
         }
 
         if ($t === 'l') {
@@ -90,7 +141,7 @@ final class BoardSanitizer
             $v = array_map(fn ($k) => self::num($o[$k] ?? null), ['x1', 'y1', 'x2', 'y2']);
 
             return $c && $w !== null && ! in_array(null, $v, true)
-                ? ['t' => 'l', 'c' => $c, 'w' => $w, 'x1' => $v[0], 'y1' => $v[1], 'x2' => $v[2], 'y2' => $v[3]] : null;
+                ? self::extras($o, ['t' => 'l', 'c' => $c, 'w' => $w, 'x1' => $v[0], 'y1' => $v[1], 'x2' => $v[2], 'y2' => $v[3]], 'l') : null;
         }
 
         if ($t === 'r' || $t === 'o') {
@@ -99,7 +150,7 @@ final class BoardSanitizer
             $v = array_map(fn ($k) => self::num($o[$k] ?? null), ['x', 'y', 'bw', 'bh']);
 
             return $c && $w !== null && ! in_array(null, $v, true)
-                ? ['t' => $t, 'c' => $c, 'w' => $w, 'x' => $v[0], 'y' => $v[1], 'bw' => $v[2], 'bh' => $v[3]] : null;
+                ? self::extras($o, ['t' => $t, 'c' => $c, 'w' => $w, 'x' => $v[0], 'y' => $v[1], 'bw' => $v[2], 'bh' => $v[3]], $t) : null;
         }
 
         if ($t === 'i') {
@@ -110,7 +161,7 @@ final class BoardSanitizer
                 return null;
             }
 
-            return ['t' => 'i', 'src' => $src, 'x' => $v[0], 'y' => $v[1], 'bw' => $v[2], 'bh' => $v[3]];
+            return self::extras($o, ['t' => 'i', 'src' => $src, 'x' => $v[0], 'y' => $v[1], 'bw' => $v[2], 'bh' => $v[3]], 'i');
         }
 
         return null;

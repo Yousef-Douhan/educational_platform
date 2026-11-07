@@ -192,6 +192,14 @@ return [
             'tool' => 'Tool', 'pen' => 'Pen', 'eraser' => 'Eraser', 'line' => 'Line', 'rect' => 'Rectangle', 'circle' => 'Circle',
             'shape' => 'Image', 'image' => 'Upload image', 'color' => 'Color', 'size' => 'Size', 'undo' => 'Undo', 'clear' => 'Clear', 'download' => 'Download',
             'confirm_clear' => 'Clear the whole board?', 'confirm_page' => 'Delete this page and everything on it?', 'image_bad' => 'The image file is invalid or too large.',
+            'view_size' => 'View size', 'fullscreen' => 'Full screen', 'exit_fullscreen' => 'Exit full screen', 'hide_tools' => 'Hide/show tools',
+            'select' => 'Select', 'highlighter' => 'Highlighter', 'opacity' => 'Opacity', 'stroke' => 'Line style',
+            'solid' => 'Solid', 'dashed' => 'Dashed', 'dotted' => 'Dotted', 'smooth' => 'Smooth', 'redo' => 'Redo',
+            'img' => [
+                'panel' => 'Selected image', 'hint' => 'Drag the image to move it; use the handles to resize and rotate.',
+                'rotate' => 'Rotate', 'scale_up' => 'Larger', 'scale_down' => 'Smaller', 'flip_h' => 'Flip horizontally', 'flip_v' => 'Flip vertically',
+                'front' => 'Bring forward', 'back' => 'Send backward', 'duplicate' => 'Duplicate', 'delete' => 'Delete', 'lock' => 'Lock ratio', 'reset' => 'Reset',
+            ],
         ],
     ],
     'schedule' => [

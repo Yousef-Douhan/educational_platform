@@ -40,11 +40,13 @@
 
     {{-- السبورة --}}
     <section id="pane-board" role="tabpanel" aria-labelledby="tab-board" hidden>
-        <div class="st-card">
+        <div class="st-card" id="b-card">
             <div class="st-bhead" id="b-pages" role="tablist"></div>
             <div class="st-bbar" id="b-bar">
                 <span class="lbl">{{ __('student.notes.board.tool') }}</span>
+                <button type="button" class="st-tool" data-tool="s" aria-pressed="false"><i class="fa-solid fa-arrow-pointer"></i> {{ __('student.notes.board.select') }}</button>
                 <button type="button" class="st-tool" data-tool="p" aria-pressed="true"><i class="fa-solid fa-pencil"></i> {{ __('student.notes.board.pen') }}</button>
+                <button type="button" class="st-tool" data-tool="h" aria-pressed="false"><i class="fa-solid fa-highlighter"></i> {{ __('student.notes.board.highlighter') }}</button>
                 <button type="button" class="st-tool" data-tool="e" aria-pressed="false"><i class="fa-solid fa-eraser"></i> {{ __('student.notes.board.eraser') }}</button>
                 <button type="button" class="st-tool" data-tool="l" aria-pressed="false"><i class="fa-solid fa-slash"></i> {{ __('student.notes.board.line') }}</button>
                 <button type="button" class="st-tool" data-tool="r" aria-pressed="false"><i class="fa-regular fa-square"></i> {{ __('student.notes.board.rect') }}</button>
@@ -61,17 +63,67 @@
                 <input type="range" id="b-size" class="st-range" min="1" max="60" value="6" aria-label="{{ __('student.notes.board.size') }}">
                 <span class="lbl" id="b-sizev">6</span>
                 <span class="st-sep"></span>
+                <span class="lbl">{{ __('student.notes.board.opacity') }}</span>
+                <input type="range" id="b-alpha" class="st-range" min="5" max="100" value="100" aria-label="{{ __('student.notes.board.opacity') }}">
+                <span class="lbl" id="b-alphav">100%</span>
+                <span class="lbl">{{ __('student.notes.board.stroke') }}</span>
+                <select id="b-dash" class="st-select" aria-label="{{ __('student.notes.board.stroke') }}">
+                    <option value="0">{{ __('student.notes.board.solid') }}</option>
+                    <option value="1">{{ __('student.notes.board.dashed') }}</option>
+                    <option value="2">{{ __('student.notes.board.dotted') }}</option>
+                </select>
+                <label class="st-check"><input type="checkbox" id="b-smooth" checked> {{ __('student.notes.board.smooth') }}</label>
+                <span class="st-sep"></span>
                 <button type="button" class="st-btn" id="b-undo"><i class="fa-solid fa-rotate-left"></i> {{ __('student.notes.board.undo') }}</button>
+                <button type="button" class="st-btn" id="b-redo"><i class="fa-solid fa-rotate-right"></i> {{ __('student.notes.board.redo') }}</button>
                 <button type="button" class="st-btn" id="b-clear"><i class="fa-regular fa-trash-can"></i> {{ __('student.notes.board.clear') }}</button>
+                <label class="lbl" for="b-zoom">{{ __('student.notes.board.view_size') }}</label>
+                <input type="range" id="b-zoom" class="st-range" min="50" max="100" step="5" value="100">
+                <span class="lbl" id="b-zoomv">100%</span>
+                <button type="button" class="st-btn" id="b-fs"><i class="fa-solid fa-expand"></i> {{ __('student.notes.board.fullscreen') }}</button>
                 <button type="button" class="st-btn" id="b-dl"><i class="fa-solid fa-floppy-disk"></i> {{ __('student.notes.board.download') }}</button>
                 <span class="st-bstatus" id="b-status" aria-live="polite"></span>
             </div>
-            <div class="st-canvas-wrap"><canvas id="b-canvas" class="st-canvas" width="1600" height="900"></canvas></div>
+            <div class="st-bbar st-imgbar" id="b-imgbar" hidden>
+                <span class="lbl"><i class="fa-regular fa-image"></i> {{ __('student.notes.board.img.panel') }}</span>
+                <label class="lbl" for="b-i-rot">{{ __('student.notes.board.img.rotate') }}</label>
+                <input type="range" id="b-i-rot" class="st-range" min="-180" max="180" value="0">
+                <span class="lbl" id="b-i-rotv">0°</span>
+                <label class="lbl" for="b-i-alpha">{{ __('student.notes.board.opacity') }}</label>
+                <input type="range" id="b-i-alpha" class="st-range" min="5" max="100" value="100">
+                <span class="lbl" id="b-i-alphav">100%</span>
+                <button type="button" class="st-btn" id="b-i-down" title="{{ __('student.notes.board.img.scale_down') }}" aria-label="{{ __('student.notes.board.img.scale_down') }}"><i class="fa-solid fa-magnifying-glass-minus"></i></button>
+                <button type="button" class="st-btn" id="b-i-up" title="{{ __('student.notes.board.img.scale_up') }}" aria-label="{{ __('student.notes.board.img.scale_up') }}"><i class="fa-solid fa-magnifying-glass-plus"></i></button>
+                <button type="button" class="st-btn" id="b-i-fx" title="{{ __('student.notes.board.img.flip_h') }}" aria-label="{{ __('student.notes.board.img.flip_h') }}"><i class="fa-solid fa-left-right"></i></button>
+                <button type="button" class="st-btn" id="b-i-fy" title="{{ __('student.notes.board.img.flip_v') }}" aria-label="{{ __('student.notes.board.img.flip_v') }}"><i class="fa-solid fa-up-down"></i></button>
+                <button type="button" class="st-btn" id="b-i-front" title="{{ __('student.notes.board.img.front') }}" aria-label="{{ __('student.notes.board.img.front') }}"><i class="fa-solid fa-arrow-up-from-bracket"></i></button>
+                <button type="button" class="st-btn" id="b-i-back" title="{{ __('student.notes.board.img.back') }}" aria-label="{{ __('student.notes.board.img.back') }}"><i class="fa-solid fa-arrow-down-to-line"></i></button>
+                <button type="button" class="st-btn" id="b-i-dup" title="{{ __('student.notes.board.img.duplicate') }}" aria-label="{{ __('student.notes.board.img.duplicate') }}"><i class="fa-regular fa-clone"></i></button>
+                <label class="st-check"><input type="checkbox" id="b-i-lock" checked> {{ __('student.notes.board.img.lock') }}</label>
+                <button type="button" class="st-btn" id="b-i-reset"><i class="fa-solid fa-rotate-left"></i> {{ __('student.notes.board.img.reset') }}</button>
+                <button type="button" class="st-btn st-danger" id="b-i-del"><i class="fa-regular fa-trash-can"></i> {{ __('student.notes.board.img.delete') }}</button>
+                <span class="lbl st-hint">{{ __('student.notes.board.img.hint') }}</span>
+            </div>
+            <div class="st-canvas-wrap" id="b-wrap"><canvas id="b-canvas" class="st-canvas" width="1600" height="900"></canvas>
+                <div class="st-fsctl" id="b-fsctl" hidden>
+                    <button type="button" class="st-fsbtn" id="b-fs-tools" aria-pressed="false" title="{{ __('student.notes.board.hide_tools') }}" aria-label="{{ __('student.notes.board.hide_tools') }}"><i class="fa-solid fa-sliders"></i></button>
+                    <button type="button" class="st-fsbtn" id="b-fs-exit" title="{{ __('student.notes.board.exit_fullscreen') }}" aria-label="{{ __('student.notes.board.exit_fullscreen') }}"><i class="fa-solid fa-compress"></i></button>
+                </div>
+            </div>
         </div>
     </section>
 </div>
 
-<script type="application/json" id="st-config">@json(['labels' => __('student.notes'), 'data' => ['courses' => $courses, 'notes' => $notes, 'pages' => $pages], 'csrf' => csrf_token(),
-    'urls' => ['notes' => route('student.notes.store'), 'note' => route('student.notes.show', 0), 'pages' => route('student.board.store'), 'page' => route('student.board.show', 0)]],
-    JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT)</script>
+@php
+    $stConfig = [
+        'labels' => __('student.notes'),
+        'data'   => ['courses' => $courses, 'notes' => $notes, 'pages' => $pages],
+        'csrf'   => csrf_token(),
+        'urls'   => [
+            'notes' => route('student.notes.store'), 'note' => route('student.notes.show', 0),
+            'pages' => route('student.board.store'), 'page' => route('student.board.show', 0),
+        ],
+    ];
+@endphp
+<script type="application/json" id="st-config">@json($stConfig, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT)</script>
 @include('student.partials.asset', ['type' => 'js', 'file' => 'notes'])
